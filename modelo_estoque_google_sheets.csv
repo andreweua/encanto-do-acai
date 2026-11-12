@@ -1,0 +1,21 @@
+id,categoria,nome,preco,estoque,ativo
+copo-200,copo,200 ml,10.00,20,SIM
+copo-300,copo,300 ml,13.00,20,SIM
+copo-400,copo,400 ml,15.00,20,SIM
+copo-500,copo,500 ml,17.00,20,SIM
+copo-700,copo,700 ml,20.00,20,SIM
+gratis-banana,adicional_gratis,Banana,0.00,30,SIM
+gratis-pacoca,adicional_gratis,Paçoca,0.00,30,SIM
+gratis-bis,adicional_gratis,Bis,0.00,25,SIM
+gratis-calda-chocolate,adicional_gratis,Calda de chocolate,0.00,25,SIM
+gratis-calda-morango,adicional_gratis,Calda de morango,0.00,25,SIM
+gratis-chantilly,adicional_gratis,Chantilly,0.00,20,SIM
+gratis-mousse-maracuja,adicional_gratis,Mousse de maracujá,0.00,20,SIM
+gratis-mousse-morango,adicional_gratis,Mousse de morango,0.00,20,SIM
+gratis-leite-em-po,adicional_gratis,Leite em pó,0.00,30,SIM
+gratis-leite-condensado,adicional_gratis,Leite condensado,0.00,30,SIM
+pago-nutella,adicional_pago,Nutella,5.00,15,SIM
+pago-creme-ninho,adicional_pago,Creme de Ninho,5.00,15,SIM
+pago-leite-ninho,adicional_pago,Leite Ninho,3.00,20,SIM
+pago-fini,adicional_pago,Fini,2.00,20,SIM
+pago-morango,adicional_pago,Morango,3.00,15,SIM
