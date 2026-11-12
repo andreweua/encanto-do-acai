@@ -38,7 +38,7 @@
         if (!numeroAtual) {
             el.resultadoPedido.innerHTML = `
                 <div class="bg-white rounded-3xl p-6 border border-slate-200 text-center text-sm text-slate-500">
-                    Digite o número do seu pedido acima (ex.: <strong>12112026-001</strong>) para ver o andamento e sua posição na fila.
+                    Digite o número do seu pedido acima (ex.: <strong>20261112-001</strong>) para ver o andamento e sua posição na fila.
                 </div>
             `;
             return;

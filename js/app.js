@@ -698,7 +698,7 @@
         const dd = String(dataRef.getDate()).padStart(2, '0');
         const mm = String(dataRef.getMonth() + 1).padStart(2, '0');
         const yyyy = String(dataRef.getFullYear());
-        return `${dd}${mm}${yyyy}-001`;
+        return `${yyyy}${mm}${dd}-001`;
     }
 
     function construirLinkAcompanhamento(numeroPedido) {

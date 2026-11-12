@@ -182,7 +182,7 @@ function lerPedidosDaAba(aba) {
 
 function gerarNumeroPedido(abaPedidos) {
   const agora = new Date();
-  const dataPrefixo = Utilities.formatDate(agora, TIMEZONE_LOJA, 'ddMMyyyy');
+  const dataPrefixo = Utilities.formatDate(agora, TIMEZONE_LOJA, 'yyyyMMdd');
   const pedidos = lerPedidosDaAba(abaPedidos);
 
   let maiorSeq = 0;
