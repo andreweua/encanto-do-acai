@@ -49,8 +49,13 @@
         el.selectPagamento = document.getElementById('forma-pagamento');
         el.campoTrocoWrapper = document.getElementById('campo-troco-wrapper');
         el.inputTroco = document.getElementById('cliente-troco');
+        el.inputWhatsapp = document.getElementById('cliente-whatsapp');
         el.alertaPedido = document.getElementById('alerta-pedido');
         el.btnEnviarWhatsapp = document.getElementById('btn-enviar-whatsapp');
+        el.cardPedidoRegistrado = document.getElementById('pedido-registrado-card');
+        el.numeroPedidoRegistrado = document.getElementById('pedido-registrado-numero');
+        el.linkAcompanharPedido = document.getElementById('link-acompanhar-pedido');
+        el.linkReabrirWhatsapp = document.getElementById('link-reabrir-whatsapp');
         el.toast = document.getElementById('toast-feedback');
         el.barraPedidoRapido = document.getElementById('barra-pedido-rapido');
         el.barraPedidoTexto = document.getElementById('barra-pedido-texto');
@@ -689,7 +694,26 @@
         return `${esq.slice(0, maxEsq)} ${dir}`;
     }
 
-    function gerarMensagemWhatsApp(itensPedido, dataRef = new Date()) {
+    function gerarNumeroFallback(dataRef = new Date()) {
+        const dd = String(dataRef.getDate()).padStart(2, '0');
+        const mm = String(dataRef.getMonth() + 1).padStart(2, '0');
+        const yyyy = String(dataRef.getFullYear());
+        return `${dd}${mm}${yyyy}-001`;
+    }
+
+    function construirLinkAcompanhamento(numeroPedido) {
+        const query = `acompanhar.html?pedido=${encodeURIComponent(numeroPedido)}`;
+        try {
+            if (typeof window !== 'undefined' && window.location && /^https?:/.test(window.location.href)) {
+                return new URL(query, window.location.href).href;
+            }
+        } catch {
+            // Fallback relativo caso window.location não esteja disponível
+        }
+        return query;
+    }
+
+    function gerarMensagemWhatsApp(itensPedido, dataRef = new Date(), numeroOficial = '') {
         const LARGURA = 34;
         const SEP_DUPLO = '='.repeat(LARGURA);
         const SEP_SIMPLES = '-'.repeat(LARGURA);
@@ -702,7 +726,7 @@
 
         const dataStr = dataRef.toLocaleDateString('pt-BR');
         const horaStr = dataRef.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        const numeroPedido = `#${String(dataRef.getHours()).padStart(2, '0')}${String(dataRef.getMinutes()).padStart(2, '0')}${String(dataRef.getSeconds()).padStart(2, '0')}`;
+        const numeroPedido = String(numeroOficial || '').trim() || gerarNumeroFallback(dataRef);
 
         const cupom = [
             SEP_DUPLO,
@@ -710,7 +734,7 @@
             centralizarTexto('CUPOM DE PEDIDO', LARGURA),
             SEP_DUPLO,
             formatarLinhaColunas(`Data: ${dataStr}`, `Hora: ${horaStr}`, LARGURA),
-            `Pedido: ${numeroPedido}`,
+            `Pedido: #${numeroPedido}`,
             SEP_SIMPLES,
             formatarLinhaColunas('QTD DESCRIÇÃO', 'VALOR', LARGURA),
             SEP_SIMPLES,
@@ -783,10 +807,56 @@
         cupom.push(centralizarTexto(`Soluções Digitais. ${versao}`, LARGURA));
         cupom.push(SEP_DUPLO);
 
-        return `*NOVO PEDIDO - ENCANTO DO AÇAÍ*\n\`\`\`\n${cupom.join('\n')}\n\`\`\``;
+        const linkAcompanhamento = construirLinkAcompanhamento(numeroPedido);
+        return `*NOVO PEDIDO - ENCANTO DO AÇAÍ*\n\`\`\`\n${cupom.join('\n')}\n\`\`\`\n\nAcompanhe seu pedido:\n${linkAcompanhamento}`;
     }
 
-    function finalizarNoWhatsapp() {
+    async function registrarPedidoNaPlanilha(itensPedido, nome, whatsapp, tipoEntrega, endereco, pagamento, troco) {
+        const urlScript = String(config.APPS_SCRIPT_URL || '').trim();
+        if (!urlScript || typeof fetch !== 'function') {
+            return { ok: false };
+        }
+
+        const total = itensPedido.reduce((acc, item) => acc + Number(item.subtotal || 0), 0);
+        const payload = {
+            action: 'criar_pedido',
+            pedido: {
+                clienteNome: nome,
+                clienteWhatsapp: whatsapp,
+                tipoEntrega,
+                endereco,
+                pagamento,
+                troco,
+                total,
+                itens: itensPedido.map((item) => ({
+                    copoId: item.copoId,
+                    copoNome: item.copoNome,
+                    volumeMl: item.volumeMl || extrairVolumeMl(item.copoId || item.copoNome),
+                    gratisIds: item.gratisIds || [],
+                    gratisNomes: item.gratisNomes || [],
+                    pagosIds: item.pagosIds || [],
+                    pagosNomes: item.pagosNomes || [],
+                    observacao: item.observacao || '',
+                    subtotal: Number(item.subtotal || 0),
+                })),
+            },
+        };
+
+        try {
+            const resp = await fetch(urlScript, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload),
+            });
+            if (!resp.ok) return { ok: false };
+            const data = await resp.json();
+            return data && data.ok ? data : { ok: false };
+        } catch {
+            return { ok: false };
+        }
+    }
+
+    async function finalizarNoWhatsapp() {
         mostrarAlertaPedido('');
 
         const itensPedido = obterItensParaPedido();
@@ -804,14 +874,69 @@
         }
 
         const tipoEntrega = obterTipoEntrega();
-        if (tipoEntrega === 'Entrega' && !el.inputEndereco.value.trim()) {
+        const endereco = el.inputEndereco.value.trim();
+        if (tipoEntrega === 'Entrega' && !endereco) {
             mostrarAlertaPedido('Informe o endereço completo para entrega (ou selecione Retirada).');
             el.inputEndereco.focus();
             return;
         }
 
-        const mensagem = gerarMensagemWhatsApp(itensPedido);
+        const whatsapp = el.inputWhatsapp ? el.inputWhatsapp.value.trim() : '';
+        const pagamento = el.selectPagamento.value;
+        const troco = el.inputTroco.value.trim();
+
+        const textoOriginalBtn = el.btnEnviarWhatsapp ? el.btnEnviarWhatsapp.innerHTML : '';
+        if (el.btnEnviarWhatsapp) {
+            el.btnEnviarWhatsapp.disabled = true;
+            el.btnEnviarWhatsapp.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Registrando pedido...';
+        }
+
+        const agora = new Date();
+        let numeroPedido = gerarNumeroFallback(agora);
+        try {
+            const registro = await registrarPedidoNaPlanilha(
+                itensPedido,
+                nome,
+                whatsapp,
+                tipoEntrega,
+                endereco,
+                pagamento,
+                troco
+            );
+            if (registro.ok && registro.numero) {
+                numeroPedido = String(registro.numero);
+            }
+        } finally {
+            if (el.btnEnviarWhatsapp) {
+                el.btnEnviarWhatsapp.disabled = false;
+                el.btnEnviarWhatsapp.innerHTML = textoOriginalBtn;
+            }
+        }
+
+        try {
+            if (typeof localStorage !== 'undefined') {
+                localStorage.setItem('encanto_ultimo_pedido', numeroPedido);
+            }
+        } catch {
+            // Ignora erro de storage bloqueado
+        }
+
+        const mensagem = gerarMensagemWhatsApp(itensPedido, agora, numeroPedido);
         const url = `https://wa.me/${config.WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
+
+        if (el.cardPedidoRegistrado) {
+            el.cardPedidoRegistrado.hidden = false;
+        }
+        if (el.numeroPedidoRegistrado) {
+            el.numeroPedidoRegistrado.textContent = `#${numeroPedido}`;
+        }
+        if (el.linkAcompanharPedido) {
+            el.linkAcompanharPedido.href = `acompanhar.html?pedido=${encodeURIComponent(numeroPedido)}`;
+        }
+        if (el.linkReabrirWhatsapp) {
+            el.linkReabrirWhatsapp.href = url;
+        }
+
         window.open(url, '_blank', 'noopener,noreferrer');
     }
 

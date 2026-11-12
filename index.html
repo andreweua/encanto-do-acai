@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -94,13 +94,17 @@
             <a href="#" class="flex items-center gap-2">
                 <span class="font-display text-2xl text-white tracking-wide">ENCANTO <span class="font-script text-acai-yellow text-3xl font-normal lowercase ml-1">do Açaí</span></span>
             </a>
-            <div class="flex items-center gap-3">
-                <a href="#cardapio" class="hidden sm:inline-flex items-center gap-2 text-white/90 hover:text-acai-yellow font-semibold text-sm px-3 py-2 transition-colors">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="#cardapio" class="hidden md:inline-flex items-center gap-2 text-white/90 hover:text-acai-yellow font-semibold text-sm px-3 py-2 transition-colors">
                     Monte seu Açaí
+                </a>
+                <a href="./acompanhar.html" class="inline-flex items-center gap-1.5 text-white/90 hover:text-acai-yellow font-semibold text-xs sm:text-sm px-2.5 py-2 transition-colors">
+                    <i class="fa-solid fa-clock-rotate-left text-acai-yellow"></i>
+                    <span>Acompanhar Fila</span>
                 </a>
                 <a href="https://wa.me/5535997147481?text=Ol%C3%A1!%20Gostaria%20de%20fazer%20um%20pedido." target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 bg-acai-magenta hover:bg-pink-600 text-white font-bold px-4 sm:px-5 py-2.5 rounded-full text-sm sm:text-base transition-transform hover:scale-105 shadow-[0_0_15px_rgba(227,0,90,0.5)]">
                     <i class="fa-brands fa-whatsapp text-lg"></i>
-                    <span>Fazer Pedido</span>
+                    <span class="hidden sm:inline">Fazer Pedido</span>
                 </a>
             </div>
         </div>
@@ -333,6 +337,18 @@
                     </div>
 
                     <div>
+                        <label for="cliente-whatsapp" class="block text-sm font-bold text-acai-dark mb-1.5">
+                            Seu WhatsApp (opcional, para aviso de pronto)
+                        </label>
+                        <input
+                            id="cliente-whatsapp"
+                            type="tel"
+                            placeholder="(35) 99999-9999"
+                            class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-acai-magenta focus:border-acai-magenta"
+                        >
+                    </div>
+
+                    <div>
                         <span class="block text-sm font-bold text-acai-dark mb-1.5">Recebimento</span>
                         <div class="grid grid-cols-2 gap-2">
                             <label class="flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-semibold cursor-pointer has-[:checked]:border-acai-magenta has-[:checked]:bg-pink-50 has-[:checked]:text-acai-magenta">
@@ -403,6 +419,25 @@
                         Enviar Pedido no WhatsApp
                     </button>
                 </div>
+
+                <!-- Confirmação Pós-Envio (Número do Pedido + Link da Fila) -->
+                <div id="pedido-registrado-card" class="hidden mt-6 rounded-2xl bg-emerald-50 border-2 border-emerald-400 p-5 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-emerald-700 block">Pedido registrado na fila!</span>
+                            <p class="font-display text-2xl text-acai-dark">Pedido #<span id="pedido-registrado-numero"></span></p>
+                        </div>
+                        <a id="link-acompanhar-pedido" href="./acompanhar.html" class="inline-flex items-center gap-2 bg-acai-dark hover:bg-purple-950 text-white font-bold px-5 py-2.5 rounded-full text-sm transition-colors">
+                            <i class="fa-solid fa-clock-rotate-left text-acai-yellow"></i> Acompanhar na Fila
+                        </a>
+                    </div>
+                    <p class="text-xs text-slate-600">
+                        Se o WhatsApp não abriu automaticamente no seu aparelho, toque no botão abaixo para enviar o cupom:
+                    </p>
+                    <a id="link-reabrir-whatsapp" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-full text-xs">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Abrir WhatsApp com Cupom
+                    </a>
+                </div>
             </div>
 
         </div>
@@ -449,7 +484,7 @@
                 Desenvolvido por:
                 <a href="https://github.com/andreweua" target="_blank" rel="noopener noreferrer" class="hover:text-gold-400 text-slate-400 transition font-medium">PereiraLabs - Divisão de Tecnologia e IA</a> |
                 <span class="text-slate-400 font-medium">Louzada & Pereira - Soluções Digitais</span>.
-                <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.4.2</a>
+                <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.5.0</a>
             </p>
         </div>
     </footer>
@@ -477,8 +512,8 @@
         <i class="fa-brands fa-whatsapp text-3xl"></i>
     </a>
 
-    <script src="./js/config.js?v=1.4.2"></script>
-    <script src="./js/estoque.js?v=1.4.2"></script>
-    <script src="./js/app.js?v=1.4.2"></script>
+    <script src="./js/config.js?v=1.5.0"></script>
+    <script src="./js/estoque.js?v=1.5.0"></script>
+    <script src="./js/app.js?v=1.5.0"></script>
 </body>
 </html>

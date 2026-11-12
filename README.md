@@ -20,16 +20,21 @@ Landing page e montador de pedidos interativo desenvolvido para o **Encanto do A
 .
 ├── index.html                           # Página principal + Montador de Pedidos
 ├── admin.html                           # Painel administrativo para editar e enviar estoque à planilha
+├── caixa.html                           # Painel do Caixa (confirmação de pedidos, baixa de estoque e retorno ao cliente)
+├── cozinha.html                         # Painel da Cozinha (fila de preparo e marcação de pedido pronto)
+├── acompanhar.html                      # Página pública para o cliente acompanhar o pedido e a fila
 ├── apps-script/
-│   └── Code.gs                          # Script do Google Sheets para leitura/escrita com PIN
+│   └── Code.gs                          # Script do Google Sheets para estoque, pedidos, fila e baixa automática
 ├── assets/
 │   ├── favicon.svg                      # Ícone da marca para navegador
 │   └── encanto-hero.jpg                 # Imagem do Hero e prévia Open Graph
 ├── js/
 │   ├── config.js                        # Configurações, URL do Apps Script/planilha e catálogo padrão
 │   ├── estoque.js                       # Leitura CSV/JSON do Google Sheets e regras de estoque
-│   ├── app.js                           # Montador interativo, sacola e envio em cupom no WhatsApp
-│   └── admin.js                         # Lógica do painel administrativo
+│   ├── app.js                           # Montador interativo, registro do pedido e envio em cupom no WhatsApp
+│   ├── admin.js                         # Lógica do painel administrativo de estoque
+│   ├── pedidos-painel.js                # Controlador compartilhado dos painéis Caixa e Cozinha
+│   └── acompanhar.js                    # Lógica da página pública de acompanhamento de fila e status
 ├── modelo_estoque_google_sheets.csv     # Planilha modelo opcional para importação manual
 ├── guia_de_estilos_encanto_do_a_a.md    # Guia de estilos e tokens visuais
 ├── README.md                            # Documentação do projeto
@@ -46,7 +51,15 @@ Landing page e montador de pedidos interativo desenvolvido para o **Encanto do A
 2. No menu da planilha, acesse **Extensões > Apps Script** e cole o código de [`apps-script/Code.gs`](./apps-script/Code.gs).
 3. Altere `ADMIN_PIN` na primeira linha de código para sua senha secreta.
 4. Clique em **Implantar > Nova implantação > App da Web** (Executar como: *Eu*; Quem pode acessar: *Qualquer pessoa*) e copie a URL gerada.
-5. Cole a URL em `APPS_SCRIPT_URL` no arquivo [`js/config.js`](./js/config.js) (ou diretamente na tela de [`admin.html`](./admin.html)) e clique em **Enviar para Planilha**. A planilha será preenchida automaticamente com cabeçalho e todos os itens.
+5. Sempre que atualizar [`apps-script/Code.gs`](./apps-script/Code.gs) no projeto, cole o novo código no editor do Apps Script e clique em **Implantar > Gerenciar implantações > Editar (ícone de lápis) > Nova versão > Implantar**.
+6. Cole a URL em `APPS_SCRIPT_URL` no arquivo [`js/config.js`](./js/config.js) (ou diretamente na tela de [`admin.html`](./admin.html)) e clique em **Enviar para Planilha**. A planilha será preenchida automaticamente com cabeçalho e todos os itens.
+
+### Fluxo de Pedidos (Caixa, Cozinha e Fila Pública)
+
+- **Cliente ([`index.html`](./index.html)):** Ao clicar em **Enviar Pedido no WhatsApp**, o pedido recebe o número diário `DDMMYYYY-NNN` (ex.: `12112026-001`), é gravado na aba `Pedidos` como `Aguardando Caixa` e abre o cupom no WhatsApp com o link de acompanhamento.
+- **Caixa ([`caixa.html`](./caixa.html)):** Confirma o pedido (`Em Preparo`), o que executa a **baixa automática e idempotente** de litros de açaí e adicionais no estoque; quando a Cozinha finaliza, notifica o cliente via WhatsApp e marca como `Concluído`.
+- **Cozinha ([`cozinha.html`](./cozinha.html)):** Visualiza os pedidos em aberto/preparo e marca como `Pronto`.
+- **Fila Pública ([`acompanhar.html`](./acompanhar.html)):** Permite que qualquer cliente acompanhe o andamento do seu pedido e a posição na fila em tempo real.
 
 ### Alternativa (somente leitura via CSV)
 

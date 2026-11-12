@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caixa | Encanto do Açaí</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#380B4E">
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Montserrat:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        acai: { dark: '#380B4E', magenta: '#E3005A', yellow: '#FFC107', cyan: '#00BFA5' },
+                        gold: { 400: '#e5c07b' },
+                    },
+                    fontFamily: {
+                        display: ['"Lilita One"', 'cursive'],
+                        script: ['"Pacifico"', 'cursive'],
+                        sans: ['"Montserrat"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body data-modo-painel="caixa" class="font-sans bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-acai-dark text-white border-b border-acai-magenta/40 shadow-lg sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="font-display text-xl sm:text-2xl tracking-wide">
+                    ENCANTO <span class="font-script text-acai-yellow font-normal lowercase">do Açaí</span>
+                </span>
+                <span class="bg-acai-yellow text-acai-dark text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase">Caixa</span>
+            </div>
+            <nav class="flex flex-wrap items-center gap-2 text-xs font-bold">
+                <a href="./admin.html" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">Estoque</a>
+                <a href="./caixa.html" class="px-3.5 py-2 rounded-full bg-acai-magenta text-white">Caixa</a>
+                <a href="./cozinha.html" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">Cozinha</a>
+                <a href="./acompanhar.html" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">Fila</a>
+                <a href="./index.html" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">Cardápio</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1">
+        <section class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="font-display text-2xl text-acai-dark">PAINEL DO CAIXA</h1>
+                <p class="text-xs text-slate-500">Confirme pedidos para baixar o estoque e avise o cliente quando a cozinha finalizar.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <input id="painel-pin" type="password" placeholder="PIN de Admin" class="rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-acai-magenta">
+                <button id="btn-painel-conectar" type="button" class="bg-acai-magenta hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-xl text-sm cursor-pointer">Entrar</button>
+                <button id="btn-painel-atualizar" type="button" class="bg-acai-dark hover:bg-purple-950 text-white font-bold px-4 py-2 rounded-xl text-sm cursor-pointer">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Atualizar
+                </button>
+                <span id="painel-status-texto" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600">Conectando...</span>
+            </div>
+        </section>
+
+        <div id="painel-conteudo"></div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-5 px-4 mt-8">
+        <p class="text-[10px] text-slate-500 text-center">
+            Desenvolvido por:
+            <a href="https://github.com/andreweua" target="_blank" rel="noopener noreferrer" class="hover:text-gold-400 text-slate-400 transition font-medium">PereiraLabs - Divisão de Tecnologia e IA</a> |
+            <span class="text-slate-400 font-medium">Louzada &amp; Pereira - Soluções Digitais</span>.
+            <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.5.0</a>
+        </p>
+    </footer>
+
+    <div id="painel-toast" aria-live="polite" class="fixed bottom-6 right-6 z-50 max-w-xs bg-acai-dark text-white text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300"></div>
+
+    <script src="./js/config.js?v=1.5.0"></script>
+    <script src="./js/pedidos-painel.js?v=1.5.0"></script>
+</body>
+</html>

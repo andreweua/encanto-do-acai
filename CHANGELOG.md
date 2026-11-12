@@ -5,6 +5,23 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.5.0] - 2026-11-12
+
+### Adicionado
+- **Fluxo completo de pedidos (Caixa + Cozinha + Fila Pública):**
+  - `caixa.html`: Painel do Caixa para confirmar pedidos (`Aguardando Caixa` -> `Em Preparo`), acompanhar pedidos prontos e notificar o cliente no WhatsApp antes de concluir (`Concluído`).
+  - `cozinha.html`: Painel da Cozinha em tempo real para preparar os pedidos confirmados pelo Caixa e marcá-los como `Pronto`.
+  - `acompanhar.html` + `js/acompanhar.js`: Página pública para o cliente acompanhar o status do seu pedido e a fila de espera em tempo real.
+  - `js/pedidos-painel.js`: Controlador compartilhado de pedidos para Caixa e Cozinha com atualização automática a cada 15 segundos e autenticação por PIN.
+- **Baixa automática de estoque no Google Sheets (`apps-script/Code.gs`):**
+  - Nova aba `Pedidos` criada automaticamente com controle de concorrência (`LockService`).
+  - Numeração sequencial diária no formato `DDMMYYYY-NNN` (ex.: `12112026-001`).
+  - Ao confirmar o pedido no Caixa (`Em Preparo`), o sistema deduz automaticamente os litros de açaí (`acai-litros`) e cada adicional (`gratisIds` e `pagosIds`) de forma idempotente (`estoqueBaixado = 'SIM'`).
+
+### Alterado
+- `index.html` e `js/app.js`: Registro automático do pedido na planilha antes de abrir o WhatsApp, exibição do cartão de pedido registrado com link para a fila (`acompanhar.html?pedido=...`) e inclusão do link no cupom.
+- `admin.html`: Navegação integrada entre `Estoque`, `Caixa`, `Cozinha`, `Fila` e `Cardápio`.
+
 ## [1.4.2] - 2026-11-12
 
 ### Corrigido

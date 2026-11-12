@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ConfiguraÃ§Ãµes gerais e catÃ¡logo padrÃ£o (fallback) do Encanto do AÃ§aÃ­.
  *
  * Para conectar sua planilha do Google Sheets:
@@ -9,7 +9,7 @@
  *    ou cole o link CSV publicado em `GOOGLE_SHEET_CSV_URL`.
  */
 window.ENCANTO_CONFIG = {
-    APP_VERSION: 'v1.4.2',
+    APP_VERSION: 'v1.5.0',
     WHATSAPP_NUMBER: '5535997147481',
     STORE_NAME: 'Encanto do AÃ§aÃ­',
     OPENING_HOURS: 'Aberto a partir das 16:40',
