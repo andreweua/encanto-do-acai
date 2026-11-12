@@ -715,9 +715,17 @@
             quebrarTexto(`Troco:   ${troco}`, LARGURA).forEach((l) => cupom.push(l));
         }
 
+        const versao = String(config.APP_VERSION || 'v1.2.2').trim();
+
         cupom.push(SEP_DUPLO);
         cupom.push(centralizarTexto('Obrigado pela preferência!', LARGURA));
         cupom.push(centralizarTexto('WhatsApp: (35) 99714-7481', LARGURA));
+        cupom.push(SEP_SIMPLES);
+        cupom.push(centralizarTexto('Desenvolvido por:', LARGURA));
+        cupom.push(centralizarTexto('PereiraLabs - Divisão de', LARGURA));
+        cupom.push(centralizarTexto('Tecnologia e IA |', LARGURA));
+        cupom.push(centralizarTexto('Louzada & Pereira -', LARGURA));
+        cupom.push(centralizarTexto(`Soluções Digitais. ${versao}`, LARGURA));
         cupom.push(SEP_DUPLO);
 
         return `*NOVO PEDIDO - ENCANTO DO AÇAÍ*\n\`\`\`\n${cupom.join('\n')}\n\`\`\``;
