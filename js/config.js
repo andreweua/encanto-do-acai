@@ -12,6 +12,10 @@ window.ENCANTO_CONFIG = {
     WHATSAPP_NUMBER: '5535997147481',
     STORE_NAME: 'Encanto do Açaí',
     OPENING_HOURS: 'Aberto a partir das 16:40',
+    STORE_ADDRESS: '',
+    GOOGLE_MAPS_URL: '',
+    GOOGLE_MAPS_EMBED_URL: '',
+    INSTAGRAM_URL: '',
 
     // Cole aqui o ID da planilha (trecho entre /d/ e /edit) ou a URL completa do Google Sheets
     GOOGLE_SHEET_ID: '',

@@ -3,7 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encanto do Açaí | O Melhor Açaí</title>
+    <title>Encanto do Açaí | Monte seu Açaí Online</title>
+    <meta name="description" content="Monte o seu açaí perfeito no Encanto do Açaí! Copos de 200 ml a 700 ml, adicionais grátis e pagos com disponibilidade atualizada e pedido rápido no WhatsApp.">
+    <meta name="theme-color" content="#380B4E">
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+
+    <!-- Open Graph / WhatsApp / Instagram -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Encanto do Açaí">
+    <meta property="og:title" content="Encanto do Açaí | Monte seu Açaí Online">
+    <meta property="og:description" content="Aberto a partir das 16:40. Escolha seu copo, personalize com adicionais e envie seu pedido direto no WhatsApp!">
+    <meta property="og:url" content="https://andreweua.github.io/encanto-do-acai/">
+    <meta property="og:image" content="https://andreweua.github.io/encanto-do-acai/assets/encanto-hero.jpg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="Copo cremoso de açaí com banana, morango, chocolate e leite condensado do Encanto do Açaí">
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Encanto do Açaí | Monte seu Açaí Online">
+    <meta name="twitter:description" content="Aberto a partir das 16:40. Monte seu copo perfeito e peça pelo WhatsApp!">
+    <meta name="twitter:image" content="https://andreweua.github.io/encanto-do-acai/assets/encanto-hero.jpg">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
@@ -87,23 +107,41 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 pattern-bg text-center px-4 overflow-hidden">
-        <div class="max-w-3xl mx-auto relative z-10">
-            <div class="inline-block animate-bounce mb-4">
-                <span class="bg-acai-yellow text-acai-dark font-bold px-4 py-1.5 rounded-full text-sm uppercase tracking-wider">Aberto a partir das 16:40</span>
+    <section class="relative pt-28 pb-20 lg:pt-36 lg:pb-28 pattern-bg px-4 overflow-hidden">
+        <div class="max-w-5xl mx-auto relative z-10 grid lg:grid-cols-12 gap-10 items-center">
+            <div class="lg:col-span-7 text-center lg:text-left">
+                <div class="inline-block animate-bounce mb-4">
+                    <span class="bg-acai-yellow text-acai-dark font-bold px-4 py-1.5 rounded-full text-sm uppercase tracking-wider">Aberto a partir das 16:40</span>
+                </div>
+                <h1 class="font-display text-5xl sm:text-6xl lg:text-7xl text-white mb-4 tracking-wide leading-tight">
+                    Sabor que <span class="text-acai-magenta text-glow">Encanta!</span>
+                </h1>
+                <p class="font-script text-acai-yellow text-3xl sm:text-4xl mb-6 lg:-rotate-1">
+                    Monte o seu açaí perfeito...
+                </p>
+                <p class="text-slate-200 text-base sm:text-lg mb-8 max-w-xl mx-auto lg:mx-0 font-medium">
+                    Ingredientes selecionados, cremosidade incomparável e os melhores acompanhamentos para refrescar o seu dia.
+                </p>
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                    <a href="#cardapio" class="inline-flex items-center gap-2 bg-acai-yellow hover:bg-yellow-400 text-acai-dark font-bold px-8 py-4 rounded-full text-lg transition-transform hover:-translate-y-1 shadow-xl">
+                        Montar Meu Açaí <i class="fa-solid fa-arrow-down"></i>
+                    </a>
+                    <a href="#atendimento" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-semibold px-6 py-4 rounded-full text-base transition-colors">
+                        <i class="fa-solid fa-circle-info text-acai-cyan"></i> Pagamento & Horário
+                    </a>
+                </div>
             </div>
-            <h1 class="font-display text-5xl sm:text-7xl text-white mb-4 tracking-wide leading-tight">
-                Sabor que <span class="text-acai-magenta text-glow">Encanta!</span>
-            </h1>
-            <p class="font-script text-acai-yellow text-3xl sm:text-4xl mb-8 -rotate-2">
-                Monte o seu açaí perfeito...
-            </p>
-            <p class="text-slate-200 text-lg mb-10 max-w-xl mx-auto font-medium">
-                Ingredientes selecionados, cremosidade incomparável e os melhores acompanhamentos para refrescar o seu dia.
-            </p>
-            <a href="#cardapio" class="inline-flex items-center gap-2 bg-acai-yellow hover:bg-yellow-400 text-acai-dark font-bold px-8 py-4 rounded-full text-lg transition-transform hover:-translate-y-1 shadow-xl">
-                Montar Meu Açaí <i class="fa-solid fa-arrow-down"></i>
-            </a>
+
+            <div class="lg:col-span-5">
+                <div class="relative max-w-md mx-auto">
+                    <div class="absolute -inset-2 bg-gradient-to-tr from-acai-magenta via-acai-yellow to-acai-cyan rounded-3xl blur-lg opacity-45"></div>
+                    <img
+                        src="./assets/encanto-hero.jpg"
+                        alt="Copo de açaí cremoso com banana, morango, calda de chocolate e leite condensado"
+                        class="relative w-full h-auto rounded-3xl border-2 border-white/20 shadow-2xl object-cover"
+                    >
+                </div>
+            </div>
         </div>
 
         <!-- Shape divider -->
@@ -111,6 +149,60 @@
             <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
                 <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
             </svg>
+        </div>
+    </section>
+
+    <!-- Informações de Atendimento e Pagamento -->
+    <section id="atendimento" class="bg-white border-b border-slate-200 py-8 px-4">
+        <div class="max-w-5xl mx-auto grid sm:grid-cols-3 gap-4">
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span class="w-11 h-11 rounded-full bg-acai-yellow/20 text-acai-dark flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-regular fa-clock"></i>
+                </span>
+                <div>
+                    <h2 class="font-bold text-sm text-acai-dark uppercase tracking-wide">Funcionamento</h2>
+                    <p class="text-sm text-slate-600">Aberto a partir das 16:40</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span class="w-11 h-11 rounded-full bg-acai-cyan/15 text-acai-cyan flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-wallet"></i>
+                </span>
+                <div>
+                    <h2 class="font-bold text-sm text-acai-dark uppercase tracking-wide">Pagamentos</h2>
+                    <p class="text-sm text-slate-600">Pix, Cartão e Dinheiro</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span class="w-11 h-11 rounded-full bg-acai-magenta/15 text-acai-magenta flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-motorcycle"></i>
+                </span>
+                <div>
+                    <h2 class="font-bold text-sm text-acai-dark uppercase tracking-wide">Entrega ou Retirada</h2>
+                    <p class="text-sm text-slate-600">Pedido direto no WhatsApp</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloco opcional de Endereço / Google Maps (exibido quando configurado em js/config.js) -->
+        <div id="bloco-localizacao" class="hidden max-w-5xl mx-auto mt-6 p-5 rounded-2xl bg-purple-50/60 border border-acai-dark/15">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <i class="fa-solid fa-location-dot text-acai-magenta text-xl mt-0.5"></i>
+                    <div>
+                        <h3 class="font-bold text-sm text-acai-dark uppercase tracking-wide">Onde Estamos</h3>
+                        <p id="texto-endereco-loja" class="text-sm text-slate-700 font-medium"></p>
+                    </div>
+                </div>
+                <a id="link-mapa-loja" href="#" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center gap-2 bg-acai-dark hover:bg-purple-950 text-white text-xs font-bold px-4 py-2.5 rounded-full transition-colors shrink-0">
+                    <i class="fa-solid fa-map-location-dot"></i> Abrir no Google Maps
+                </a>
+            </div>
+            <div id="mapa-embed-wrapper" class="hidden mt-4 rounded-xl overflow-hidden border border-slate-200">
+                <iframe id="mapa-embed-iframe" title="Localização do Encanto do Açaí" class="w-full h-56 border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
         </div>
     </section>
 
@@ -342,8 +434,11 @@
 
                 <div class="flex flex-col items-center md:items-start">
                     <h4 class="font-bold text-white mb-4 uppercase tracking-wider text-sm">Contato</h4>
-                    <a href="https://wa.me/5535997147481" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-sm hover:text-white transition-colors">
+                    <a href="https://wa.me/5535997147481" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-sm hover:text-white transition-colors mb-2">
                         <i class="fa-brands fa-whatsapp text-green-400 text-lg"></i> (35) 99714-7481
+                    </a>
+                    <a id="link-instagram" href="#" target="_blank" rel="noopener noreferrer" class="hidden flex items-center gap-2 text-sm hover:text-white transition-colors">
+                        <i class="fa-brands fa-instagram text-pink-400 text-lg"></i> Instagram
                     </a>
                 </div>
 
@@ -354,10 +449,21 @@
                 Desenvolvido por:
                 <a href="https://github.com/andreweua" target="_blank" rel="noopener noreferrer" class="hover:text-gold-400 text-slate-400 transition font-medium">PereiraLabs - Divisão de Tecnologia e IA</a> |
                 <span class="text-slate-400 font-medium">Louzada & Pereira - Soluções Digitais</span>.
-                <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.1.0</a>
+                <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.2.0</a>
             </p>
         </div>
     </footer>
+
+    <!-- Barra Flutuante de Resumo do Pedido -->
+    <a
+        id="barra-pedido-rapido"
+        href="#pedido"
+        class="hidden fixed bottom-6 left-6 z-40 bg-acai-dark hover:bg-purple-950 text-white font-bold px-4 py-3 rounded-full shadow-2xl border-2 border-acai-yellow flex items-center gap-2.5 text-sm transition-transform hover:scale-105"
+    >
+        <i class="fa-solid fa-bag-shopping text-acai-yellow"></i>
+        <span id="barra-pedido-texto">0 copos • R$ 0,00</span>
+        <span class="text-acai-yellow text-xs uppercase tracking-wider">Finalizar</span>
+    </a>
 
     <!-- Toast de Feedback -->
     <div

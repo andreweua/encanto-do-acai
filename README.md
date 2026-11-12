@@ -19,8 +19,11 @@ Landing page e montador de pedidos interativo desenvolvido para o **Encanto do A
 ```text
 .
 ├── index.html                           # Página principal + Montador de Pedidos
+├── assets/
+│   ├── favicon.svg                      # Ícone da marca para navegador
+│   └── encanto-hero.jpg                 # Imagem do Hero e prévia Open Graph
 ├── js/
-│   ├── config.js                        # Configurações, ID da planilha e catálogo padrão
+│   ├── config.js                        # Configurações, ID da planilha, endereço e catálogo padrão
 │   ├── estoque.js                       # Leitura/parser CSV do Google Sheets e regras de estoque
 │   └── app.js                           # Montador interativo, sacola e envio no WhatsApp
 ├── modelo_estoque_google_sheets.csv     # Planilha modelo pronta para importar no Google Sheets

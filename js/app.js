@@ -48,6 +48,14 @@
         el.alertaPedido = document.getElementById('alerta-pedido');
         el.btnEnviarWhatsapp = document.getElementById('btn-enviar-whatsapp');
         el.toast = document.getElementById('toast-feedback');
+        el.barraPedidoRapido = document.getElementById('barra-pedido-rapido');
+        el.barraPedidoTexto = document.getElementById('barra-pedido-texto');
+        el.blocoLocalizacao = document.getElementById('bloco-localizacao');
+        el.textoEnderecoLoja = document.getElementById('texto-endereco-loja');
+        el.linkMapaLoja = document.getElementById('link-mapa-loja');
+        el.mapaEmbedWrapper = document.getElementById('mapa-embed-wrapper');
+        el.mapaEmbedIframe = document.getElementById('mapa-embed-iframe');
+        el.linkInstagram = document.getElementById('link-instagram');
     }
 
     function escapeHtml(texto) {
@@ -392,6 +400,7 @@
                 </div>
             `;
             el.totalGeral.textContent = formatarMoeda(0);
+            atualizarBarraRapida(0, 0);
             return;
         }
 
@@ -436,6 +445,50 @@
         }).join('');
 
         el.totalGeral.textContent = formatarMoeda(somaTotal);
+        atualizarBarraRapida(itensPedido.length, somaTotal);
+    }
+
+    function atualizarBarraRapida(qtd, total) {
+        if (!el.barraPedidoRapido || !el.barraPedidoTexto) return;
+        if (qtd <= 0) {
+            el.barraPedidoRapido.classList.add('hidden');
+            return;
+        }
+        el.barraPedidoTexto.textContent = `${qtd} ${qtd === 1 ? 'copo' : 'copos'} • ${formatarMoeda(total)}`;
+        el.barraPedidoRapido.classList.remove('hidden');
+    }
+
+    function aplicarDadosLoja() {
+        const endereco = String(config.STORE_ADDRESS || '').trim();
+        const mapsUrl = String(config.GOOGLE_MAPS_URL || '').trim();
+        const mapsEmbed = String(config.GOOGLE_MAPS_EMBED_URL || '').trim();
+        const instaUrl = String(config.INSTAGRAM_URL || '').trim();
+
+        if (el.blocoLocalizacao) {
+            if (endereco || mapsUrl || mapsEmbed) {
+                el.blocoLocalizacao.classList.remove('hidden');
+                if (el.textoEnderecoLoja) {
+                    el.textoEnderecoLoja.textContent = endereco || 'Confira nossa localização no mapa';
+                }
+                if (el.linkMapaLoja) {
+                    if (mapsUrl) {
+                        el.linkMapaLoja.href = mapsUrl;
+                        el.linkMapaLoja.classList.remove('hidden');
+                    } else {
+                        el.linkMapaLoja.classList.add('hidden');
+                    }
+                }
+                if (el.mapaEmbedWrapper && el.mapaEmbedIframe && mapsEmbed) {
+                    el.mapaEmbedIframe.src = mapsEmbed;
+                    el.mapaEmbedWrapper.classList.remove('hidden');
+                }
+            }
+        }
+
+        if (el.linkInstagram && instaUrl) {
+            el.linkInstagram.href = instaUrl;
+            el.linkInstagram.classList.remove('hidden');
+        }
     }
 
     function renderStatusEstoque() {
@@ -701,6 +754,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         mapearElementos();
+        aplicarDadosLoja();
         atualizarCamposCondicionais();
         registrarEventos();
         carregarERenderizar(false);
