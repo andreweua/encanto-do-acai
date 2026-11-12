@@ -714,11 +714,8 @@
     }
 
     function gerarMensagemWhatsApp(itensPedido, dataRef = new Date(), numeroOficial = '') {
-        const LARGURA = 34;
-        const SEP_DUPLO = '='.repeat(LARGURA);
-        const SEP_SIMPLES = '-'.repeat(LARGURA);
-
         const nome = el.inputNome.value.trim();
+        const whatsapp = el.inputWhatsapp ? el.inputWhatsapp.value.trim() : '';
         const tipoEntrega = obterTipoEntrega();
         const endereco = el.inputEndereco.value.trim();
         const pagamento = el.selectPagamento.value;
@@ -727,17 +724,15 @@
         const dataStr = dataRef.toLocaleDateString('pt-BR');
         const horaStr = dataRef.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         const numeroPedido = String(numeroOficial || '').trim() || gerarNumeroFallback(dataRef);
+        const versao = String(config.APP_VERSION || 'v1.5.1').trim();
+        const linkAcompanhamento = construirLinkAcompanhamento(numeroPedido);
 
-        const cupom = [
-            SEP_DUPLO,
-            centralizarTexto('ENCANTO DO AÇAÍ', LARGURA),
-            centralizarTexto('CUPOM DE PEDIDO', LARGURA),
-            SEP_DUPLO,
-            formatarLinhaColunas(`Data: ${dataStr}`, `Hora: ${horaStr}`, LARGURA),
-            `Pedido: #${numeroPedido}`,
-            SEP_SIMPLES,
-            formatarLinhaColunas('QTD DESCRIÇÃO', 'VALOR', LARGURA),
-            SEP_SIMPLES,
+        const linhas = [
+            '*NOVO PEDIDO - ENCANTO DO AÇAÍ*',
+            `*Pedido:* #${numeroPedido}`,
+            `*Data:* ${dataStr} às ${horaStr}`,
+            '',
+            '*ITENS DO PEDIDO*',
         ];
 
         let totalGeral = 0;
@@ -746,69 +741,52 @@
             const { copo, gratisNomes, pagosItens, subtotal } = obterResumoCopo(item);
             totalGeral += subtotal;
 
-            const itemNum = String(index + 1).padStart(2, '0');
-            const nomeCopo = `Copo ${copo ? copo.nome : ''}`.trim();
-            cupom.push(formatarLinhaColunas(`${itemNum}  ${nomeCopo}`, formatarMoedaCupom(copo ? copo.preco : 0), LARGURA));
+            const nomeCopo = copo ? copo.nome : String(item.copoId || '');
+            const precoCopo = formatarMoedaCupom(copo ? copo.preco : 0);
 
-            gratisNomes.forEach((nomeGratis) => {
-                const linhasGratis = quebrarTexto(nomeGratis, LARGURA - 7, '    + ');
-                if (linhasGratis.length > 0) {
-                    cupom.push(formatarLinhaColunas(linhasGratis[0], 'GRÁTIS', LARGURA));
-                    linhasGratis.slice(1).forEach((extra) => cupom.push(extra));
-                }
-            });
+            linhas.push(`*${index + 1}. Copo ${nomeCopo}* — ${precoCopo}`);
+            linhas.push(`  • Grátis: ${gratisNomes.length ? gratisNomes.join(', ') : 'Nenhum'}`);
 
-            pagosItens.forEach((pago) => {
-                const valorStr = formatarMoedaCupom(pago.preco);
-                const linhasPago = quebrarTexto(pago.nome, LARGURA - valorStr.length - 1, '    + ');
-                if (linhasPago.length > 0) {
-                    cupom.push(formatarLinhaColunas(linhasPago[0], valorStr, LARGURA));
-                    linhasPago.slice(1).forEach((extra) => cupom.push(extra));
-                }
-            });
-
-            if (item.observacao) {
-                quebrarTexto(`Obs: ${item.observacao}`, LARGURA, '    ').forEach((l) => cupom.push(l));
+            if (pagosItens.length > 0) {
+                const pagosFormatados = pagosItens.map((p) => `${p.nome} (${formatarMoedaCupom(p.preco)})`);
+                linhas.push(`  • Pagos: ${pagosFormatados.join(', ')}`);
             }
 
-            cupom.push(formatarLinhaColunas('    Subtotal Item', formatarMoedaCupom(subtotal), LARGURA));
+            if (item.observacao) {
+                linhas.push(`  • Obs.: ${item.observacao}`);
+            }
+
+            linhas.push(`  Subtotal do item: *${formatarMoedaCupom(subtotal)}*`);
             if (index < itensPedido.length - 1) {
-                cupom.push('');
+                linhas.push('');
             }
         });
 
-        cupom.push(SEP_SIMPLES);
-        cupom.push(formatarLinhaColunas('QTD DE COPOS:', String(itensPedido.length).padStart(2, '0'), LARGURA));
-        cupom.push(formatarLinhaColunas('TOTAL A PAGAR:', formatarMoedaCupom(totalGeral), LARGURA));
-        cupom.push(SEP_DUPLO);
-
-        if (nome) {
-            quebrarTexto(`Cliente: ${nome}`, LARGURA).forEach((l) => cupom.push(l));
-        }
-        cupom.push(`Receb.:  ${tipoEntrega}`);
+        linhas.push('');
+        linhas.push('*RESUMO*');
+        linhas.push(`Quantidade de copos: ${itensPedido.length}`);
+        linhas.push(`*TOTAL A PAGAR: ${formatarMoedaCupom(totalGeral)}*`);
+        linhas.push('');
+        linhas.push('*DADOS DO CLIENTE*');
+        if (nome) linhas.push(`Cliente: ${nome}`);
+        if (whatsapp) linhas.push(`WhatsApp: ${whatsapp}`);
+        linhas.push(`Recebimento: ${tipoEntrega}`);
         if (tipoEntrega === 'Entrega' && endereco) {
-            quebrarTexto(`End.:    ${endereco}`, LARGURA).forEach((l) => cupom.push(l));
+            linhas.push(`Endereço: ${endereco}`);
         }
-        cupom.push(`Pagto.:  ${pagamento}`);
+        linhas.push(`Pagamento: ${pagamento}`);
         if (pagamento === 'Dinheiro' && troco) {
-            quebrarTexto(`Troco:   ${troco}`, LARGURA).forEach((l) => cupom.push(l));
+            linhas.push(`Troco para: ${troco}`);
         }
 
-        const versao = String(config.APP_VERSION || 'v1.2.2').trim();
+        linhas.push('');
+        linhas.push('*Acompanhe seu pedido em tempo real:*');
+        linhas.push(linkAcompanhamento);
+        linhas.push('');
+        linhas.push('_Obrigado pela preferência! WhatsApp: (35) 99714-7481_');
+        linhas.push(`_PereiraLabs - Divisão de Tecnologia e IA | Louzada & Pereira - Soluções Digitais (${versao})_`);
 
-        cupom.push(SEP_DUPLO);
-        cupom.push(centralizarTexto('Obrigado pela preferência!', LARGURA));
-        cupom.push(centralizarTexto('WhatsApp: (35) 99714-7481', LARGURA));
-        cupom.push(SEP_SIMPLES);
-        cupom.push(centralizarTexto('Desenvolvido por:', LARGURA));
-        cupom.push(centralizarTexto('PereiraLabs - Divisão de', LARGURA));
-        cupom.push(centralizarTexto('Tecnologia e IA |', LARGURA));
-        cupom.push(centralizarTexto('Louzada & Pereira -', LARGURA));
-        cupom.push(centralizarTexto(`Soluções Digitais. ${versao}`, LARGURA));
-        cupom.push(SEP_DUPLO);
-
-        const linkAcompanhamento = construirLinkAcompanhamento(numeroPedido);
-        return `*NOVO PEDIDO - ENCANTO DO AÇAÍ*\n\`\`\`\n${cupom.join('\n')}\n\`\`\`\n\nAcompanhe seu pedido:\n${linkAcompanhamento}`;
+        return linhas.join('\n');
     }
 
     async function registrarPedidoNaPlanilha(itensPedido, nome, whatsapp, tipoEntrega, endereco, pagamento, troco) {
@@ -817,7 +795,22 @@
             return { ok: false };
         }
 
-        const total = itensPedido.reduce((acc, item) => acc + Number(item.subtotal || 0), 0);
+        const itensDetalhados = itensPedido.map((item) => {
+            const { copo, gratisNomes, pagosItens, subtotal } = obterResumoCopo(item);
+            return {
+                copoId: item.copoId,
+                copoNome: copo ? copo.nome : String(item.copoId || ''),
+                volumeMl: extrairVolumeMl(copo || item.copoId),
+                gratisIds: item.gratisIds || [],
+                gratisNomes,
+                pagosIds: item.pagosIds || [],
+                pagosNomes: pagosItens.map((p) => p.nome),
+                observacao: item.observacao || '',
+                subtotal: Number(subtotal || 0),
+            };
+        });
+        const total = itensDetalhados.reduce((acc, item) => acc + Number(item.subtotal || 0), 0);
+
         const payload = {
             action: 'criar_pedido',
             pedido: {
@@ -828,17 +821,7 @@
                 pagamento,
                 troco,
                 total,
-                itens: itensPedido.map((item) => ({
-                    copoId: item.copoId,
-                    copoNome: item.copoNome,
-                    volumeMl: item.volumeMl || extrairVolumeMl(item.copoId || item.copoNome),
-                    gratisIds: item.gratisIds || [],
-                    gratisNomes: item.gratisNomes || [],
-                    pagosIds: item.pagosIds || [],
-                    pagosNomes: item.pagosNomes || [],
-                    observacao: item.observacao || '',
-                    subtotal: Number(item.subtotal || 0),
-                })),
+                itens: itensDetalhados,
             },
         };
 

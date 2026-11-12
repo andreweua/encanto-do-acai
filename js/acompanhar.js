@@ -92,10 +92,11 @@
             `;
 
         const itensHtml = (pedido.itensResumo || []).map((it, idx) => `
-            <li class="text-xs text-slate-600 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
-                <strong class="text-acai-dark">${idx + 1}. Copo ${escapeHtml(it.copoNome)}</strong> — ${escapeHtml(formatarMoeda(it.subtotal))}
-                ${it.gratisNomes && it.gratisNomes.length ? `<br><span>Grátis: ${escapeHtml(it.gratisNomes.join(', '))}</span>` : ''}
-                ${it.pagosNomes && it.pagosNomes.length ? `<br><span>Pagos: ${escapeHtml(it.pagosNomes.join(', '))}</span>` : ''}
+            <li class="text-xs text-slate-600 bg-slate-50 rounded-xl p-2.5 border border-slate-100 space-y-0.5">
+                <strong class="text-acai-dark block">${idx + 1}. Copo ${escapeHtml(it.copoNome || 'Personalizado')} — ${escapeHtml(formatarMoeda(it.subtotal))}</strong>
+                <span><strong>Grátis:</strong> ${it.gratisNomes && it.gratisNomes.length ? escapeHtml(it.gratisNomes.join(', ')) : 'Nenhum'}</span>
+                ${it.pagosNomes && it.pagosNomes.length ? `<br><span><strong>Pagos:</strong> ${escapeHtml(it.pagosNomes.join(', '))}</span>` : ''}
+                ${it.observacao ? `<br><span class="text-amber-800 font-semibold"><strong>Obs.:</strong> ${escapeHtml(it.observacao)}</span>` : ''}
             </li>
         `).join('');
 

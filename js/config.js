@@ -9,7 +9,7 @@
  *    ou cole o link CSV publicado em `GOOGLE_SHEET_CSV_URL`.
  */
 window.ENCANTO_CONFIG = {
-    APP_VERSION: 'v1.5.0',
+    APP_VERSION: 'v1.5.1',
     WHATSAPP_NUMBER: '5535997147481',
     STORE_NAME: 'Encanto do AÃ§aÃ­',
     OPENING_HOURS: 'Aberto a partir das 16:40',

@@ -5,6 +5,13 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.5.1] - 2026-11-12
+
+### Corrigido
+- **Envio dos itens escolhidos para Caixa, Cozinha e Fila (`js/app.js`):** `registrarPedidoNaPlanilha` agora resolve `copoNome`, `gratisNomes`, `pagosNomes`, `observacao`, `subtotal` e `total` via `obterResumoCopo(item)`, garantindo que todas as escolhas do cliente apareçam nos painéis e no acompanhamento.
+- **Legibilidade do pedido no WhatsApp (`js/app.js`):** Substituído o bloco ASCII de largura fixa (que quebrava linhas no celular) por uma mensagem estruturada com tópicos claros (`*ITENS DO PEDIDO*`, `*RESUMO*`, `*DADOS DO CLIENTE*` e link de acompanhamento).
+- **Observações na página de acompanhamento (`js/acompanhar.js`):** Exibição das observações e dos adicionais grátis/pagos de cada copo no cartão do pedido.
+
 ## [1.5.0] - 2026-11-12
 
 ### Adicionado
