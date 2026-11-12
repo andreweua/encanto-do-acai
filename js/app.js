@@ -585,17 +585,80 @@
         }
     }
 
-    function gerarMensagemWhatsApp(itensPedido) {
+    function formatarMoedaCupom(valor) {
+        return formatarMoeda(valor).replace(/\u00A0/g, ' ');
+    }
+
+    function centralizarTexto(texto, largura = 34) {
+        const str = String(texto || '').slice(0, largura);
+        const espacosEsq = Math.max(0, Math.floor((largura - str.length) / 2));
+        return ' '.repeat(espacosEsq) + str;
+    }
+
+    function quebrarTexto(texto, largura = 34, prefixo = '') {
+        const palavras = String(texto || '').trim().split(/\s+/).filter(Boolean);
+        if (palavras.length === 0) return [];
+
+        const limite = Math.max(8, largura - prefixo.length);
+        const linhas = [];
+        let atual = '';
+
+        palavras.forEach((palavra) => {
+            if (!atual) {
+                atual = palavra;
+            } else if ((atual.length + 1 + palavra.length) <= limite) {
+                atual += ` ${palavra}`;
+            } else {
+                linhas.push(prefixo + atual);
+                atual = palavra;
+            }
+        });
+
+        if (atual) {
+            linhas.push(prefixo + atual);
+        }
+
+        return linhas;
+    }
+
+    function formatarLinhaColunas(esquerda, direita, largura = 34) {
+        const esq = String(esquerda || '');
+        const dir = String(direita || '');
+        const espacos = largura - esq.length - dir.length;
+
+        if (espacos >= 1) {
+            return `${esq}${' '.repeat(espacos)}${dir}`;
+        }
+
+        const maxEsq = Math.max(8, largura - dir.length - 1);
+        return `${esq.slice(0, maxEsq)} ${dir}`;
+    }
+
+    function gerarMensagemWhatsApp(itensPedido, dataRef = new Date()) {
+        const LARGURA = 34;
+        const SEP_DUPLO = '='.repeat(LARGURA);
+        const SEP_SIMPLES = '-'.repeat(LARGURA);
+
         const nome = el.inputNome.value.trim();
         const tipoEntrega = obterTipoEntrega();
         const endereco = el.inputEndereco.value.trim();
         const pagamento = el.selectPagamento.value;
         const troco = el.inputTroco.value.trim();
 
-        const linhas = [
-            '🍇 *NOVO PEDIDO - ENCANTO DO AÇAÍ* 🍇',
-            '',
-            '*Itens do pedido:*',
+        const dataStr = dataRef.toLocaleDateString('pt-BR');
+        const horaStr = dataRef.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const numeroPedido = `#${String(dataRef.getHours()).padStart(2, '0')}${String(dataRef.getMinutes()).padStart(2, '0')}${String(dataRef.getSeconds()).padStart(2, '0')}`;
+
+        const cupom = [
+            SEP_DUPLO,
+            centralizarTexto('ENCANTO DO AÇAÍ', LARGURA),
+            centralizarTexto('CUPOM DE PEDIDO', LARGURA),
+            SEP_DUPLO,
+            formatarLinhaColunas(`Data: ${dataStr}`, `Hora: ${horaStr}`, LARGURA),
+            `Pedido: ${numeroPedido}`,
+            SEP_SIMPLES,
+            formatarLinhaColunas('QTD DESCRIÇÃO', 'VALOR', LARGURA),
+            SEP_SIMPLES,
         ];
 
         let totalGeral = 0;
@@ -604,28 +667,60 @@
             const { copo, gratisNomes, pagosItens, subtotal } = obterResumoCopo(item);
             totalGeral += subtotal;
 
-            linhas.push(`${index + 1}. *Copo ${copo ? copo.nome : ''}* — ${formatarMoeda(copo ? copo.preco : 0)}`);
-            linhas.push(`   • Grátis: ${gratisNomes.length > 0 ? gratisNomes.join(', ') : 'Nenhum'}`);
-            if (pagosItens.length > 0) {
-                linhas.push(`   • Pagos: ${pagosItens.map((p) => `${p.nome} (+ ${formatarMoeda(p.preco)})`).join(', ')}`);
-            }
+            const itemNum = String(index + 1).padStart(2, '0');
+            const nomeCopo = `Copo ${copo ? copo.nome : ''}`.trim();
+            cupom.push(formatarLinhaColunas(`${itemNum}  ${nomeCopo}`, formatarMoedaCupom(copo ? copo.preco : 0), LARGURA));
+
+            gratisNomes.forEach((nomeGratis) => {
+                const linhasGratis = quebrarTexto(nomeGratis, LARGURA - 7, '    + ');
+                if (linhasGratis.length > 0) {
+                    cupom.push(formatarLinhaColunas(linhasGratis[0], 'GRÁTIS', LARGURA));
+                    linhasGratis.slice(1).forEach((extra) => cupom.push(extra));
+                }
+            });
+
+            pagosItens.forEach((pago) => {
+                const valorStr = formatarMoedaCupom(pago.preco);
+                const linhasPago = quebrarTexto(pago.nome, LARGURA - valorStr.length - 1, '    + ');
+                if (linhasPago.length > 0) {
+                    cupom.push(formatarLinhaColunas(linhasPago[0], valorStr, LARGURA));
+                    linhasPago.slice(1).forEach((extra) => cupom.push(extra));
+                }
+            });
+
             if (item.observacao) {
-                linhas.push(`   • Obs: ${item.observacao}`);
+                quebrarTexto(`Obs: ${item.observacao}`, LARGURA, '    ').forEach((l) => cupom.push(l));
             }
-            linhas.push(`   Subtotal: ${formatarMoeda(subtotal)}`);
-            linhas.push('');
+
+            cupom.push(formatarLinhaColunas('    Subtotal Item', formatarMoedaCupom(subtotal), LARGURA));
+            if (index < itensPedido.length - 1) {
+                cupom.push('');
+            }
         });
 
-        linhas.push(`*Total do Pedido: ${formatarMoeda(totalGeral)}*`);
-        linhas.push('');
-        if (nome) linhas.push(`*Cliente:* ${nome}`);
-        linhas.push(`*Recebimento:* ${tipoEntrega}`);
-        if (tipoEntrega === 'Entrega' && endereco) {
-            linhas.push(`*Endereço:* ${endereco}`);
-        }
-        linhas.push(`*Pagamento:* ${pagamento}${pagamento === 'Dinheiro' && troco ? ` (Troco para ${troco})` : ''}`);
+        cupom.push(SEP_SIMPLES);
+        cupom.push(formatarLinhaColunas('QTD DE COPOS:', String(itensPedido.length).padStart(2, '0'), LARGURA));
+        cupom.push(formatarLinhaColunas('TOTAL A PAGAR:', formatarMoedaCupom(totalGeral), LARGURA));
+        cupom.push(SEP_DUPLO);
 
-        return linhas.join('\n');
+        if (nome) {
+            quebrarTexto(`Cliente: ${nome}`, LARGURA).forEach((l) => cupom.push(l));
+        }
+        cupom.push(`Receb.:  ${tipoEntrega}`);
+        if (tipoEntrega === 'Entrega' && endereco) {
+            quebrarTexto(`End.:    ${endereco}`, LARGURA).forEach((l) => cupom.push(l));
+        }
+        cupom.push(`Pagto.:  ${pagamento}`);
+        if (pagamento === 'Dinheiro' && troco) {
+            quebrarTexto(`Troco:   ${troco}`, LARGURA).forEach((l) => cupom.push(l));
+        }
+
+        cupom.push(SEP_DUPLO);
+        cupom.push(centralizarTexto('Obrigado pela preferência!', LARGURA));
+        cupom.push(centralizarTexto('WhatsApp: (35) 99714-7481', LARGURA));
+        cupom.push(SEP_DUPLO);
+
+        return `*NOVO PEDIDO - ENCANTO DO AÇAÍ*\n\`\`\`\n${cupom.join('\n')}\n\`\`\``;
     }
 
     function finalizarNoWhatsapp() {

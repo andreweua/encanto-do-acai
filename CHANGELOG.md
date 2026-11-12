@@ -5,6 +5,11 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.2.1] - 2026-11-12
+
+### Alterado
+- Mensagem de pedido enviada ao WhatsApp (`gerarMensagemWhatsApp` em `js/app.js`) reformatada em layout de cupom fiscal monoespaçado (`34` colunas) com data, hora, número do pedido, itens alinhados, adicionais grátis/pagos, observações, subtotal, total e dados do cliente.
+
 ## [1.2.0] - 2026-11-12
 
 ### Adicionado
