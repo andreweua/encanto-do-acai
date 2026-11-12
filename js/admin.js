@@ -220,7 +220,7 @@
         atualizarKpis();
 
         const grupos = [
-            { chave: 'copo', titulo: 'Copos de Açaí (Embalagens & Rendimento)', corBorda: 'border-acai-magenta', corBadge: 'bg-acai-magenta text-white' },
+            { chave: 'copo', titulo: 'Copos de Açaí (Rendimento pelos Litros)', corBorda: 'border-acai-magenta', corBadge: 'bg-acai-magenta text-white' },
             { chave: 'adicional_gratis', titulo: 'Adicionais Grátis', corBorda: 'border-acai-cyan', corBadge: 'bg-acai-cyan text-white' },
             { chave: 'adicional_pago', titulo: 'Adicionais Pagos', corBorda: 'border-acai-yellow', corBadge: 'bg-acai-yellow text-acai-dark' },
         ];
@@ -253,7 +253,7 @@
                                     <span class="font-bold text-acai-dark text-base ${disponivel ? '' : 'line-through text-slate-500'}">${escapeHtml(item.nome)}</span>
                                     ${badgeStatus}
                                 </div>
-                                <span class="text-[11px] font-mono text-slate-400">${escapeHtml(item.id)}${isCopo ? ' • Embalagens físicas' : ''}</span>
+                                <span class="text-[11px] font-mono text-slate-400">${escapeHtml(item.id)}${isCopo ? ' • Calculado pelos litros de açaí' : ''}</span>
                             </div>
 
                             <div class="flex flex-wrap items-center gap-3 sm:gap-4">
@@ -270,6 +270,14 @@
                                     >
                                 </label>
 
+                                ${isCopo ? `
+                                <!-- Quantidade calculada (somente leitura) -->
+                                <div class="flex items-center gap-1.5 rounded-xl border border-acai-magenta/30 bg-pink-50 px-3 py-1.5" title="Calculado automaticamente a partir dos litros de açaí">
+                                    <i class="fa-solid fa-calculator text-acai-magenta text-xs"></i>
+                                    <span class="text-sm font-bold text-acai-dark">${qtdEfetiva}</span>
+                                    <span class="text-[11px] font-semibold text-slate-500">copos</span>
+                                </div>
+                                ` : `
                                 <!-- Quantidade -->
                                 <div class="flex items-center rounded-xl border border-slate-300 bg-slate-50 overflow-hidden">
                                     <button type="button" data-acao="menos" aria-label="Diminuir estoque" class="px-3 py-1.5 text-slate-700 hover:bg-slate-200 font-bold cursor-pointer">−</button>
@@ -282,6 +290,7 @@
                                     >
                                     <button type="button" data-acao="mais" aria-label="Aumentar estoque" class="px-3 py-1.5 text-slate-700 hover:bg-slate-200 font-bold cursor-pointer">+</button>
                                 </div>
+                                `}
 
                                 <!-- Toggle Disponível -->
                                 <button

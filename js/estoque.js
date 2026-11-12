@@ -315,18 +315,18 @@ window.EncantoEstoque = (() => {
 
     function getEstoqueCopoDisponivel(copo, produtos, coposDesseTamanhoReservados = 0, mlReservadoNaSacola = 0) {
         if (!copo || !copo.ativo) return 0;
-        const embalagensRestantes = Math.floor(getEstoqueDisponivel(copo, coposDesseTamanhoReservados));
-        if (embalagensRestantes <= 0) return 0;
 
         const baseAcai = obterBaseAcai(produtos);
-        if (!baseAcai) return embalagensRestantes;
-
         const volumeMl = extrairVolumeMl(copo);
-        if (volumeMl <= 0) return embalagensRestantes;
 
+        // Sem base de litros cadastrada (planilha antiga): usa a quantidade manual do copo como fallback
+        if (!baseAcai || volumeMl <= 0) {
+            return Math.floor(getEstoqueDisponivel(copo, coposDesseTamanhoReservados));
+        }
+
+        // Disponibilidade definida exclusivamente pelos litros de açaí restantes
         const acaiRestanteMl = getAcaiRestanteMl(baseAcai, mlReservadoNaSacola);
-        const capacidadePorLitros = Math.floor(acaiRestanteMl / volumeMl);
-        return Math.min(embalagensRestantes, capacidadePorLitros);
+        return Math.floor(acaiRestanteMl / volumeMl);
     }
 
     function getEstoqueDisponivel(produto, quantidadeReservada = 0) {

@@ -1,5 +1,5 @@
-/**
- * Configurações gerais e catálogo padrão (fallback) do Encanto do Açaí.
+﻿/**
+ * ConfiguraÃ§Ãµes gerais e catÃ¡logo padrÃ£o (fallback) do Encanto do AÃ§aÃ­.
  *
  * Para conectar sua planilha do Google Sheets:
  * 1. Importe o arquivo `modelo_estoque_google_sheets.csv` no Google Sheets.
@@ -9,9 +9,9 @@
  *    ou cole o link CSV publicado em `GOOGLE_SHEET_CSV_URL`.
  */
 window.ENCANTO_CONFIG = {
-    APP_VERSION: 'v1.4.1',
+    APP_VERSION: 'v1.4.2',
     WHATSAPP_NUMBER: '5535997147481',
-    STORE_NAME: 'Encanto do Açaí',
+    STORE_NAME: 'Encanto do AÃ§aÃ­',
     OPENING_HOURS: 'Aberto a partir das 16:40',
     STORE_ADDRESS: '',
     GOOGLE_MAPS_URL: '',
@@ -30,12 +30,12 @@ window.ENCANTO_CONFIG = {
     // Opcional: link direto "Publicar na web" em formato CSV (se preenchido, tem prioridade)
     GOOGLE_SHEET_CSV_URL: '',
 
-    // Abaixo desta quantidade, exibe o aviso discreto "Últimas X un."
+    // Abaixo desta quantidade, exibe o aviso discreto "Ãšltimas X un."
     LOW_STOCK_THRESHOLD: 3,
 
-    // Catálogo padrão utilizado quando nenhuma planilha está configurada ou em caso de falha de rede
+    // CatÃ¡logo padrÃ£o utilizado quando nenhuma planilha estÃ¡ configurada ou em caso de falha de rede
     CATALOGO_PADRAO: [
-        { id: 'acai-litros', categoria: 'acai', nome: 'Açaí (Litros)', preco: 0, estoque: 10, ativo: true },
+        { id: 'acai-litros', categoria: 'acai', nome: 'AÃ§aÃ­ (Litros)', preco: 0, estoque: 10, ativo: true },
 
         { id: 'copo-200', categoria: 'copo', nome: '200 ml', preco: 10.00, estoque: 50, ativo: true },
         { id: 'copo-300', categoria: 'copo', nome: '300 ml', preco: 13.00, estoque: 50, ativo: true },
@@ -44,14 +44,14 @@ window.ENCANTO_CONFIG = {
         { id: 'copo-700', categoria: 'copo', nome: '700 ml', preco: 20.00, estoque: 50, ativo: true },
 
         { id: 'gratis-banana', categoria: 'adicional_gratis', nome: 'Banana', preco: 0, estoque: 30, ativo: true },
-        { id: 'gratis-pacoca', categoria: 'adicional_gratis', nome: 'Paçoca', preco: 0, estoque: 30, ativo: true },
+        { id: 'gratis-pacoca', categoria: 'adicional_gratis', nome: 'PaÃ§oca', preco: 0, estoque: 30, ativo: true },
         { id: 'gratis-bis', categoria: 'adicional_gratis', nome: 'Bis', preco: 0, estoque: 25, ativo: true },
         { id: 'gratis-calda-chocolate', categoria: 'adicional_gratis', nome: 'Calda de chocolate', preco: 0, estoque: 25, ativo: true },
         { id: 'gratis-calda-morango', categoria: 'adicional_gratis', nome: 'Calda de morango', preco: 0, estoque: 25, ativo: true },
         { id: 'gratis-chantilly', categoria: 'adicional_gratis', nome: 'Chantilly', preco: 0, estoque: 20, ativo: true },
-        { id: 'gratis-mousse-maracuja', categoria: 'adicional_gratis', nome: 'Mousse de maracujá', preco: 0, estoque: 20, ativo: true },
+        { id: 'gratis-mousse-maracuja', categoria: 'adicional_gratis', nome: 'Mousse de maracujÃ¡', preco: 0, estoque: 20, ativo: true },
         { id: 'gratis-mousse-morango', categoria: 'adicional_gratis', nome: 'Mousse de morango', preco: 0, estoque: 20, ativo: true },
-        { id: 'gratis-leite-em-po', categoria: 'adicional_gratis', nome: 'Leite em pó', preco: 0, estoque: 30, ativo: true },
+        { id: 'gratis-leite-em-po', categoria: 'adicional_gratis', nome: 'Leite em pÃ³', preco: 0, estoque: 30, ativo: true },
         { id: 'gratis-leite-condensado', categoria: 'adicional_gratis', nome: 'Leite condensado', preco: 0, estoque: 30, ativo: true },
 
         { id: 'pago-nutella', categoria: 'adicional_pago', nome: 'Nutella', preco: 5.00, estoque: 15, ativo: true },

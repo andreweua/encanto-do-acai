@@ -5,6 +5,12 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.4.2] - 2026-11-12
+
+### Corrigido
+- Disponibilidade dos copos agora é calculada **exclusivamente pelos litros de açaí** (`acai-litros`); a quantidade manual por tamanho deixou de limitar as vendas (antes travava em `20`).
+- Painel `admin.html` substituiu os controles `- / +` dos copos por um indicador somente leitura com a quantidade calculada automaticamente.
+
 ## [1.4.1] - 2026-11-12
 
 ### Alterado
