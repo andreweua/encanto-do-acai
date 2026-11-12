@@ -134,6 +134,45 @@
             </details>
         </section>
 
+        <!-- Estoque Principal: Litros de Açaí -->
+        <section id="card-estoque-acai" class="bg-gradient-to-br from-acai-dark to-purple-950 text-white rounded-3xl p-5 sm:p-6 shadow-lg border-2 border-acai-yellow/60 space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h2 class="font-display text-2xl tracking-wide text-acai-yellow">ESTOQUE DE AÇAÍ (LITROS)</h2>
+                        <span id="acai-badge-status" class="text-xs font-bold px-3 py-0.5 rounded-full bg-emerald-500 text-white">Disponível</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-purple-200 mt-1">
+                        Os tamanhos de copo (200 ml a 700 ml) ficam disponíveis ou indisponíveis conforme os litros restantes.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <button id="btn-acai-menos-1" type="button" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold cursor-pointer">-1 L</button>
+                    <button id="btn-acai-menos-meio" type="button" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold cursor-pointer">-0,5 L</button>
+                    <div class="flex items-center bg-white rounded-xl px-3 py-1.5 text-acai-dark">
+                        <input
+                            id="input-acai-litros"
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            value="10"
+                            class="w-16 text-center font-display text-xl focus:outline-none"
+                        >
+                        <span class="text-xs font-bold uppercase text-slate-500 ml-1">L</span>
+                    </div>
+                    <button id="btn-acai-mais-meio" type="button" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold cursor-pointer">+0,5 L</button>
+                    <button id="btn-acai-mais-1" type="button" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold cursor-pointer">+1 L</button>
+                    <button id="btn-acai-ativo" type="button" class="px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold cursor-pointer">Ativo</button>
+                </div>
+            </div>
+
+            <div class="rounded-2xl bg-black/25 border border-white/10 px-4 py-3">
+                <span class="text-[11px] uppercase tracking-wider font-bold text-acai-yellow block mb-1">Rendimento equivalente por tamanho:</span>
+                <p id="acai-equivalencia-copos" class="text-xs sm:text-sm text-purple-100 font-medium"></p>
+            </div>
+        </section>
+
         <!-- Resumo rápido -->
         <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
@@ -213,7 +252,7 @@
             Desenvolvido por:
             <a href="https://github.com/andreweua" target="_blank" rel="noopener noreferrer" class="hover:text-gold-400 text-slate-400 transition font-medium">PereiraLabs - Divisão de Tecnologia e IA</a> |
             <span class="text-slate-400 font-medium">Louzada &amp; Pereira - Soluções Digitais</span>.
-            <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.3.0</a>
+            <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.4.0</a>
         </p>
     </footer>
 

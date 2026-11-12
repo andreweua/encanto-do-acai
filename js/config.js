@@ -9,7 +9,7 @@
  *    ou cole o link CSV publicado em `GOOGLE_SHEET_CSV_URL`.
  */
 window.ENCANTO_CONFIG = {
-    APP_VERSION: 'v1.3.0',
+    APP_VERSION: 'v1.4.0',
     WHATSAPP_NUMBER: '5535997147481',
     STORE_NAME: 'Encanto do Açaí',
     OPENING_HOURS: 'Aberto a partir das 16:40',
@@ -35,11 +35,13 @@ window.ENCANTO_CONFIG = {
 
     // Catálogo padrão utilizado quando nenhuma planilha está configurada ou em caso de falha de rede
     CATALOGO_PADRAO: [
-        { id: 'copo-200', categoria: 'copo', nome: '200 ml', preco: 10.00, estoque: 20, ativo: true },
-        { id: 'copo-300', categoria: 'copo', nome: '300 ml', preco: 13.00, estoque: 20, ativo: true },
-        { id: 'copo-400', categoria: 'copo', nome: '400 ml', preco: 15.00, estoque: 20, ativo: true },
-        { id: 'copo-500', categoria: 'copo', nome: '500 ml', preco: 17.00, estoque: 20, ativo: true },
-        { id: 'copo-700', categoria: 'copo', nome: '700 ml', preco: 20.00, estoque: 20, ativo: true },
+        { id: 'acai-litros', categoria: 'acai', nome: 'Açaí (Litros)', preco: 0, estoque: 10, ativo: true },
+
+        { id: 'copo-200', categoria: 'copo', nome: '200 ml', preco: 10.00, estoque: 50, ativo: true },
+        { id: 'copo-300', categoria: 'copo', nome: '300 ml', preco: 13.00, estoque: 50, ativo: true },
+        { id: 'copo-400', categoria: 'copo', nome: '400 ml', preco: 15.00, estoque: 50, ativo: true },
+        { id: 'copo-500', categoria: 'copo', nome: '500 ml', preco: 17.00, estoque: 50, ativo: true },
+        { id: 'copo-700', categoria: 'copo', nome: '700 ml', preco: 20.00, estoque: 50, ativo: true },
 
         { id: 'gratis-banana', categoria: 'adicional_gratis', nome: 'Banana', preco: 0, estoque: 30, ativo: true },
         { id: 'gratis-pacoca', categoria: 'adicional_gratis', nome: 'Paçoca', preco: 0, estoque: 30, ativo: true },

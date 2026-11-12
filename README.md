@@ -56,10 +56,10 @@ Se preferir editar manualmente na planilha sem usar o painel `admin.html`, impor
 
 | Coluna | Regra |
 | :--- | :--- |
-| `estoque` | Quantidade disponível (`0` ou `NÃO` deixa o produto **Indisponível** automaticamente) |
+| `estoque` | Para a linha `acai` (`acai-litros`), representa os **Litros de Açaí** (aceita decimais como `2.5` ou `2,5`) que determinam quantos copos de `200 ml` a `700 ml` podem ser montados; nos copos, representa embalagens físicas; nos adicionais, unidades disponíveis. (`0` ou `NÃO` deixa **Indisponível**). |
 | `ativo` | `SIM` mantém visível para venda; `NÃO` pausa o item como **Indisponível** mesmo com saldo |
 | `preco` | Aceita `10.00`, `10,00` ou `R$ 10,00` |
-| `categoria` | `copo`, `adicional_gratis` ou `adicional_pago` |
+| `categoria` | `acai`, `copo`, `adicional_gratis` ou `adicional_pago` |
 
 > Enquanto nenhum ID de planilha for preenchido em `js/config.js`, o site funciona normalmente usando o catálogo padrão configurado no próprio arquivo.
 

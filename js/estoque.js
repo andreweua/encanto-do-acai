@@ -120,6 +120,7 @@ window.EncantoEstoque = (() => {
 
     function normalizarCategoria(valor) {
         const cat = normalizarTexto(valor).replace(/\s+/g, '_');
+        if (cat === 'acai' || cat === 'base' || cat === 'base_acai' || cat === 'litros' || cat === 'acai_litros') return 'acai';
         if (cat === 'copo' || cat === 'copos' || cat === 'tamanho') return 'copo';
         if (cat === 'adicional_gratis' || cat === 'gratis' || cat === 'adicionais_gratis') return 'adicional_gratis';
         if (cat === 'adicional_pago' || cat === 'pago' || cat === 'adicionais_pagos') return 'adicional_pago';
@@ -146,13 +147,17 @@ window.EncantoEstoque = (() => {
     }
 
     function parseEstoque(valor) {
+        if (typeof valor === 'number') {
+            return Number.isFinite(valor) && valor > 0 ? Math.round(valor * 1000) / 1000 : 0;
+        }
         const norm = normalizarTexto(valor);
         if (!norm) return 0;
         if (['nao', 'no', 'false', 'indisponivel', 'esgotado'].includes(norm)) return 0;
         if (['sim', 'yes', 'true', 'disponivel'].includes(norm)) return 99;
 
-        const numero = Number.parseInt(norm, 10);
-        return Number.isFinite(numero) && numero > 0 ? numero : 0;
+        const limpo = norm.replace(/[^\d.,-]/g, '').replace(',', '.');
+        const numero = Number.parseFloat(limpo);
+        return Number.isFinite(numero) && numero > 0 ? Math.round(numero * 1000) / 1000 : 0;
     }
 
     function converterLinhaProduto(row, index) {
@@ -275,21 +280,58 @@ window.EncantoEstoque = (() => {
         };
         const linhas = ['id,categoria,nome,preco,estoque,ativo'];
         produtos.forEach((p) => {
+            const est = Math.max(0, Math.round((Number(p.estoque) || 0) * 1000) / 1000);
             linhas.push([
                 escapar(p.id),
                 escapar(p.categoria),
                 escapar(p.nome),
                 Number(p.preco || 0).toFixed(2),
-                Math.max(0, Number.parseInt(p.estoque, 10) || 0),
+                est,
                 p.ativo === false ? 'NÃO' : 'SIM',
             ].join(','));
         });
         return linhas.join('\n');
     }
 
+    function extrairVolumeMl(copo) {
+        if (!copo) return 0;
+        const match = String(copo.nome || '').match(/(\d+(?:[.,]\d+)?)\s*(ml|l)\b/i);
+        if (!match) return 0;
+        const numero = Number.parseFloat(match[1].replace(',', '.'));
+        if (!Number.isFinite(numero) || numero <= 0) return 0;
+        return match[2].toLowerCase() === 'l' ? Math.round(numero * 1000) : Math.round(numero);
+    }
+
+    function obterBaseAcai(produtos) {
+        if (!Array.isArray(produtos)) return null;
+        return produtos.find((p) => p.categoria === 'acai') || null;
+    }
+
+    function getAcaiRestanteMl(baseAcai, mlReservadoNaSacola = 0) {
+        if (!baseAcai || !baseAcai.ativo) return 0;
+        const totalMl = Math.round((Number(baseAcai.estoque) || 0) * 1000);
+        return Math.max(0, totalMl - Math.max(0, Math.round(mlReservadoNaSacola)));
+    }
+
+    function getEstoqueCopoDisponivel(copo, produtos, coposDesseTamanhoReservados = 0, mlReservadoNaSacola = 0) {
+        if (!copo || !copo.ativo) return 0;
+        const embalagensRestantes = Math.floor(getEstoqueDisponivel(copo, coposDesseTamanhoReservados));
+        if (embalagensRestantes <= 0) return 0;
+
+        const baseAcai = obterBaseAcai(produtos);
+        if (!baseAcai) return embalagensRestantes;
+
+        const volumeMl = extrairVolumeMl(copo);
+        if (volumeMl <= 0) return embalagensRestantes;
+
+        const acaiRestanteMl = getAcaiRestanteMl(baseAcai, mlReservadoNaSacola);
+        const capacidadePorLitros = Math.floor(acaiRestanteMl / volumeMl);
+        return Math.min(embalagensRestantes, capacidadePorLitros);
+    }
+
     function getEstoqueDisponivel(produto, quantidadeReservada = 0) {
         if (!produto || !produto.ativo) return 0;
-        return Math.max(0, produto.estoque - quantidadeReservada);
+        return Math.max(0, Math.round((produto.estoque - quantidadeReservada) * 1000) / 1000);
     }
 
     function isProdutoDisponivel(produto, quantidadeReservada = 0) {
@@ -307,6 +349,10 @@ window.EncantoEstoque = (() => {
         carregarCatalogo,
         carregarViaAppsScript,
         gerarCsvCatalogo,
+        extrairVolumeMl,
+        obterBaseAcai,
+        getAcaiRestanteMl,
+        getEstoqueCopoDisponivel,
         getEstoqueDisponivel,
         isProdutoDisponivel,
         formatarMoeda,

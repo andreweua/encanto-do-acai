@@ -5,6 +5,10 @@
     const {
         carregarCatalogo,
         gerarCsvCatalogo,
+        extrairVolumeMl,
+        obterBaseAcai,
+        getAcaiRestanteMl,
+        getEstoqueCopoDisponivel,
         isProdutoDisponivel,
     } = window.EncantoEstoque;
 
@@ -34,6 +38,15 @@
         el.kpiDisponiveis = document.getElementById('kpi-disponiveis');
         el.kpiIndisponiveis = document.getElementById('kpi-indisponiveis');
         el.kpiBaixo = document.getElementById('kpi-baixo');
+
+        el.acaiBadgeStatus = document.getElementById('acai-badge-status');
+        el.inputAcaiLitros = document.getElementById('input-acai-litros');
+        el.btnAcaiMenos1 = document.getElementById('btn-acai-menos-1');
+        el.btnAcaiMenosMeio = document.getElementById('btn-acai-menos-meio');
+        el.btnAcaiMaisMeio = document.getElementById('btn-acai-mais-meio');
+        el.btnAcaiMais1 = document.getElementById('btn-acai-mais-1');
+        el.btnAcaiAtivo = document.getElementById('btn-acai-ativo');
+        el.acaiEquivalencia = document.getElementById('acai-equivalencia-copos');
 
         el.inputBusca = document.getElementById('admin-busca');
         el.filtrosBtn = document.querySelectorAll('button[data-filtro-status]');
@@ -100,13 +113,80 @@
         }
     }
 
+    function garantirBaseAcai() {
+        let base = obterBaseAcai(state.produtos);
+        if (!base) {
+            base = {
+                id: 'acai-litros',
+                categoria: 'acai',
+                nome: 'Açaí (Litros)',
+                preco: 0,
+                estoque: 10,
+                ativo: true,
+            };
+            state.produtos.unshift(base);
+        }
+        return base;
+    }
+
+    function itemDisponivelEfetivo(produto) {
+        if (produto.categoria === 'copo') {
+            return getEstoqueCopoDisponivel(produto, state.produtos, 0, 0) > 0;
+        }
+        return isProdutoDisponivel(produto);
+    }
+
+    function renderizarCardAcai() {
+        const base = garantirBaseAcai();
+        const litros = Math.max(0, Number(base.estoque) || 0);
+        const mlTotal = getAcaiRestanteMl(base, 0);
+        const disponivel = base.ativo && mlTotal > 0;
+
+        el.inputAcaiLitros.value = String(litros);
+        el.acaiBadgeStatus.textContent = disponivel ? 'Disponível' : 'Esgotado';
+        el.acaiBadgeStatus.className = `text-xs font-bold px-3 py-0.5 rounded-full ${
+            disponivel ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+        }`;
+
+        el.btnAcaiAtivo.textContent = base.ativo ? 'Ativo' : 'Pausado';
+        el.btnAcaiAtivo.className = `px-4 py-2 rounded-full text-xs font-bold cursor-pointer ${
+            base.ativo ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-slate-400 hover:bg-slate-500 text-slate-900'
+        }`;
+
+        const copos = state.produtos.filter((p) => p.categoria === 'copo');
+        if (!base.ativo || mlTotal <= 0) {
+            el.acaiEquivalencia.textContent = '0 copos disponíveis — todos os tamanhos aparecem como Indisponível no cardápio.';
+            return;
+        }
+
+        const partes = copos.map((copo) => {
+            const vol = extrairVolumeMl(copo);
+            const qtdPorLitros = vol > 0 ? Math.floor(mlTotal / vol) : 0;
+            const qtdEfetiva = getEstoqueCopoDisponivel(copo, state.produtos, 0, 0);
+            if (!copo.ativo) {
+                return `${copo.nome}: pausado`;
+            }
+            if (qtdPorLitros <= 0) {
+                return `${copo.nome}: indisponível (< ${vol} ml)`;
+            }
+            return `${copo.nome}: até ${qtdEfetiva} un.`;
+        });
+
+        el.acaiEquivalencia.textContent = `${litros} L (${mlTotal.toLocaleString('pt-BR')} ml) → ${partes.join(' • ')}`;
+    }
+
     function atualizarKpis() {
-        const total = state.produtos.length;
-        const disponiveis = state.produtos.filter((p) => isProdutoDisponivel(p)).length;
+        const itensMenu = state.produtos.filter((p) => p.categoria !== 'acai');
+        const total = itensMenu.length;
+        const disponiveis = itensMenu.filter((p) => itemDisponivelEfetivo(p)).length;
         const indisponiveis = total - disponiveis;
-        const baixo = state.produtos.filter(
-            (p) => isProdutoDisponivel(p) && p.estoque <= (config.LOW_STOCK_THRESHOLD || 3),
-        ).length;
+        const baixo = itensMenu.filter((p) => {
+            if (!itemDisponivelEfetivo(p)) return false;
+            if (p.categoria === 'copo') {
+                return getEstoqueCopoDisponivel(p, state.produtos, 0, 0) <= (config.LOW_STOCK_THRESHOLD || 3);
+            }
+            return p.estoque <= (config.LOW_STOCK_THRESHOLD || 3);
+        }).length;
 
         el.kpiTotal.textContent = String(total);
         el.kpiDisponiveis.textContent = String(disponiveis);
@@ -115,14 +195,15 @@
     }
 
     function produtoPassaNosFiltros(produto) {
-        const disponivel = isProdutoDisponivel(produto);
+        const disponivel = itemDisponivelEfetivo(produto);
         if (state.filtroStatus === 'disponiveis' && !disponivel) return false;
         if (state.filtroStatus === 'indisponiveis' && disponivel) return false;
-        if (
-            state.filtroStatus === 'baixo'
-            && !(disponivel && produto.estoque <= (config.LOW_STOCK_THRESHOLD || 3))
-        ) {
-            return false;
+        if (state.filtroStatus === 'baixo') {
+            if (!disponivel) return false;
+            const qtd = produto.categoria === 'copo'
+                ? getEstoqueCopoDisponivel(produto, state.produtos, 0, 0)
+                : produto.estoque;
+            if (qtd > (config.LOW_STOCK_THRESHOLD || 3)) return false;
         }
 
         if (state.busca) {
@@ -135,10 +216,11 @@
     }
 
     function renderizarProdutos() {
+        renderizarCardAcai();
         atualizarKpis();
 
         const grupos = [
-            { chave: 'copo', titulo: 'Copos de Açaí', corBorda: 'border-acai-magenta', corBadge: 'bg-acai-magenta text-white' },
+            { chave: 'copo', titulo: 'Copos de Açaí (Embalagens & Rendimento)', corBorda: 'border-acai-magenta', corBadge: 'bg-acai-magenta text-white' },
             { chave: 'adicional_gratis', titulo: 'Adicionais Grátis', corBorda: 'border-acai-cyan', corBadge: 'bg-acai-cyan text-white' },
             { chave: 'adicional_pago', titulo: 'Adicionais Pagos', corBorda: 'border-acai-yellow', corBadge: 'bg-acai-yellow text-acai-dark' },
         ];
@@ -151,14 +233,18 @@
             const corpo = itensGrupo.length === 0
                 ? '<p class="text-sm text-slate-400 py-4 text-center">Nenhum item neste filtro.</p>'
                 : itensGrupo.map((item) => {
-                    const disponivel = isProdutoDisponivel(item);
-                    const estoqueBaixo = disponivel && item.estoque <= (config.LOW_STOCK_THRESHOLD || 3);
+                    const isCopo = item.categoria === 'copo';
+                    const qtdEfetiva = isCopo
+                        ? getEstoqueCopoDisponivel(item, state.produtos, 0, 0)
+                        : item.estoque;
+                    const disponivel = itemDisponivelEfetivo(item);
+                    const estoqueBaixo = disponivel && qtdEfetiva <= (config.LOW_STOCK_THRESHOLD || 3);
 
                     const badgeStatus = !disponivel
-                        ? '<span class="bg-red-100 text-red-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase">Indisponível</span>'
+                        ? `<span class="bg-red-100 text-red-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase">${isCopo ? 'Indisponível (açaí ou copo)' : 'Indisponível'}</span>`
                         : estoqueBaixo
-                            ? '<span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">Estoque baixo</span>'
-                            : '<span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">Disponível</span>';
+                            ? `<span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">${isCopo ? `Restam ${qtdEfetiva} copos` : 'Estoque baixo'}</span>`
+                            : `<span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">${isCopo ? `Até ${qtdEfetiva} copos` : 'Disponível'}</span>`;
 
                     return `
                         <div data-item-id="${escapeHtml(item.id)}" class="p-4 rounded-2xl border ${disponivel ? 'border-slate-200 bg-white' : 'border-red-200 bg-red-50/40'} flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -167,7 +253,7 @@
                                     <span class="font-bold text-acai-dark text-base ${disponivel ? '' : 'line-through text-slate-500'}">${escapeHtml(item.nome)}</span>
                                     ${badgeStatus}
                                 </div>
-                                <span class="text-[11px] font-mono text-slate-400">${escapeHtml(item.id)}</span>
+                                <span class="text-[11px] font-mono text-slate-400">${escapeHtml(item.id)}${isCopo ? ' • Embalagens físicas' : ''}</span>
                             </div>
 
                             <div class="flex flex-wrap items-center gap-3 sm:gap-4">
@@ -345,10 +431,36 @@
         mostrarToast('CSV baixado com o estoque atual!', 'sucesso');
     }
 
+    function ajustarLitrosAcai(delta) {
+        const base = garantirBaseAcai();
+        const novo = Math.max(0, Math.round(((Number(base.estoque) || 0) + delta) * 1000) / 1000);
+        base.estoque = novo;
+        if (delta > 0 && novo > 0) base.ativo = true;
+        renderizarProdutos();
+    }
+
     function registrarEventos() {
         el.btnCarregar.addEventListener('click', () => carregarDaPlanilha(true));
         el.btnSalvar.addEventListener('click', enviarParaPlanilha);
         el.btnBaixarCsv.addEventListener('click', baixarCsv);
+
+        el.btnAcaiMenos1.addEventListener('click', () => ajustarLitrosAcai(-1));
+        el.btnAcaiMenosMeio.addEventListener('click', () => ajustarLitrosAcai(-0.5));
+        el.btnAcaiMaisMeio.addEventListener('click', () => ajustarLitrosAcai(0.5));
+        el.btnAcaiMais1.addEventListener('click', () => ajustarLitrosAcai(1));
+
+        el.inputAcaiLitros.addEventListener('change', (e) => {
+            const base = garantirBaseAcai();
+            const val = Number.parseFloat(String(e.target.value || '0').replace(',', '.'));
+            base.estoque = Number.isFinite(val) && val >= 0 ? Math.round(val * 1000) / 1000 : 0;
+            renderizarProdutos();
+        });
+
+        el.btnAcaiAtivo.addEventListener('click', () => {
+            const base = garantirBaseAcai();
+            base.ativo = !base.ativo;
+            renderizarProdutos();
+        });
 
         el.inputBusca.addEventListener('input', (e) => {
             state.busca = e.target.value.trim();

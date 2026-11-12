@@ -4,6 +4,10 @@
 (() => {
     const {
         carregarCatalogo,
+        extrairVolumeMl,
+        obterBaseAcai,
+        getAcaiRestanteMl,
+        getEstoqueCopoDisponivel,
         getEstoqueDisponivel,
         isProdutoDisponivel,
         formatarMoeda,
@@ -72,19 +76,23 @@
     }
 
     function calcularReservadoNaSacola() {
-        const mapa = {};
+        const porId = {};
+        let mlAcai = 0;
+
         const somar = (id) => {
             if (!id) return;
-            mapa[id] = (mapa[id] || 0) + 1;
+            porId[id] = (porId[id] || 0) + 1;
         };
 
         state.sacola.forEach((item) => {
             somar(item.copoId);
+            const copo = buscarProdutoPorId(item.copoId);
+            mlAcai += extrairVolumeMl(copo);
             item.gratisIds.forEach(somar);
             item.pagosIds.forEach(somar);
         });
 
-        return mapa;
+        return { porId, mlAcai };
     }
 
     function limparSelecoesIndisponiveis() {
@@ -92,21 +100,27 @@
 
         if (state.copoSelecionadoId) {
             const copo = buscarProdutoPorId(state.copoSelecionadoId);
-            if (!isProdutoDisponivel(copo, reservado[state.copoSelecionadoId] || 0)) {
+            const restante = getEstoqueCopoDisponivel(
+                copo,
+                state.produtos,
+                reservado.porId[state.copoSelecionadoId] || 0,
+                reservado.mlAcai,
+            );
+            if (restante <= 0) {
                 state.copoSelecionadoId = null;
             }
         }
 
         for (const id of Array.from(state.gratisSelecionados)) {
             const prod = buscarProdutoPorId(id);
-            if (!isProdutoDisponivel(prod, reservado[id] || 0)) {
+            if (!isProdutoDisponivel(prod, reservado.porId[id] || 0)) {
                 state.gratisSelecionados.delete(id);
             }
         }
 
         for (const id of Array.from(state.pagosSelecionados)) {
             const prod = buscarProdutoPorId(id);
-            if (!isProdutoDisponivel(prod, reservado[id] || 0)) {
+            if (!isProdutoDisponivel(prod, reservado.porId[id] || 0)) {
                 state.pagosSelecionados.delete(id);
             }
         }
@@ -116,6 +130,7 @@
         if (state.sacola.length === 0) return [];
 
         const usoAcumulado = {};
+        let mlUsado = 0;
         const removidos = [];
         const novaSacola = [];
 
@@ -131,10 +146,20 @@
 
         state.sacola.forEach((item) => {
             const copo = buscarProdutoPorId(item.copoId);
-            if (!tentarReservar(item.copoId)) {
+            const restanteCopo = getEstoqueCopoDisponivel(
+                copo,
+                state.produtos,
+                usoAcumulado[item.copoId] || 0,
+                mlUsado,
+            );
+
+            if (restanteCopo <= 0) {
                 removidos.push(copo ? copo.nome : item.copoId);
                 return;
             }
+
+            usoAcumulado[item.copoId] = (usoAcumulado[item.copoId] || 0) + 1;
+            mlUsado += extrairVolumeMl(copo);
 
             const gratisValidos = item.gratisIds.filter((id) => {
                 if (tentarReservar(id)) return true;
@@ -186,6 +211,20 @@
         return '';
     }
 
+    function criarBadgeCopo(copo, restante) {
+        const capacidadeTotal = getEstoqueCopoDisponivel(copo, state.produtos, 0, 0);
+        if (capacidadeTotal <= 0) {
+            return '<span class="inline-flex items-center gap-1 bg-slate-200 text-slate-600 font-bold px-2.5 py-0.5 rounded-full text-xs uppercase tracking-wide">Indisponível</span>';
+        }
+        if (restante <= 0) {
+            return '<span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full text-xs">Limite na sacola</span>';
+        }
+        if (restante <= (config.LOW_STOCK_THRESHOLD || 3)) {
+            return `<span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 font-semibold px-2.5 py-0.5 rounded-full text-xs">Últimas ${restante} un.</span>`;
+        }
+        return '';
+    }
+
     function renderCopos(reservado) {
         const copos = state.produtos.filter((p) => p.categoria === 'copo');
         if (copos.length === 0) {
@@ -194,10 +233,15 @@
         }
 
         el.listaCopos.innerHTML = copos.map((copo) => {
-            const restante = getEstoqueDisponivel(copo, reservado[copo.id] || 0);
+            const restante = getEstoqueCopoDisponivel(
+                copo,
+                state.produtos,
+                reservado.porId[copo.id] || 0,
+                reservado.mlAcai,
+            );
             const disponivel = restante > 0;
             const selecionado = state.copoSelecionadoId === copo.id && disponivel;
-            const badge = criarBadgeEstoque(copo, restante);
+            const badge = criarBadgeCopo(copo, restante);
 
             return `
                 <li>
@@ -252,7 +296,7 @@
         }
 
         el.listaGratis.innerHTML = itens.map((item) => {
-            const restante = getEstoqueDisponivel(item, reservado[item.id] || 0);
+            const restante = getEstoqueDisponivel(item, reservado.porId[item.id] || 0);
             const disponivel = restante > 0;
             const selecionado = state.gratisSelecionados.has(item.id) && disponivel;
             const badge = criarBadgeEstoque(item, restante);
@@ -303,7 +347,7 @@
         }
 
         el.listaPagos.innerHTML = itens.map((item) => {
-            const restante = getEstoqueDisponivel(item, reservado[item.id] || 0);
+            const restante = getEstoqueDisponivel(item, reservado.porId[item.id] || 0);
             const disponivel = restante > 0;
             const selecionado = state.pagosSelecionados.has(item.id) && disponivel;
             const badge = criarBadgeEstoque(item, restante);
@@ -497,6 +541,11 @@
             el.statusTexto.textContent = 'Sincronizando estoque...';
             return;
         }
+        const baseAcai = obterBaseAcai(state.produtos);
+        if (baseAcai && getAcaiRestanteMl(baseAcai, 0) <= 0) {
+            el.statusTexto.textContent = 'Açaí esgotado no momento';
+            return;
+        }
         const hora = state.atualizadoEm
             ? state.atualizadoEm.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
             : '';
@@ -539,8 +588,14 @@
 
         const reservado = calcularReservadoNaSacola();
         const copo = buscarProdutoPorId(state.copoSelecionadoId);
-        if (!isProdutoDisponivel(copo, reservado[state.copoSelecionadoId] || 0)) {
-            mostrarToast('Este tamanho acabou de atingir o limite de estoque.');
+        const restante = getEstoqueCopoDisponivel(
+            copo,
+            state.produtos,
+            reservado.porId[state.copoSelecionadoId] || 0,
+            reservado.mlAcai,
+        );
+        if (restante <= 0) {
+            mostrarToast('Este tamanho acabou de atingir o limite de estoque disponível.');
             limparSelecoesIndisponiveis();
             renderizarTudo();
             return;

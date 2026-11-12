@@ -1,9 +1,10 @@
 id,categoria,nome,preco,estoque,ativo
-copo-200,copo,200 ml,10.00,20,SIM
-copo-300,copo,300 ml,13.00,20,SIM
-copo-400,copo,400 ml,15.00,20,SIM
-copo-500,copo,500 ml,17.00,20,SIM
-copo-700,copo,700 ml,20.00,20,SIM
+acai-litros,acai,Açaí (Litros),0.00,10,SIM
+copo-200,copo,200 ml,10.00,50,SIM
+copo-300,copo,300 ml,13.00,50,SIM
+copo-400,copo,400 ml,15.00,50,SIM
+copo-500,copo,500 ml,17.00,50,SIM
+copo-700,copo,700 ml,20.00,50,SIM
 gratis-banana,adicional_gratis,Banana,0.00,30,SIM
 gratis-pacoca,adicional_gratis,Paçoca,0.00,30,SIM
 gratis-bis,adicional_gratis,Bis,0.00,25,SIM

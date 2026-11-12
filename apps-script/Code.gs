@@ -70,7 +70,10 @@ function lerProdutosDaAba(aba) {
       : parseFloat(String(precoRaw || '0').replace(/R\$/gi, '').replace(',', '.').trim()) || 0;
 
     const estoqueRaw = idxEstoque >= 0 ? row[idxEstoque] : 0;
-    const estoque = Math.max(0, parseInt(estoqueRaw, 10) || 0);
+    const estoqueNum = typeof estoqueRaw === 'number'
+      ? estoqueRaw
+      : parseFloat(String(estoqueRaw || '0').replace(',', '.').trim()) || 0;
+    const estoque = Math.max(0, Math.round(estoqueNum * 1000) / 1000);
     const ativo = idxAtivo >= 0 ? normalizarAtivo(row[idxAtivo]) : true;
 
     produtos.push({ id, categoria, nome, preco, estoque, ativo });
@@ -84,12 +87,13 @@ function gravarProdutosNaAba(aba, produtos) {
 
   const linhas = [CABECALHO];
   produtos.forEach((p) => {
+    const est = Math.max(0, Math.round((Number(p.estoque) || 0) * 1000) / 1000);
     linhas.push([
       String(p.id || '').trim(),
       String(p.categoria || '').trim(),
       String(p.nome || '').trim(),
       Number(p.preco || 0),
-      Math.max(0, parseInt(p.estoque, 10) || 0),
+      est,
       p.ativo === false ? 'NÃO' : 'SIM',
     ]);
   });
@@ -106,7 +110,7 @@ function gravarProdutosNaAba(aba, produtos) {
 
   if (linhas.length > 1) {
     aba.getRange(2, 4, linhas.length - 1, 1).setNumberFormat('0.00');
-    aba.getRange(2, 5, linhas.length - 1, 1).setNumberFormat('0');
+    aba.getRange(2, 5, linhas.length - 1, 1).setNumberFormat('0.###');
   }
 
   aba.setFrozenRows(1);

@@ -5,6 +5,14 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.4.0] - 2026-11-12
+
+### Alterado
+- Controle de estoque do açaí alterado para **Litros de Açaí** (`acai-litros`, categoria `acai`), com conversão automática para a quantidade equivalente de copos (`200 ml` a `700 ml`) conforme o saldo restante em mililitros.
+- Montador de pedidos (`js/app.js` e `js/estoque.js`) agora desconta os `ml` já reservados na sacola ao validar os tamanhos restantes; tamanhos maiores que o saldo restante ficam **Indisponíveis** automaticamente.
+- Painel `admin.html` ganhou o card **Estoque de Açaí (Litros)** com ajustes rápidos (`-1 L`, `-0,5 L`, `+0,5 L`, `+1 L`) e visualização em tempo real de quantos copos de cada tamanho o estoque atual rende.
+- `apps-script/Code.gs` e parser CSV atualizados para aceitar e formatar quantidades decimais (ex.: `2.5` litros).
+
 ## [1.3.0] - 2026-11-12
 
 ### Adicionado
