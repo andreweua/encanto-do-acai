@@ -19,14 +19,18 @@ Landing page e montador de pedidos interativo desenvolvido para o **Encanto do A
 ```text
 .
 ├── index.html                           # Página principal + Montador de Pedidos
+├── admin.html                           # Painel administrativo para editar e enviar estoque à planilha
+├── apps-script/
+│   └── Code.gs                          # Script do Google Sheets para leitura/escrita com PIN
 ├── assets/
 │   ├── favicon.svg                      # Ícone da marca para navegador
 │   └── encanto-hero.jpg                 # Imagem do Hero e prévia Open Graph
 ├── js/
-│   ├── config.js                        # Configurações, ID da planilha, endereço e catálogo padrão
-│   ├── estoque.js                       # Leitura/parser CSV do Google Sheets e regras de estoque
-│   └── app.js                           # Montador interativo, sacola e envio no WhatsApp
-├── modelo_estoque_google_sheets.csv     # Planilha modelo pronta para importar no Google Sheets
+│   ├── config.js                        # Configurações, URL do Apps Script/planilha e catálogo padrão
+│   ├── estoque.js                       # Leitura CSV/JSON do Google Sheets e regras de estoque
+│   ├── app.js                           # Montador interativo, sacola e envio em cupom no WhatsApp
+│   └── admin.js                         # Lógica do painel administrativo
+├── modelo_estoque_google_sheets.csv     # Planilha modelo opcional para importação manual
 ├── guia_de_estilos_encanto_do_a_a.md    # Guia de estilos e tokens visuais
 ├── README.md                            # Documentação do projeto
 └── CHANGELOG.md                         # Histórico de versões
@@ -36,11 +40,17 @@ Landing page e montador de pedidos interativo desenvolvido para o **Encanto do A
 
 ## Como Conectar o Estoque no Google Sheets
 
-1. Acesse o [Google Sheets](https://sheets.google.com) e crie uma nova planilha.
-2. Importe o arquivo [`modelo_estoque_google_sheets.csv`](./modelo_estoque_google_sheets.csv) em **Arquivo > Importar > Fazer upload** (separe por vírgula).
-3. Libere a leitura pública usando uma das opções abaixo:
-   - **Opção A (Mais rápida):** Clique em **Compartilhar** (canto superior direito) e em *Acesso geral* selecione **Qualquer pessoa com o link** (papel **Leitor**). Copie o ID da planilha na URL (trecho entre `/d/` e `/edit`) e cole em `GOOGLE_SHEET_ID` no arquivo [`js/config.js`](./js/config.js).
-   - **Opção B (Publicar na web):** Vá em **Arquivo > Compartilhar > Publicar na web**, escolha a aba de estoque e o formato **Valores separados por vírgula (.csv)**, clique em **Publicar** e cole o link gerado em `GOOGLE_SHEET_CSV_URL` no arquivo [`js/config.js`](./js/config.js).
+### Forma recomendada: Painel `admin.html` + Apps Script (sem importar CSV)
+
+1. Crie uma planilha em branco no [Google Sheets](https://sheets.google.com).
+2. No menu da planilha, acesse **Extensões > Apps Script** e cole o código de [`apps-script/Code.gs`](./apps-script/Code.gs).
+3. Altere `ADMIN_PIN` na primeira linha de código para sua senha secreta.
+4. Clique em **Implantar > Nova implantação > App da Web** (Executar como: *Eu*; Quem pode acessar: *Qualquer pessoa*) e copie a URL gerada.
+5. Cole a URL em `APPS_SCRIPT_URL` no arquivo [`js/config.js`](./js/config.js) (ou diretamente na tela de [`admin.html`](./admin.html)) e clique em **Enviar para Planilha**. A planilha será preenchida automaticamente com cabeçalho e todos os itens.
+
+### Alternativa (somente leitura via CSV)
+
+Se preferir editar manualmente na planilha sem usar o painel `admin.html`, importe [`modelo_estoque_google_sheets.csv`](./modelo_estoque_google_sheets.csv), compartilhe como **Qualquer pessoa com o link (Leitor)** e cole o ID em `GOOGLE_SHEET_ID` no [`js/config.js`](./js/config.js).
 
 ### Como funciona o status **Indisponível** na planilha
 

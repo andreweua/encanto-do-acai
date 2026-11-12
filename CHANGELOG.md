@@ -5,6 +5,13 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.3.0] - 2026-11-12
+
+### Adicionado
+- Painel administrativo `admin.html` + `js/admin.js` para gerenciar estoque visualmente (botões `+/-`, pausa rápido `Ativo/Pausado`, edição de preços, filtros e criação de novos itens).
+- Integração bidirecional com Google Sheets via `apps-script/Code.gs`: o botão **Enviar para Planilha** cria/atualiza cabeçalho e produtos direto na planilha sem precisar importar CSV manualmente, protegido por `ADMIN_PIN`.
+- Suporte em `js/estoque.js` e `js/config.js` (`APPS_SCRIPT_URL`) para o cardápio ler diretamente da mesma URL do Apps Script caso não haja CSV configurado.
+
 ## [1.2.2] - 2026-11-12
 
 ### Adicionado

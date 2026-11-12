@@ -175,11 +175,38 @@ window.EncantoEstoque = (() => {
         };
     }
 
+    async function carregarViaAppsScript(appsScriptUrl) {
+        const separador = appsScriptUrl.includes('?') ? '&' : '?';
+        const url = `${appsScriptUrl}${separador}_t=${Date.now()}`;
+        const resposta = await fetch(url, { cache: 'no-store' });
+        if (!resposta.ok) {
+            throw new Error(`HTTP ${resposta.status} ao consultar Apps Script`);
+        }
+
+        const json = await resposta.json();
+        if (!json || json.ok === false) {
+            throw new Error((json && json.error) || 'Resposta inválida do Apps Script');
+        }
+
+        const listaBruta = Array.isArray(json.produtos) ? json.produtos : [];
+        return listaBruta
+            .map((item, idx) => converterLinhaProduto({
+                id: item.id,
+                categoria: item.categoria,
+                nome: item.nome,
+                preco: item.preco,
+                estoque: item.estoque,
+                ativo: item.ativo,
+            }, idx))
+            .filter(Boolean);
+    }
+
     async function carregarCatalogo(config = window.ENCANTO_CONFIG) {
         const fallback = (config.CATALOGO_PADRAO || []).map((item) => ({ ...item }));
         const urlCsv = montarUrlCsv(config);
+        const appsScriptUrl = String(config.APPS_SCRIPT_URL || '').trim();
 
-        if (!urlCsv) {
+        if (!urlCsv && !appsScriptUrl) {
             return {
                 produtos: fallback,
                 origem: 'padrao',
@@ -188,27 +215,45 @@ window.EncantoEstoque = (() => {
         }
 
         try {
-            const resposta = await fetch(urlCsv, { cache: 'no-store' });
-            if (!resposta.ok) {
-                throw new Error(`HTTP ${resposta.status} ao consultar planilha`);
+            if (urlCsv) {
+                const resposta = await fetch(urlCsv, { cache: 'no-store' });
+                if (!resposta.ok) {
+                    throw new Error(`HTTP ${resposta.status} ao consultar planilha`);
+                }
+
+                const textoCsv = await resposta.text();
+                if (textoCsv.trim().startsWith('<!DOCTYPE html') || textoCsv.trim().startsWith('<html')) {
+                    throw new Error('A planilha retornou HTML em vez de CSV. Verifique se o compartilhamento está público.');
+                }
+
+                const linhas = parseCsv(textoCsv);
+                const produtos = linhas
+                    .map(converterLinhaProduto)
+                    .filter(Boolean);
+
+                if (produtos.length === 0) {
+                    throw new Error('Planilha sem produtos válidos.');
+                }
+
+                return {
+                    produtos,
+                    origem: 'sheets',
+                    atualizadoEm: new Date(),
+                };
             }
 
-            const textoCsv = await resposta.text();
-            if (textoCsv.trim().startsWith('<!DOCTYPE html') || textoCsv.trim().startsWith('<html')) {
-                throw new Error('A planilha retornou HTML em vez de CSV. Verifique se o compartilhamento está público.');
-            }
-
-            const linhas = parseCsv(textoCsv);
-            const produtos = linhas
-                .map(converterLinhaProduto)
-                .filter(Boolean);
-
-            if (produtos.length === 0) {
-                throw new Error('Planilha sem produtos válidos.');
+            const produtosScript = await carregarViaAppsScript(appsScriptUrl);
+            if (produtosScript.length === 0) {
+                return {
+                    produtos: fallback,
+                    origem: 'padrao',
+                    vaziaNaPlanilha: true,
+                    atualizadoEm: new Date(),
+                };
             }
 
             return {
-                produtos,
+                produtos: produtosScript,
                 origem: 'sheets',
                 atualizadoEm: new Date(),
             };
@@ -221,6 +266,25 @@ window.EncantoEstoque = (() => {
                 atualizadoEm: new Date(),
             };
         }
+    }
+
+    function gerarCsvCatalogo(produtos) {
+        const escapar = (v) => {
+            const s = String(v ?? '');
+            return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const linhas = ['id,categoria,nome,preco,estoque,ativo'];
+        produtos.forEach((p) => {
+            linhas.push([
+                escapar(p.id),
+                escapar(p.categoria),
+                escapar(p.nome),
+                Number(p.preco || 0).toFixed(2),
+                Math.max(0, Number.parseInt(p.estoque, 10) || 0),
+                p.ativo === false ? 'NÃO' : 'SIM',
+            ].join(','));
+        });
+        return linhas.join('\n');
     }
 
     function getEstoqueDisponivel(produto, quantidadeReservada = 0) {
@@ -241,6 +305,8 @@ window.EncantoEstoque = (() => {
 
     return {
         carregarCatalogo,
+        carregarViaAppsScript,
+        gerarCsvCatalogo,
         getEstoqueDisponivel,
         isProdutoDisponivel,
         formatarMoeda,

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Estoque | Encanto do Açaí</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#380B4E">
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Montserrat:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        acai: {
+                            dark: '#380B4E',
+                            magenta: '#E3005A',
+                            yellow: '#FFC107',
+                            cyan: '#00BFA5',
+                        },
+                        gold: {
+                            400: '#e5c07b',
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Lilita One"', 'cursive'],
+                        script: ['"Pacifico"', 'cursive'],
+                        sans: ['"Montserrat"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-acai-dark text-white border-b border-acai-magenta/40 shadow-lg sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="font-display text-xl sm:text-2xl tracking-wide">
+                    ENCANTO <span class="font-script text-acai-yellow font-normal lowercase">do Açaí</span>
+                </span>
+                <span class="bg-acai-magenta text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
+            </div>
+            <a href="./index.html" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> Ver Cardápio
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6 flex-1">
+
+        <!-- Conexão com Google Sheets -->
+        <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-slate-200 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h1 class="font-display text-2xl text-acai-dark tracking-wide">CONTROLE DE ESTOQUE</h1>
+                    <p class="text-xs sm:text-sm text-slate-500">Ajuste quantidades, pause sabores esgotados e envie direto para o Google Sheets.</p>
+                </div>
+                <span id="admin-status-conexao" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600">
+                    Carregando...
+                </span>
+            </div>
+
+            <div class="grid md:grid-cols-12 gap-3 items-end">
+                <div class="md:col-span-7">
+                    <label for="admin-script-url" class="block text-xs font-bold text-slate-600 mb-1">
+                        URL do Web App (Google Apps Script)
+                    </label>
+                    <input
+                        id="admin-script-url"
+                        type="url"
+                        placeholder="https://script.google.com/macros/s/.../exec"
+                        class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-acai-magenta"
+                    >
+                </div>
+                <div class="md:col-span-5">
+                    <label for="admin-pin" class="block text-xs font-bold text-slate-600 mb-1">
+                        PIN de Administrador
+                    </label>
+                    <input
+                        id="admin-pin"
+                        type="password"
+                        placeholder="PIN configurado no Code.gs"
+                        class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-acai-magenta"
+                    >
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+                <button
+                    id="btn-salvar-planilha"
+                    type="button"
+                    class="inline-flex items-center gap-2 bg-acai-magenta hover:bg-pink-600 text-white font-bold px-6 py-3 rounded-full text-sm shadow-md transition-transform hover:scale-[1.02] cursor-pointer"
+                >
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    Enviar para Planilha
+                </button>
+                <button
+                    id="btn-carregar-planilha"
+                    type="button"
+                    class="inline-flex items-center gap-2 bg-acai-dark hover:bg-purple-950 text-white font-bold px-5 py-3 rounded-full text-sm transition-colors cursor-pointer"
+                >
+                    <i class="fa-solid fa-rotate-right"></i>
+                    Carregar da Planilha
+                </button>
+                <button
+                    id="btn-baixar-csv"
+                    type="button"
+                    class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-3 rounded-full text-sm transition-colors cursor-pointer"
+                >
+                    <i class="fa-solid fa-file-csv text-acai-cyan"></i>
+                    Baixar CSV
+                </button>
+            </div>
+
+            <details class="rounded-2xl bg-purple-50/70 border border-acai-dark/15 p-4 text-xs sm:text-sm text-slate-700">
+                <summary class="font-bold text-acai-dark cursor-pointer">
+                    Primeira configuração (sem precisar importar CSV manualmente)
+                </summary>
+                <ol class="list-decimal list-inside space-y-1.5 mt-3 text-slate-600">
+                    <li>Crie uma planilha em branco no <strong>Google Sheets</strong>.</li>
+                    <li>Abra <strong>Extensões &gt; Apps Script</strong> e cole o código do arquivo <code>apps-script/Code.gs</code>.</li>
+                    <li>Troque <code>ADMIN_PIN</code> no topo do script para a sua senha secreta.</li>
+                    <li>Clique em <strong>Implantar &gt; Nova implantação &gt; App da Web</strong> (Executar como: <em>Eu</em>; Quem pode acessar: <em>Qualquer pessoa</em>).</li>
+                    <li>Cole a URL gerada em <code>APPS_SCRIPT_URL</code> no arquivo <code>js/config.js</code> (ou no campo acima) e clique em <strong>Enviar para Planilha</strong> — a planilha será preenchida automaticamente.</li>
+                </ol>
+            </details>
+        </section>
+
+        <!-- Resumo rápido -->
+        <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                <span class="text-xs font-semibold text-slate-500 block">Total de itens</span>
+                <span id="kpi-total" class="font-display text-2xl text-acai-dark">0</span>
+            </div>
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                <span class="text-xs font-semibold text-emerald-700 block">Disponíveis</span>
+                <span id="kpi-disponiveis" class="font-display text-2xl text-emerald-600">0</span>
+            </div>
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                <span class="text-xs font-semibold text-red-700 block">Indisponíveis</span>
+                <span id="kpi-indisponiveis" class="font-display text-2xl text-red-600">0</span>
+            </div>
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                <span class="text-xs font-semibold text-amber-700 block">Estoque baixo</span>
+                <span id="kpi-baixo" class="font-display text-2xl text-amber-600">0</span>
+            </div>
+        </section>
+
+        <!-- Filtros e Busca -->
+        <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" data-filtro-status="todos" class="px-4 py-2 rounded-full text-xs font-bold bg-acai-dark text-white cursor-pointer">Todos</button>
+                <button type="button" data-filtro-status="disponiveis" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Disponíveis</button>
+                <button type="button" data-filtro-status="indisponiveis" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Indisponíveis</button>
+                <button type="button" data-filtro-status="baixo" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Estoque baixo</button>
+            </div>
+            <input
+                id="admin-busca"
+                type="search"
+                placeholder="Buscar produto..."
+                class="sm:w-64 rounded-full border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-acai-magenta"
+            >
+        </section>
+
+        <!-- Listas editáveis -->
+        <div id="admin-listas-categorias" class="space-y-6"></div>
+
+        <!-- Adicionar Novo Produto -->
+        <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-slate-200">
+            <h2 class="font-display text-xl text-acai-dark mb-4">ADICIONAR NOVO ITEM</h2>
+            <form id="form-novo-item" class="grid sm:grid-cols-12 gap-3 items-end">
+                <div class="sm:col-span-3">
+                    <label for="novo-categoria" class="block text-xs font-bold text-slate-600 mb-1">Categoria</label>
+                    <select id="novo-categoria" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm bg-white">
+                        <option value="copo">Copo</option>
+                        <option value="adicional_gratis">Adicional Grátis</option>
+                        <option value="adicional_pago" selected>Adicional Pago</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-4">
+                    <label for="novo-nome" class="block text-xs font-bold text-slate-600 mb-1">Nome</label>
+                    <input id="novo-nome" type="text" placeholder="Ex.: KitKat" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div class="sm:col-span-2">
+                    <label for="novo-preco" class="block text-xs font-bold text-slate-600 mb-1">Preço (R$)</label>
+                    <input id="novo-preco" type="number" step="0.50" min="0" placeholder="4.00" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div class="sm:col-span-1">
+                    <label for="novo-estoque" class="block text-xs font-bold text-slate-600 mb-1">Qtd</label>
+                    <input id="novo-estoque" type="number" min="0" value="15" class="w-full rounded-xl border border-slate-300 px-2.5 py-2.5 text-sm">
+                </div>
+                <div class="sm:col-span-2">
+                    <button type="submit" class="w-full bg-acai-cyan hover:bg-teal-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-colors cursor-pointer">
+                        <i class="fa-solid fa-plus mr-1"></i> Adicionar
+                    </button>
+                </div>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- Footer PereiraLabs -->
+    <footer class="bg-slate-900 text-slate-400 py-5 px-4 mt-8">
+        <p class="text-[10px] text-slate-500 text-center">
+            Desenvolvido por:
+            <a href="https://github.com/andreweua" target="_blank" rel="noopener noreferrer" class="hover:text-gold-400 text-slate-400 transition font-medium">PereiraLabs - Divisão de Tecnologia e IA</a> |
+            <span class="text-slate-400 font-medium">Louzada &amp; Pereira - Soluções Digitais</span>.
+            <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.3.0</a>
+        </p>
+    </footer>
+
+    <!-- Toast -->
+    <div
+        id="admin-toast"
+        aria-live="polite"
+        class="fixed bottom-6 right-6 z-50 max-w-xs bg-acai-dark text-white text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300"
+    ></div>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/estoque.js"></script>
+    <script src="./js/admin.js"></script>
+</body>
+</html>

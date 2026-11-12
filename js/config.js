@@ -9,7 +9,7 @@
  *    ou cole o link CSV publicado em `GOOGLE_SHEET_CSV_URL`.
  */
 window.ENCANTO_CONFIG = {
-    APP_VERSION: 'v1.2.2',
+    APP_VERSION: 'v1.3.0',
     WHATSAPP_NUMBER: '5535997147481',
     STORE_NAME: 'Encanto do Açaí',
     OPENING_HOURS: 'Aberto a partir das 16:40',
@@ -18,7 +18,10 @@ window.ENCANTO_CONFIG = {
     GOOGLE_MAPS_EMBED_URL: '',
     INSTAGRAM_URL: '',
 
-    // Cole aqui o ID da planilha (trecho entre /d/ e /edit) ou a URL completa do Google Sheets
+    // URL do Web App do Google Apps Script (permite ler e salvar estoque direto pelo admin.html)
+    APPS_SCRIPT_URL: '',
+
+    // Opcional (leitura CSV): ID da planilha (trecho entre /d/ e /edit) ou URL do Google Sheets
     GOOGLE_SHEET_ID: '',
 
     // Nome da aba na planilha (deixe vazio '' para ler automaticamente a primeira aba)
