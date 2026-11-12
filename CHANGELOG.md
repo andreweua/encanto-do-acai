@@ -5,6 +5,12 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.4.1] - 2026-11-12
+
+### Alterado
+- Configurada a `APPS_SCRIPT_URL` oficial em `js/config.js` para conectar o cardápio e o painel admin ao Google Sheets em produção.
+- Adicionado versionamento `?v=1.4.1` nas tags `<script>` de `index.html` e `admin.html` para evitar cache desatualizado no navegador.
+
 ## [1.4.0] - 2026-11-12
 
 ### Alterado
