@@ -1,0 +1,12 @@
+/* Ajustes globais de legibilidade mobile (PWA / Cardápio / Painéis) */
+@media (max-width: 640px) {
+    html {
+        font-size: 18px;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}

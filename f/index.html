@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecionando | Encanto do Açaí</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script>
+        (function () {
+            var search = window.location.search.replace(/^\?/, '');
+            var pedido = '';
+            if (search.indexOf('pedido=') !== -1) {
+                pedido = new URLSearchParams(window.location.search).get('pedido') || '';
+            } else if (search) {
+                pedido = decodeURIComponent(search.split('&')[0]);
+            }
+            var destino = '../acompanhar.html' + (pedido ? '?pedido=' + encodeURIComponent(pedido) : '');
+            window.location.replace(destino);
+        })();
+    </script>
+</head>
+<body style="font-family: sans-serif; padding: 2rem; text-align: center; color: #380B4E;">
+    <p>Abrindo acompanhamento do pedido...</p>
+</body>
+</html>

@@ -702,7 +702,7 @@
     }
 
     function construirLinkAcompanhamento(numeroPedido) {
-        const query = `acompanhar.html?pedido=${encodeURIComponent(numeroPedido)}`;
+        const query = `f/?${encodeURIComponent(numeroPedido)}`;
         try {
             if (typeof window !== 'undefined' && window.location && /^https?:/.test(window.location.href)) {
                 return new URL(query, window.location.href).href;

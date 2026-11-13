@@ -1,0 +1,51 @@
+{
+  "name": "Encanto do Açaí",
+  "short_name": "Encanto Açaí",
+  "description": "Monte seu açaí online, acompanhe a fila em tempo real e faça pedidos pelo WhatsApp.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#380B4E",
+  "theme_color": "#380B4E",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Acompanhar Fila",
+      "short_name": "Fila",
+      "url": "./acompanhar.html",
+      "icons": [{ "src": "./assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Painel do Caixa",
+      "short_name": "Caixa",
+      "url": "./caixa.html",
+      "icons": [{ "src": "./assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Painel da Cozinha",
+      "short_name": "Cozinha",
+      "url": "./cozinha.html",
+      "icons": [{ "src": "./assets/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

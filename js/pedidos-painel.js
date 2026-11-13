@@ -158,8 +158,7 @@
     }
 
     function montarLinkWhatsappCliente(pedido) {
-        const baseAcompanhar = new URL('./acompanhar.html', window.location.href);
-        baseAcompanhar.searchParams.set('pedido', pedido.numero);
+        const baseAcompanhar = new URL(`./f/?${encodeURIComponent(pedido.numero)}`, window.location.href);
 
         const texto = [
             `Olá, ${pedido.clienteNome || 'cliente'}! 🍇`,

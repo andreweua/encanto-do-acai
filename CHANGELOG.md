@@ -5,6 +5,13 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.6.0] - 2026-11-13
+
+### Adicionado
+- **PWA Instalável (`manifest.webmanifest`, `sw.js`, `js/pwa.js`, `assets/icon-192.png`, `assets/icon-512.png`):** O cardápio e os painéis agora podem ser instalados no celular como aplicativo, com atalhos para Fila, Caixa e Cozinha, sem cachear chamadas ao Google Sheets.
+- **Link curto sem terceiros (`f/index.html`):** Rota curta `/f/?YYYYMMDD-NNN` que redireciona automaticamente para `acompanhar.html?pedido=YYYYMMDD-NNN`, reduzindo o tamanho da URL enviada no WhatsApp.
+- **Tipografia ampliada no mobile (`css/app.css`):** Aumento proporcional da fonte base em telas menores (`<= 640px`) e proteção contra zoom automático em campos de formulário no iOS.
+
 ## [1.5.1] - 2026-11-12
 
 ### Corrigido
