@@ -194,7 +194,7 @@ window.EncantoEstoque = (() => {
         }
 
         const listaBruta = Array.isArray(json.produtos) ? json.produtos : [];
-        return listaBruta
+        const produtos = listaBruta
             .map((item, idx) => converterLinhaProduto({
                 id: item.id,
                 categoria: item.categoria,
@@ -204,6 +204,11 @@ window.EncantoEstoque = (() => {
                 ativo: item.ativo,
             }, idx))
             .filter(Boolean);
+
+        return {
+            produtos,
+            empresa: json.empresa || null,
+        };
     }
 
     async function carregarCatalogo(config = window.ENCANTO_CONFIG) {
@@ -247,10 +252,12 @@ window.EncantoEstoque = (() => {
                 };
             }
 
-            const produtosScript = await carregarViaAppsScript(appsScriptUrl);
+            const resScript = await carregarViaAppsScript(appsScriptUrl);
+            const produtosScript = resScript.produtos || [];
             if (produtosScript.length === 0) {
                 return {
                     produtos: fallback,
+                    empresa: resScript.empresa || null,
                     origem: 'padrao',
                     vaziaNaPlanilha: true,
                     atualizadoEm: new Date(),
@@ -259,6 +266,7 @@ window.EncantoEstoque = (() => {
 
             return {
                 produtos: produtosScript,
+                empresa: resScript.empresa || null,
                 origem: 'sheets',
                 atualizadoEm: new Date(),
             };

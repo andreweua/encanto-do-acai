@@ -9,6 +9,8 @@
     const state = {
         modo: document.body.dataset.modoPainel || 'caixa',
         pedidos: [],
+        empresa: null,
+        catalogo: [],
         carregando: false,
         atualizadoEm: null,
         timerAuto: null,
@@ -112,6 +114,17 @@
             }
 
             state.pedidos = Array.isArray(json.pedidos) ? json.pedidos : [];
+            if (json.empresa) {
+                state.empresa = json.empresa;
+            }
+            if (state.catalogo.length === 0 && window.EncantoEstoque?.carregarCatalogo) {
+                try {
+                    const cat = await window.EncantoEstoque.carregarCatalogo(config);
+                    state.catalogo = Array.isArray(cat.produtos) ? cat.produtos : [];
+                } catch {
+                    state.catalogo = config.CATALOGO_PADRAO || [];
+                }
+            }
             state.atualizadoEm = new Date();
             const hora = state.atualizadoEm.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             atualizarStatusBadge(`Sincronizado às ${hora}`, 'ok');
@@ -149,12 +162,57 @@
                 throw new Error((json && json.error) || 'Não foi possível atualizar o status.');
             }
 
-            const extra = json.estoqueBaixadoAgora ? ' (Estoque baixado automaticamente!)' : '';
+            const extra = json.estoqueBaixadoAgora
+                ? ' (Estoque baixado automaticamente!)'
+                : json.estoqueEstornadoAgora
+                    ? ' (Estoque estornado automaticamente!)'
+                    : '';
             mostrarToast(`Pedido #${numero} → ${novoStatus}${extra}`, 'sucesso');
             await carregarPedidos(true);
         } catch (erro) {
             mostrarToast(erro.message || 'Erro ao atualizar pedido.', 'erro');
         }
+    }
+
+    async function salvarEdicaoPedido(numero, dadosPedido) {
+        const urlBase = obterScriptUrl();
+        const pin = obterPin();
+        if (!urlBase || !pin) {
+            mostrarToast('Informe o PIN primeiro.', 'erro');
+            return false;
+        }
+
+        try {
+            const resp = await fetch(urlBase, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'editar_pedido',
+                    pin,
+                    numero,
+                    pedido: dadosPedido,
+                }),
+            });
+            const json = await resp.json();
+            if (!json || !json.ok) {
+                throw new Error((json && json.error) || 'Não foi possível editar o pedido.');
+            }
+            mostrarToast(`Pedido #${numero} atualizado!`, 'sucesso');
+            await carregarPedidos(true);
+            return true;
+        } catch (erro) {
+            mostrarToast(erro.message || 'Erro ao editar pedido.', 'erro');
+            return false;
+        }
+    }
+
+    function montarUrlWhatsapp(telefone, texto) {
+        const digitos = String(telefone || '').replace(/\D/g, '');
+        if (digitos.length >= 10) {
+            const numeroComDdi = digitos.startsWith('55') ? digitos : `55${digitos}`;
+            return `https://wa.me/${numeroComDdi}?text=${encodeURIComponent(texto)}`;
+        }
+        return `https://wa.me/?text=${encodeURIComponent(texto)}`;
     }
 
     function montarLinkWhatsappCliente(pedido) {
@@ -168,12 +226,16 @@
             `Acompanhe aqui: ${baseAcompanhar.toString()}`,
         ].join('\n');
 
-        const digitos = String(pedido.clienteWhatsapp || '').replace(/\D/g, '');
-        if (digitos.length >= 10) {
-            const numeroComDdi = digitos.startsWith('55') ? digitos : `55${digitos}`;
-            return `https://wa.me/${numeroComDdi}?text=${encodeURIComponent(texto)}`;
-        }
-        return `https://wa.me/?text=${encodeURIComponent(texto)}`;
+        return montarUrlWhatsapp(pedido.clienteWhatsapp, texto);
+    }
+
+    function montarLinkConversaPagamento(pedido) {
+        const texto = [
+            `Olá, ${pedido.clienteNome || 'cliente'}! Tudo bem? 😊`,
+            `Recebemos seu pedido *#${pedido.numero}* no *${state.empresa?.nomeLoja || 'Encanto do Açaí'}* no valor de *${formatarMoeda(pedido.total)}*.`,
+            `Qual será a forma de pagamento? (*PIX*, *Cartão de Débito/Crédito* ou *Dinheiro*)`,
+        ].join('\n');
+        return montarUrlWhatsapp(pedido.clienteWhatsapp, texto);
     }
 
     function renderItensPedidoHtml(itens) {
@@ -211,15 +273,15 @@
             'Cancelado': 'bg-red-100 text-red-700',
         };
         const badgeCls = badges[p.status] || 'bg-slate-100 text-slate-700';
+        const ativo = p.status !== 'Concluído' && p.status !== 'Cancelado';
+        const opcoesPgto = ['Pix', 'Cartão de Crédito', 'Cartão de Débito', 'Dinheiro'];
+        const linkConversa = montarLinkConversaPagamento(p);
 
         let acoes = '';
         if (p.status === 'Aguardando Caixa') {
             acoes = `
                 <button type="button" data-acao-status="Em Preparo" data-numero="${escapeHtml(p.numero)}" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors cursor-pointer">
                     <i class="fa-solid fa-check mr-1"></i> Confirmar &amp; Baixar Estoque
-                </button>
-                <button type="button" data-acao-status="Cancelado" data-numero="${escapeHtml(p.numero)}" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-3 py-2.5 rounded-xl transition-colors cursor-pointer">
-                    Cancelar
                 </button>
             `;
         } else if (p.status === 'Em Preparo') {
@@ -232,13 +294,50 @@
             const linkWa = montarLinkWhatsappCliente(p);
             acoes = `
                 <a href="${escapeHtml(linkWa)}" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors">
-                    <i class="fa-brands fa-whatsapp text-base"></i> Enviar ao Cliente
+                    <i class="fa-brands fa-whatsapp text-base"></i> Avisar Pronto
                 </a>
                 <button type="button" data-acao-status="Concluído" data-numero="${escapeHtml(p.numero)}" class="bg-acai-dark hover:bg-purple-950 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors cursor-pointer">
                     Finalizar
                 </button>
             `;
         }
+
+        const gerenciaPgto = ativo ? `
+            <div class="rounded-xl bg-purple-50/70 border border-acai-dark/10 p-3 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-bold uppercase text-acai-dark">Gerenciar Pagamento</span>
+                    <a href="${escapeHtml(linkConversa)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-green-700 hover:underline">
+                        <i class="fa-brands fa-whatsapp"></i> Perguntar no WhatsApp
+                    </a>
+                </div>
+                <div class="flex flex-wrap gap-2 items-center">
+                    <select data-select-pgto="${escapeHtml(p.numero)}" class="flex-1 min-w-[130px] rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-acai-dark">
+                        ${opcoesPgto.map((op) => `<option value="${escapeHtml(op)}" ${p.pagamento === op ? 'selected' : ''}>${escapeHtml(op)}</option>`).join('')}
+                        ${!opcoesPgto.includes(p.pagamento) && p.pagamento ? `<option value="${escapeHtml(p.pagamento)}" selected>${escapeHtml(p.pagamento)}</option>` : ''}
+                    </select>
+                    <input type="text" data-input-troco="${escapeHtml(p.numero)}" value="${escapeHtml(p.troco || '')}" placeholder="Troco (se dinheiro)" class="w-32 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+                    <button type="button" data-acao-salvar-pgto="${escapeHtml(p.numero)}" class="bg-acai-dark hover:bg-purple-950 text-white font-bold text-xs px-3 py-1.5 rounded-lg cursor-pointer">
+                        Salvar
+                    </button>
+                </div>
+                ${String(p.pagamento || '').toLowerCase().includes('pix') ? `
+                    <button type="button" data-acao-pix="${escapeHtml(p.numero)}" class="w-full inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-3 py-2 rounded-lg transition-colors cursor-pointer">
+                        <i class="fa-solid fa-qrcode"></i> Gerar PIX &amp; Enviar no WhatsApp
+                    </button>
+                ` : ''}
+            </div>
+        ` : '';
+
+        const botoesEdicaoCancelamento = ativo ? `
+            <div class="flex gap-2 pt-1 border-t border-slate-100">
+                <button type="button" data-acao-editar="${escapeHtml(p.numero)}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-acai-dark font-bold text-xs px-3 py-2 rounded-xl transition-colors cursor-pointer">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i> Editar Pedido
+                </button>
+                <button type="button" data-acao-cancelar="${escapeHtml(p.numero)}" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-3 py-2 rounded-xl transition-colors cursor-pointer">
+                    <i class="fa-solid fa-ban mr-1"></i> Cancelar
+                </button>
+            </div>
+        ` : '';
 
         return `
             <article class="bg-white rounded-2xl border ${p.status === 'Pronto' ? 'border-emerald-400 ring-2 ring-emerald-200' : 'border-slate-200'} p-4 shadow-sm space-y-3">
@@ -263,7 +362,9 @@
 
                 <div class="space-y-2">${renderItensPedidoHtml(p.itens)}</div>
 
+                ${gerenciaPgto}
                 ${acoes ? `<div class="flex flex-wrap gap-2 pt-1">${acoes}</div>` : ''}
+                ${botoesEdicaoCancelamento}
             </article>
         `;
     }
@@ -376,6 +477,319 @@
         `;
     }
 
+    function abrirModalPix(pedido, empresaCustom = null) {
+        const empresa = empresaCustom || state.empresa || {};
+        if (!window.EncantoPix?.gerarPixCopiaECola) {
+            mostrarToast('Módulo PIX não carregado.', 'erro');
+            return;
+        }
+        let codigoPix = '';
+        try {
+            codigoPix = window.EncantoPix.gerarPixCopiaECola({
+                chave: empresa.pixChave,
+                titular: empresa.pixTitular || empresa.nomeLoja || 'ENCANTO DO ACAI',
+                cidade: empresa.pixCidade || 'BRASIL',
+                valor: pedido.total,
+                txid: `PED${String(pedido.numero || '').replace(/\D/g, '')}`,
+            });
+        } catch (erro) {
+            mostrarToast(erro.message || 'Configure a chave PIX no Admin > Dados da Empresa.', 'erro');
+            return;
+        }
+
+        const textoWa = [
+            `Olá, ${pedido.clienteNome || 'cliente'}! 🍇`,
+            `Segue o *PIX Copia e Cola* do seu pedido *#${pedido.numero}* no *${empresa.nomeLoja || 'Encanto do Açaí'}*:`,
+            `Valor: *${formatarMoeda(pedido.total)}*`,
+            '',
+            codigoPix,
+            '',
+            'Basta copiar o código acima e colar na opção *Pix Copia e Cola* do aplicativo do seu banco.',
+        ].join('\n');
+        const linkWa = montarUrlWhatsapp(pedido.clienteWhatsapp, textoWa);
+
+        const existente = document.getElementById('modal-pix-dinamico');
+        if (existente) existente.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'modal-pix-dinamico';
+        overlay.className = 'fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4';
+        overlay.innerHTML = `
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-display text-xl text-acai-dark">PIX • #${escapeHtml(pedido.numero)}</h3>
+                    <button type="button" data-fechar-modal class="text-slate-400 hover:text-slate-700 text-lg font-bold cursor-pointer">✕</button>
+                </div>
+                <p class="text-sm text-slate-600">Valor a cobrar: <strong class="text-acai-magenta text-base">${escapeHtml(formatarMoeda(pedido.total))}</strong></p>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">PIX Copia e Cola</label>
+                    <textarea readonly rows="4" class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-xs font-mono text-slate-800">${escapeHtml(codigoPix)}</textarea>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button type="button" data-copiar-pix class="flex-1 bg-acai-dark hover:bg-purple-950 text-white font-bold text-xs px-4 py-3 rounded-xl cursor-pointer">
+                        <i class="fa-regular fa-copy mr-1"></i> Copiar Código PIX
+                    </button>
+                    <a href="${escapeHtml(linkWa)}" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-xs px-4 py-3 rounded-xl">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Enviar no WhatsApp
+                    </a>
+                </div>
+            </div>
+        `;
+        overlay.addEventListener('click', (ev) => {
+            if (ev.target === overlay || ev.target.closest('[data-fechar-modal]')) {
+                overlay.remove();
+            } else if (ev.target.closest('[data-copiar-pix]')) {
+                navigator.clipboard?.writeText(codigoPix).then(
+                    () => mostrarToast('Código PIX copiado!', 'sucesso'),
+                    () => mostrarToast('Selecione e copie o código manualmente.', 'erro'),
+                );
+            }
+        });
+        document.body.appendChild(overlay);
+    }
+
+    function abrirModalEditar(pedido, catalogoLista = null, onSalvarCallback = null) {
+        const catalogo = (Array.isArray(catalogoLista) && catalogoLista.length > 0)
+            ? catalogoLista
+            : (state.catalogo.length > 0 ? state.catalogo : (config.CATALOGO_PADRAO || []));
+        const copos = catalogo.filter((p) => p.categoria === 'copo');
+        const gratis = catalogo.filter((p) => p.categoria === 'adicional_gratis');
+        const pagos = catalogo.filter((p) => p.categoria === 'adicional_pago');
+
+        let itensEdit = (pedido.itens || []).map((it) => ({
+            copoId: it.copoId || '',
+            copoNome: it.copoNome || '',
+            volumeMl: Number(it.volumeMl || 0),
+            gratisIds: Array.isArray(it.gratisIds) ? [...it.gratisIds] : [],
+            gratisNomes: Array.isArray(it.gratisNomes) ? [...it.gratisNomes] : [],
+            pagosIds: Array.isArray(it.pagosIds) ? [...it.pagosIds] : [],
+            pagosNomes: Array.isArray(it.pagosNomes) ? [...it.pagosNomes] : [],
+            observacao: it.observacao || '',
+            subtotal: Number(it.subtotal || 0),
+        }));
+
+        const existente = document.getElementById('modal-editar-pedido-dinamico');
+        if (existente) existente.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'modal-editar-pedido-dinamico';
+        overlay.className = 'fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto';
+
+        function recalcularItem(it) {
+            const copoObj = copos.find((c) => c.id === it.copoId) || copos[0];
+            if (copoObj) {
+                it.copoId = copoObj.id;
+                it.copoNome = copoObj.nome;
+                it.volumeMl = window.EncantoEstoque?.extrairVolumeMl ? window.EncantoEstoque.extrairVolumeMl(copoObj) : (parseInt(copoObj.nome, 10) || 0);
+            }
+            const gratisObjs = it.gratisIds.map((id) => gratis.find((g) => g.id === id)).filter(Boolean);
+            it.gratisNomes = gratisObjs.map((g) => g.nome);
+            const pagosObjs = it.pagosIds.map((id) => pagos.find((pg) => pg.id === id)).filter(Boolean);
+            it.pagosNomes = pagosObjs.map((pg) => pg.nome);
+            const somaPagos = pagosObjs.reduce((acc, pg) => acc + Number(pg.preco || 0), 0);
+            it.subtotal = Number((copoObj ? copoObj.preco : 0) + somaPagos);
+        }
+
+        function renderItensEditor() {
+            const cont = overlay.querySelector('[data-editor-itens]');
+            const totalEl = overlay.querySelector('[data-editor-total]');
+            let totalGeral = 0;
+
+            cont.innerHTML = itensEdit.map((it, idx) => {
+                recalcularItem(it);
+                totalGeral += it.subtotal;
+                return `
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-2" data-item-idx="${idx}">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-bold text-xs text-acai-dark">Copo ${idx + 1} (${escapeHtml(formatarMoeda(it.subtotal))})</span>
+                            ${itensEdit.length > 1 ? `<button type="button" data-rem-item="${idx}" class="text-xs font-bold text-red-600 hover:underline cursor-pointer">Remover</button>` : ''}
+                        </div>
+                        <select data-item-copo="${idx}" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold">
+                            ${copos.map((c) => `<option value="${escapeHtml(c.id)}" ${c.id === it.copoId ? 'selected' : ''}>${escapeHtml(c.nome)} — ${escapeHtml(formatarMoeda(c.preco))}</option>`).join('')}
+                        </select>
+                        <div>
+                            <span class="block text-[11px] font-bold text-slate-500 mb-1">Adicionais Grátis</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${gratis.map((g) => {
+                                    const chk = it.gratisIds.includes(g.id);
+                                    return `<label class="inline-flex items-center gap-1 text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer">
+                                        <input type="checkbox" data-item-gratis="${idx}" value="${escapeHtml(g.id)}" ${chk ? 'checked' : ''}> ${escapeHtml(g.nome)}
+                                    </label>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                        <div>
+                            <span class="block text-[11px] font-bold text-slate-500 mb-1">Adicionais Pagos</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${pagos.map((pg) => {
+                                    const chk = it.pagosIds.includes(pg.id);
+                                    return `<label class="inline-flex items-center gap-1 text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer">
+                                        <input type="checkbox" data-item-pago="${idx}" value="${escapeHtml(pg.id)}" ${chk ? 'checked' : ''}> ${escapeHtml(pg.nome)} (+${escapeHtml(formatarMoeda(pg.preco))})
+                                    </label>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                        <input type="text" data-item-obs="${idx}" value="${escapeHtml(it.observacao)}" placeholder="Observação deste copo" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs">
+                    </div>
+                `;
+            }).join('');
+
+            totalEl.textContent = formatarMoeda(totalGeral);
+        }
+
+        const opcoesPgto = ['Pix', 'Cartão de Crédito', 'Cartão de Débito', 'Dinheiro'];
+        overlay.innerHTML = `
+            <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h3 class="font-display text-xl text-acai-dark">EDITAR PEDIDO #${escapeHtml(pedido.numero)}</h3>
+                    <button type="button" data-fechar-modal class="text-slate-400 hover:text-slate-700 text-lg font-bold cursor-pointer">✕</button>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Nome do Cliente</label>
+                        <input id="ed-nome" type="text" value="${escapeHtml(pedido.clienteNome || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">WhatsApp</label>
+                        <input id="ed-whatsapp" type="tel" value="${escapeHtml(pedido.clienteWhatsapp || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Recebimento</label>
+                        <select id="ed-entrega" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
+                            <option value="Entrega" ${pedido.tipoEntrega === 'Entrega' ? 'selected' : ''}>Entrega</option>
+                            <option value="Retirada" ${pedido.tipoEntrega === 'Retirada' ? 'selected' : ''}>Retirada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Pagamento</label>
+                        <select id="ed-pagamento" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
+                            ${opcoesPgto.map((op) => `<option value="${escapeHtml(op)}" ${pedido.pagamento === op ? 'selected' : ''}>${escapeHtml(op)}</option>`).join('')}
+                            ${!opcoesPgto.includes(pedido.pagamento) && pedido.pagamento ? `<option value="${escapeHtml(pedido.pagamento)}" selected>${escapeHtml(pedido.pagamento)}</option>` : ''}
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block font-bold text-slate-600 mb-1">Endereço</label>
+                        <input id="ed-endereco" type="text" value="${escapeHtml(pedido.endereco || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block font-bold text-slate-600 mb-1">Troco</label>
+                        <input id="ed-troco" type="text" value="${escapeHtml(pedido.troco || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-xs uppercase text-acai-dark">Itens do Pedido</span>
+                        <button type="button" data-add-item class="text-xs font-bold bg-acai-cyan text-white px-3 py-1.5 rounded-lg cursor-pointer">+ Adicionar Copo</button>
+                    </div>
+                    <div data-editor-itens class="space-y-2.5"></div>
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                    <div class="text-sm font-bold text-acai-dark">Total: <span data-editor-total class="text-acai-magenta text-lg">R$ 0,00</span></div>
+                    <div class="flex gap-2">
+                        <button type="button" data-fechar-modal class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer">Fechar</button>
+                        <button type="button" data-salvar-edicao class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer">Salvar Alterações</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+        renderItensEditor();
+
+        overlay.addEventListener('change', (ev) => {
+            const selCopo = ev.target.closest('select[data-item-copo]');
+            if (selCopo) {
+                itensEdit[Number(selCopo.dataset.itemCopo)].copoId = selCopo.value;
+                renderItensEditor();
+                return;
+            }
+            const chkGratis = ev.target.closest('input[data-item-gratis]');
+            if (chkGratis) {
+                const idx = Number(chkGratis.dataset.itemGratis);
+                const id = chkGratis.value;
+                if (chkGratis.checked) {
+                    if (!itensEdit[idx].gratisIds.includes(id)) itensEdit[idx].gratisIds.push(id);
+                } else {
+                    itensEdit[idx].gratisIds = itensEdit[idx].gratisIds.filter((x) => x !== id);
+                }
+                renderItensEditor();
+                return;
+            }
+            const chkPago = ev.target.closest('input[data-item-pago]');
+            if (chkPago) {
+                const idx = Number(chkPago.dataset.itemPago);
+                const id = chkPago.value;
+                if (chkPago.checked) {
+                    if (!itensEdit[idx].pagosIds.includes(id)) itensEdit[idx].pagosIds.push(id);
+                } else {
+                    itensEdit[idx].pagosIds = itensEdit[idx].pagosIds.filter((x) => x !== id);
+                }
+                renderItensEditor();
+            }
+        });
+
+        overlay.addEventListener('input', (ev) => {
+            const inpObs = ev.target.closest('input[data-item-obs]');
+            if (inpObs) {
+                itensEdit[Number(inpObs.dataset.itemObs)].observacao = inpObs.value;
+            }
+        });
+
+        overlay.addEventListener('click', async (ev) => {
+            if (ev.target === overlay || ev.target.closest('[data-fechar-modal]')) {
+                overlay.remove();
+                return;
+            }
+            const btnRem = ev.target.closest('button[data-rem-item]');
+            if (btnRem) {
+                itensEdit.splice(Number(btnRem.dataset.remItem), 1);
+                renderItensEditor();
+                return;
+            }
+            if (ev.target.closest('button[data-add-item]')) {
+                const primeiro = copos[0];
+                itensEdit.push({
+                    copoId: primeiro ? primeiro.id : '',
+                    copoNome: primeiro ? primeiro.nome : '',
+                    volumeMl: 0,
+                    gratisIds: [],
+                    gratisNomes: [],
+                    pagosIds: [],
+                    pagosNomes: [],
+                    observacao: '',
+                    subtotal: primeiro ? Number(primeiro.preco || 0) : 0,
+                });
+                renderItensEditor();
+                return;
+            }
+            const btnSalvar = ev.target.closest('button[data-salvar-edicao]');
+            if (btnSalvar) {
+                btnSalvar.disabled = true;
+                itensEdit.forEach(recalcularItem);
+                const total = itensEdit.reduce((acc, it) => acc + Number(it.subtotal || 0), 0);
+                const payload = {
+                    clienteNome: overlay.querySelector('#ed-nome').value.trim(),
+                    clienteWhatsapp: overlay.querySelector('#ed-whatsapp').value.trim(),
+                    tipoEntrega: overlay.querySelector('#ed-entrega').value,
+                    endereco: overlay.querySelector('#ed-endereco').value.trim(),
+                    pagamento: overlay.querySelector('#ed-pagamento').value,
+                    troco: overlay.querySelector('#ed-troco').value.trim(),
+                    total,
+                    itens: itensEdit,
+                };
+                const ok = await salvarEdicaoPedido(pedido.numero, payload);
+                btnSalvar.disabled = false;
+                if (ok) {
+                    overlay.remove();
+                    if (typeof onSalvarCallback === 'function') onSalvarCallback();
+                }
+            }
+        });
+    }
+
     function registrarEventos() {
         el.btnConectar.addEventListener('click', () => carregarPedidos(false));
         el.btnAtualizar.addEventListener('click', () => carregarPedidos(false));
@@ -387,19 +801,67 @@
             }
         });
 
-        el.conteudo.addEventListener('click', (e) => {
-            const btn = e.target.closest('button[data-acao-status]');
-            if (!btn) return;
-            const numero = btn.dataset.numero;
-            const novoStatus = btn.dataset.acaoStatus;
-            btn.disabled = true;
-            alterarStatusPedido(numero, novoStatus).finally(() => {
-                btn.disabled = false;
-            });
+        el.conteudo.addEventListener('click', async (e) => {
+            const btnStatus = e.target.closest('button[data-acao-status]');
+            if (btnStatus) {
+                const numero = btnStatus.dataset.numero;
+                const novoStatus = btnStatus.dataset.acaoStatus;
+                btnStatus.disabled = true;
+                await alterarStatusPedido(numero, novoStatus);
+                btnStatus.disabled = false;
+                return;
+            }
+
+            const btnSalvarPgto = e.target.closest('button[data-acao-salvar-pgto]');
+            if (btnSalvarPgto) {
+                const numero = btnSalvarPgto.dataset.acaoSalvarPgto;
+                const sel = el.conteudo.querySelector(`select[data-select-pgto="${CSS.escape(numero)}"]`);
+                const inpTroco = el.conteudo.querySelector(`input[data-input-troco="${CSS.escape(numero)}"]`);
+                btnSalvarPgto.disabled = true;
+                await salvarEdicaoPedido(numero, {
+                    pagamento: sel ? sel.value : 'Pix',
+                    troco: inpTroco ? inpTroco.value.trim() : '',
+                });
+                btnSalvarPgto.disabled = false;
+                return;
+            }
+
+            const btnPix = e.target.closest('button[data-acao-pix]');
+            if (btnPix) {
+                const pedido = state.pedidos.find((p) => p.numero === btnPix.dataset.acaoPix);
+                if (pedido) abrirModalPix(pedido);
+                return;
+            }
+
+            const btnEditar = e.target.closest('button[data-acao-editar]');
+            if (btnEditar) {
+                const pedido = state.pedidos.find((p) => p.numero === btnEditar.dataset.acaoEditar);
+                if (pedido) abrirModalEditar(pedido);
+                return;
+            }
+
+            const btnCancelar = e.target.closest('button[data-acao-cancelar]');
+            if (btnCancelar) {
+                const numero = btnCancelar.dataset.acaoCancelar;
+                if (!window.confirm(`Deseja realmente cancelar o pedido #${numero}? Se o estoque já foi baixado, ele será estornado.`)) {
+                    return;
+                }
+                btnCancelar.disabled = true;
+                await alterarStatusPedido(numero, 'Cancelado');
+                btnCancelar.disabled = false;
+            }
         });
     }
 
+    window.EncantoPedidosPainel = {
+        abrirModalEditar,
+        abrirModalPix,
+        salvarEdicaoPedido,
+        alterarStatusPedido,
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
+        if (state.modo === 'admin') return;
         mapearElementos();
         el.inputPin.value = sessionStorage.getItem(SESSION_PIN_KEY) || '';
         registrarEventos();

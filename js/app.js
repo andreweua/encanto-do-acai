@@ -865,6 +865,12 @@
         }
 
         const whatsapp = el.inputWhatsapp ? el.inputWhatsapp.value.trim() : '';
+        const digitosWhatsapp = whatsapp.replace(/\D/g, '');
+        if (digitosWhatsapp.length < 10) {
+            mostrarAlertaPedido('Informe seu WhatsApp com DDD (ex.: 35 99999-9999) para contato do caixa e aviso quando ficar pronto.');
+            el.inputWhatsapp?.focus();
+            return;
+        }
         const pagamento = el.selectPagamento.value;
         const troco = el.inputTroco.value.trim();
 
@@ -933,6 +939,14 @@
         state.origem = resultado.origem;
         state.atualizadoEm = resultado.atualizadoEm;
         state.carregando = false;
+
+        if (resultado.empresa) {
+            if (resultado.empresa.whatsapp) config.WHATSAPP_NUMBER = resultado.empresa.whatsapp;
+            if (resultado.empresa.endereco) config.STORE_ADDRESS = resultado.empresa.endereco;
+            if (resultado.empresa.mapsUrl) config.GOOGLE_MAPS_URL = resultado.empresa.mapsUrl;
+            if (resultado.empresa.horario) config.OPENING_HOURS = resultado.empresa.horario;
+            aplicarDadosLoja();
+        }
 
         if (el.iconeAtualizar) el.iconeAtualizar.classList.remove('fa-spin');
 

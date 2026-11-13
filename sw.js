@@ -1,4 +1,4 @@
-const CACHE_NAME = 'encanto-acai-v1.6.0';
+const CACHE_NAME = 'encanto-acai-v1.7.0';
 const SHELL_ASSETS = [
     './',
     './index.html',
@@ -13,6 +13,7 @@ const SHELL_ASSETS = [
     './assets/icon-512.png',
     './js/config.js',
     './js/estoque.js',
+    './js/pix.js',
     './js/app.js',
     './js/acompanhar.js',
     './js/pedidos-painel.js',

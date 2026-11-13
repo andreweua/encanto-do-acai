@@ -40,7 +40,7 @@
         }
     </script>
 </head>
-<body class="font-sans bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+<body data-modo-painel="admin" class="font-sans bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
 
     <!-- Header -->
     <header class="bg-acai-dark text-white border-b border-acai-magenta/40 shadow-lg sticky top-0 z-40">
@@ -251,6 +251,71 @@
             </form>
         </section>
 
+        <!-- Dados da Empresa & PIX -->
+        <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-slate-200 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                    <h2 class="font-display text-xl text-acai-dark">DADOS DA EMPRESA &amp; PIX</h2>
+                    <p class="text-xs text-slate-500">Salvos na aba <code class="bg-slate-100 px-1.5 py-0.5 rounded">Empresa</code> da planilha para o cardápio e cobrança PIX no Caixa.</p>
+                </div>
+            </div>
+            <form id="form-dados-empresa" class="grid sm:grid-cols-2 gap-3 text-sm">
+                <div>
+                    <label for="empresa-nome" class="block text-xs font-bold text-slate-600 mb-1">Nome da Loja</label>
+                    <input id="empresa-nome" type="text" placeholder="Encanto do Açaí" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label for="empresa-whatsapp" class="block text-xs font-bold text-slate-600 mb-1">WhatsApp da Loja (com DDI 55)</label>
+                    <input id="empresa-whatsapp" type="tel" placeholder="5535997147481" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label for="empresa-horario" class="block text-xs font-bold text-slate-600 mb-1">Horário de Funcionamento</label>
+                    <input id="empresa-horario" type="text" placeholder="Aberto a partir das 16:40" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label for="empresa-endereco" class="block text-xs font-bold text-slate-600 mb-1">Endereço da Loja</label>
+                    <input id="empresa-endereco" type="text" placeholder="Rua, número, bairro, cidade" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div class="sm:col-span-2">
+                    <label for="empresa-maps" class="block text-xs font-bold text-slate-600 mb-1">Link Google Maps</label>
+                    <input id="empresa-maps" type="url" placeholder="https://maps.google.com/..." class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label for="empresa-pix-chave" class="block text-xs font-bold text-slate-600 mb-1">Chave PIX (CPF, CNPJ, E-mail, +55... ou Aleatória)</label>
+                    <input id="empresa-pix-chave" type="text" placeholder="Sua chave PIX para cobrança" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label for="empresa-pix-titular" class="block text-xs font-bold text-slate-600 mb-1">Titular / Recebedor PIX (até 25 caracteres)</label>
+                    <input id="empresa-pix-titular" type="text" maxlength="25" placeholder="ENCANTO DO ACAI" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label for="empresa-pix-cidade" class="block text-xs font-bold text-slate-600 mb-1">Cidade do Recebedor PIX (até 15 caracteres)</label>
+                    <input id="empresa-pix-cidade" type="text" maxlength="15" placeholder="SAO PAULO" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                </div>
+                <div class="flex items-end">
+                    <button id="btn-salvar-empresa" type="submit" class="w-full bg-acai-dark hover:bg-purple-950 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors cursor-pointer">
+                        <i class="fa-solid fa-building-circle-check mr-1"></i> Salvar Dados da Empresa
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Gerenciar Pedidos (Editar / Cancelar) -->
+        <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-slate-200 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h2 class="font-display text-xl text-acai-dark">PEDIDOS RECENTES (EDITAR / CANCELAR)</h2>
+                    <p class="text-xs text-slate-500">Informe o PIN acima e clique em Carregar Pedidos para editar itens ou cancelar com estorno automático.</p>
+                </div>
+                <button id="btn-admin-carregar-pedidos" type="button" class="bg-acai-magenta hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-full text-xs cursor-pointer">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Carregar Pedidos
+                </button>
+            </div>
+            <div id="admin-lista-pedidos" class="grid md:grid-cols-2 gap-3 text-xs text-slate-500">
+                Clique em <strong>Carregar Pedidos</strong> (com o PIN preenchido) para visualizar e editar/cancelar pedidos.
+            </div>
+        </section>
+
     </main>
 
     <!-- Footer PereiraLabs -->
@@ -270,9 +335,11 @@
         class="fixed bottom-6 right-6 z-50 max-w-xs bg-acai-dark text-white text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300"
     ></div>
 
-    <script src="./js/config.js?v=1.6.0"></script>
-    <script src="./js/estoque.js?v=1.6.0"></script>
-    <script src="./js/admin.js?v=1.6.0"></script>
-    <script src="./js/pwa.js?v=1.6.0"></script>
+    <script src="./js/config.js?v=1.7.0"></script>
+    <script src="./js/estoque.js?v=1.7.0"></script>
+    <script src="./js/pix.js?v=1.7.0"></script>
+    <script src="./js/pedidos-painel.js?v=1.7.0"></script>
+    <script src="./js/admin.js?v=1.7.0"></script>
+    <script src="./js/pwa.js?v=1.7.0"></script>
 </body>
 </html>

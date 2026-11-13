@@ -10,9 +10,11 @@
 const ADMIN_PIN = 'encantodoacai2026'; // Mantenha sua senha secreta aqui
 const ABA_ESTOQUE = 'Estoque';
 const ABA_PEDIDOS = 'Pedidos';
+const ABA_EMPRESA = 'Empresa';
 const TIMEZONE_LOJA = 'America/Sao_Paulo';
 
 const CABECALHO_ESTOQUE = ['id', 'categoria', 'nome', 'preco', 'estoque', 'ativo'];
+const CABECALHO_EMPRESA = ['chave', 'valor'];
 const CABECALHO_PEDIDOS = [
   'numero',
   'dataHora',
@@ -199,17 +201,56 @@ function gerarNumeroPedido(abaPedidos) {
   return `${dataPrefixo}-${proximo}`;
 }
 
-function baixarEstoquePorItens(ss, itens) {
+function lerEmpresaDaAba(aba) {
+  const padrao = {
+    nomeLoja: 'Encanto do Açaí',
+    whatsapp: '5535997147481',
+    horario: 'Aberto a partir das 16:40',
+    endereco: '',
+    mapsUrl: '',
+    pixChave: '',
+    pixTitular: 'ENCANTO DO ACAI',
+    pixCidade: 'SAO PAULO',
+  };
+  const ultimaLinha = aba.getLastRow();
+  if (ultimaLinha < 2) return padrao;
+
+  const valores = aba.getRange(1, 1, ultimaLinha, 2).getValues();
+  for (let i = 1; i < valores.length; i++) {
+    const chave = String(valores[i][0] || '').trim();
+    const valor = String(valores[i][1] || '').trim();
+    if (chave && Object.prototype.hasOwnProperty.call(padrao, chave)) {
+      padrao[chave] = valor;
+    }
+  }
+  return padrao;
+}
+
+function gravarEmpresaNaAba(aba, dados) {
+  aba.clearContents();
+  const chaves = ['nomeLoja', 'whatsapp', 'horario', 'endereco', 'mapsUrl', 'pixChave', 'pixTitular', 'pixCidade'];
+  const linhas = [CABECALHO_EMPRESA];
+  chaves.forEach((k) => {
+    linhas.push([k, String((dados && dados[k]) || '').trim()]);
+  });
+  aba.getRange(1, 1, linhas.length, 2).setValues(linhas);
+  const headerRange = aba.getRange(1, 1, 1, 2);
+  headerRange.setBackground('#380B4E').setFontColor('#FFFFFF').setFontWeight('bold');
+  aba.setFrozenRows(1);
+}
+
+function ajustarEstoquePorItens(ss, itens, direcao) {
   const abaEstoque = obterOuCriarAba(ss, ABA_ESTOQUE, CABECALHO_ESTOQUE, true);
   const produtos = lerProdutosDaAba(abaEstoque);
   if (produtos.length === 0) return false;
 
-  let mlConsumidos = 0;
+  const fator = direcao >= 0 ? 1 : -1;
+  let mlTotal = 0;
   const consumoPorId = {};
 
   itens.forEach((item) => {
     const vol = Number(item.volumeMl || 0);
-    if (vol > 0) mlConsumidos += vol;
+    if (vol > 0) mlTotal += vol;
 
     if (item.copoId) {
       consumoPorId[item.copoId] = (consumoPorId[item.copoId] || 0) + 1;
@@ -222,15 +263,15 @@ function baixarEstoquePorItens(ss, itens) {
     });
   });
 
-  const litrosConsumidos = mlConsumidos / 1000;
+  const litrosTotal = mlTotal / 1000;
 
   produtos.forEach((prod) => {
-    if (prod.categoria === 'acai' && litrosConsumidos > 0) {
-      prod.estoque = Math.max(0, Math.round((prod.estoque - litrosConsumidos) * 1000) / 1000);
+    if (prod.categoria === 'acai' && litrosTotal > 0) {
+      prod.estoque = Math.max(0, Math.round((prod.estoque + fator * litrosTotal) * 1000) / 1000);
       return;
     }
     if (prod.categoria !== 'copo' && consumoPorId[prod.id]) {
-      prod.estoque = Math.max(0, Math.round((prod.estoque - consumoPorId[prod.id]) * 1000) / 1000);
+      prod.estoque = Math.max(0, Math.round((prod.estoque + fator * consumoPorId[prod.id]) * 1000) / 1000);
     }
   });
 
@@ -306,27 +347,49 @@ function doGet(e) {
       });
     }
 
+    if (action === 'empresa') {
+      const abaEmpresa = obterOuCriarAba(ss, ABA_EMPRESA, CABECALHO_EMPRESA, false);
+      const empresa = lerEmpresaDaAba(abaEmpresa);
+      return responderJson({
+        ok: true,
+        empresa,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+
     if (action === 'pedidos') {
       const pin = String(params.pin || '').trim();
       if (!pin || pin !== ADMIN_PIN) {
         return responderJson({ ok: false, error: 'PIN inválido para consultar pedidos.' });
       }
       const abaPedidos = obterOuCriarAba(ss, ABA_PEDIDOS, CABECALHO_PEDIDOS, false);
+      const abaEmpresa = obterOuCriarAba(ss, ABA_EMPRESA, CABECALHO_EMPRESA, false);
       const pedidos = lerPedidosDaAba(abaPedidos);
+      const empresa = lerEmpresaDaAba(abaEmpresa);
       return responderJson({
         ok: true,
         pedidos,
+        empresa,
         updatedAt: new Date().toISOString(),
       });
     }
 
     const aba = obterOuCriarAba(ss, ABA_ESTOQUE, CABECALHO_ESTOQUE, true);
     const produtos = lerProdutosDaAba(aba);
+    const abaEmpresa = obterOuCriarAba(ss, ABA_EMPRESA, CABECALHO_EMPRESA, false);
+    const empresa = lerEmpresaDaAba(abaEmpresa);
     return responderJson({
       ok: true,
       origem: 'apps_script',
       sheetName: aba.getName(),
       produtos,
+      empresa: {
+        nomeLoja: empresa.nomeLoja,
+        whatsapp: empresa.whatsapp,
+        horario: empresa.horario,
+        endereco: empresa.endereco,
+        mapsUrl: empresa.mapsUrl,
+      },
       updatedAt: new Date().toISOString(),
     });
   } catch (erro) {
@@ -409,11 +472,17 @@ function doPost(e) {
       }
 
       let estoqueFoiBaixadoAgora = false;
+      let estoqueEstornadoAgora = false;
       const deveBaixar = (novoStatus === 'Em Preparo' || novoStatus === 'Pronto') && !alvo.estoqueBaixado;
       if (deveBaixar) {
-        estoqueFoiBaixadoAgora = baixarEstoquePorItens(ss, alvo.itens);
+        estoqueFoiBaixadoAgora = ajustarEstoquePorItens(ss, alvo.itens, -1);
         if (estoqueFoiBaixadoAgora) {
           abaPedidos.getRange(alvo.rowIndex, 4).setValue('SIM');
+        }
+      } else if (novoStatus === 'Cancelado' && alvo.estoqueBaixado) {
+        estoqueEstornadoAgora = ajustarEstoquePorItens(ss, alvo.itens, 1);
+        if (estoqueEstornadoAgora) {
+          abaPedidos.getRange(alvo.rowIndex, 4).setValue('NÃO');
         }
       }
 
@@ -425,9 +494,69 @@ function doPost(e) {
         ok: true,
         numero,
         status: novoStatus,
-        estoqueBaixado: alvo.estoqueBaixado || estoqueFoiBaixadoAgora,
+        estoqueBaixado: estoqueEstornadoAgora ? false : (alvo.estoqueBaixado || estoqueFoiBaixadoAgora),
         estoqueBaixadoAgora: estoqueFoiBaixadoAgora,
+        estoqueEstornadoAgora: estoqueEstornadoAgora,
         atualizadoEm: agoraStr,
+      });
+    }
+
+    if (action === 'editar_pedido') {
+      const numero = String(body.numero || '').trim();
+      const dados = body.pedido || {};
+      if (!numero) {
+        return responderJson({ ok: false, error: 'Número do pedido é obrigatório.' });
+      }
+
+      const abaPedidos = obterOuCriarAba(ss, ABA_PEDIDOS, CABECALHO_PEDIDOS, false);
+      const pedidos = lerPedidosDaAba(abaPedidos);
+      const alvo = pedidos.find((p) => p.numero === numero);
+      if (!alvo) {
+        return responderJson({ ok: false, error: `Pedido ${numero} não encontrado.` });
+      }
+
+      const novosItens = Array.isArray(dados.itens) && dados.itens.length > 0 ? dados.itens : alvo.itens;
+      if (alvo.estoqueBaixado && Array.isArray(dados.itens) && dados.itens.length > 0) {
+        ajustarEstoquePorItens(ss, alvo.itens, 1);
+        ajustarEstoquePorItens(ss, novosItens, -1);
+      }
+
+      const agoraStr = Utilities.formatDate(new Date(), TIMEZONE_LOJA, 'dd/MM/yyyy HH:mm');
+      const clienteNome = dados.clienteNome !== undefined ? String(dados.clienteNome).trim() : alvo.clienteNome;
+      const clienteWhatsapp = dados.clienteWhatsapp !== undefined ? String(dados.clienteWhatsapp).trim() : alvo.clienteWhatsapp;
+      const tipoEntrega = dados.tipoEntrega !== undefined ? String(dados.tipoEntrega).trim() : alvo.tipoEntrega;
+      const endereco = dados.endereco !== undefined ? String(dados.endereco).trim() : alvo.endereco;
+      const pagamento = dados.pagamento !== undefined ? String(dados.pagamento).trim() : alvo.pagamento;
+      const troco = dados.troco !== undefined ? String(dados.troco).trim() : alvo.troco;
+      const total = dados.total !== undefined ? Number(dados.total || 0) : alvo.total;
+
+      abaPedidos.getRange(alvo.rowIndex, 5, 1, 9).setValues([[
+        clienteNome,
+        clienteWhatsapp,
+        tipoEntrega,
+        endereco,
+        pagamento,
+        troco,
+        total,
+        JSON.stringify(novosItens),
+        agoraStr,
+      ]]);
+
+      return responderJson({
+        ok: true,
+        numero,
+        atualizadoEm: agoraStr,
+      });
+    }
+
+    if (action === 'salvar_empresa') {
+      const empresa = body.empresa || {};
+      const abaEmpresa = obterOuCriarAba(ss, ABA_EMPRESA, CABECALHO_EMPRESA, false);
+      gravarEmpresaNaAba(abaEmpresa, empresa);
+      return responderJson({
+        ok: true,
+        empresa: lerEmpresaDaAba(abaEmpresa),
+        updatedAt: new Date().toISOString(),
       });
     }
 

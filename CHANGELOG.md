@@ -5,6 +5,14 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.7.0] - 2026-11-13
+
+### Adicionado
+- **WhatsApp obrigatório no pedido (`index.html`, `js/app.js`):** Validação mínima de 10 dígitos com DDD para que o Caixa possa contatar o cliente mesmo que ele não conclua o envio da mensagem no WhatsApp.
+- **Edição e cancelamento de pedidos no Caixa e no Admin (`caixa.html`, `admin.html`, `js/pedidos-painel.js`, `js/admin.js`, `apps-script/Code.gs`):** Modal completo para editar dados, pagamento, copos, adicionais e observações (`editar_pedido`), além de cancelamento com **estorno automático** do estoque caso já tenha sido baixado.
+- **Gerenciamento de pagamento + PIX Copia e Cola (`js/pix.js`, `js/pedidos-painel.js`):** No Caixa, agora é possível conversar com o cliente no WhatsApp para confirmar a forma de pagamento (`Pix`, `Cartão de Crédito`, `Cartão de Débito`, `Dinheiro`), alterar pagamento/troco e gerar código **PIX Copia e Cola (BR Code)** pronto para enviar no WhatsApp.
+- **Seção Dados da Empresa & PIX no Admin (`admin.html`, `js/admin.js`, `apps-script/Code.gs`):** Persistência da loja, endereço, horário, WhatsApp e chave/titular/cidade PIX na aba `Empresa` da planilha.
+
 ## [1.6.0] - 2026-11-13
 
 ### Adicionado

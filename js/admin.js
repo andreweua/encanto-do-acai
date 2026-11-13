@@ -18,6 +18,7 @@
 
     const state = {
         produtos: [],
+        pedidos: [],
         filtroStatus: 'todos',
         busca: '',
         salvando: false,
@@ -57,6 +58,20 @@
         el.novoNome = document.getElementById('novo-nome');
         el.novoPreco = document.getElementById('novo-preco');
         el.novoEstoque = document.getElementById('novo-estoque');
+
+        el.formEmpresa = document.getElementById('form-dados-empresa');
+        el.empresaNome = document.getElementById('empresa-nome');
+        el.empresaWhatsapp = document.getElementById('empresa-whatsapp');
+        el.empresaHorario = document.getElementById('empresa-horario');
+        el.empresaEndereco = document.getElementById('empresa-endereco');
+        el.empresaMaps = document.getElementById('empresa-maps');
+        el.empresaPixChave = document.getElementById('empresa-pix-chave');
+        el.empresaPixTitular = document.getElementById('empresa-pix-titular');
+        el.empresaPixCidade = document.getElementById('empresa-pix-cidade');
+        el.btnSalvarEmpresa = document.getElementById('btn-salvar-empresa');
+
+        el.btnAdminCarregarPedidos = document.getElementById('btn-admin-carregar-pedidos');
+        el.adminListaPedidos = document.getElementById('admin-lista-pedidos');
 
         el.toast = document.getElementById('admin-toast');
     }
@@ -577,6 +592,161 @@
             renderizarProdutos();
             mostrarToast(`"${nome}" adicionado! Clique em "Enviar para Planilha" para publicar.`, 'sucesso');
         });
+
+        if (el.formEmpresa) {
+            el.formEmpresa.addEventListener('submit', (e) => {
+                e.preventDefault();
+                salvarEmpresaNaPlanilha();
+            });
+        }
+
+        if (el.btnAdminCarregarPedidos) {
+            el.btnAdminCarregarPedidos.addEventListener('click', () => carregarPedidosAdmin(false));
+        }
+
+        if (el.adminListaPedidos) {
+            el.adminListaPedidos.addEventListener('click', async (e) => {
+                const btnEditar = e.target.closest('button[data-admin-editar-pedido]');
+                if (btnEditar) {
+                    const pedido = state.pedidos.find((p) => p.numero === btnEditar.dataset.adminEditarPedido);
+                    if (pedido && window.EncantoPedidosPainel?.abrirModalEditar) {
+                        window.EncantoPedidosPainel.abrirModalEditar(pedido, state.produtos, () => carregarPedidosAdmin(true));
+                    }
+                    return;
+                }
+                const btnCancelar = e.target.closest('button[data-admin-cancelar-pedido]');
+                if (btnCancelar) {
+                    const numero = btnCancelar.dataset.adminCancelarPedido;
+                    if (!window.confirm(`Deseja cancelar o pedido #${numero}?`)) return;
+                    if (window.EncantoPedidosPainel?.alterarStatusPedido) {
+                        btnCancelar.disabled = true;
+                        await window.EncantoPedidosPainel.alterarStatusPedido(numero, 'Cancelado');
+                        await carregarPedidosAdmin(true);
+                        btnCancelar.disabled = false;
+                    }
+                }
+            });
+        }
+    }
+
+    async function carregarEmpresaDaPlanilha() {
+        const scriptUrl = (el.inputScriptUrl.value || config.APPS_SCRIPT_URL || '').trim();
+        if (!scriptUrl) return;
+        try {
+            const sep = scriptUrl.includes('?') ? '&' : '?';
+            const resp = await fetch(`${scriptUrl}${sep}action=empresa&_t=${Date.now()}`, { cache: 'no-store' });
+            const json = await resp.json();
+            if (json && json.ok && json.empresa) {
+                const emp = json.empresa;
+                if (el.empresaNome) el.empresaNome.value = emp.nomeLoja || '';
+                if (el.empresaWhatsapp) el.empresaWhatsapp.value = emp.whatsapp || '';
+                if (el.empresaHorario) el.empresaHorario.value = emp.horario || '';
+                if (el.empresaEndereco) el.empresaEndereco.value = emp.endereco || '';
+                if (el.empresaMaps) el.empresaMaps.value = emp.mapsUrl || '';
+                if (el.empresaPixChave) el.empresaPixChave.value = emp.pixChave || '';
+                if (el.empresaPixTitular) el.empresaPixTitular.value = emp.pixTitular || '';
+                if (el.empresaPixCidade) el.empresaPixCidade.value = emp.pixCidade || '';
+            }
+        } catch {
+            // Ignora falha silenciosa
+        }
+    }
+
+    async function salvarEmpresaNaPlanilha() {
+        const scriptUrl = el.inputScriptUrl.value.trim();
+        const pin = el.inputPin.value.trim();
+        if (!scriptUrl || !pin) {
+            mostrarToast('Preencha a URL do Apps Script e o PIN para salvar os dados da empresa.', 'erro');
+            return;
+        }
+        sessionStorage.setItem(SESSION_PIN_KEY, pin);
+        if (el.btnSalvarEmpresa) el.btnSalvarEmpresa.disabled = true;
+
+        try {
+            const resp = await fetch(scriptUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'salvar_empresa',
+                    pin,
+                    empresa: {
+                        nomeLoja: el.empresaNome?.value.trim() || '',
+                        whatsapp: el.empresaWhatsapp?.value.trim() || '',
+                        horario: el.empresaHorario?.value.trim() || '',
+                        endereco: el.empresaEndereco?.value.trim() || '',
+                        mapsUrl: el.empresaMaps?.value.trim() || '',
+                        pixChave: el.empresaPixChave?.value.trim() || '',
+                        pixTitular: el.empresaPixTitular?.value.trim() || '',
+                        pixCidade: el.empresaPixCidade?.value.trim() || '',
+                    },
+                }),
+            });
+            const json = await resp.json();
+            if (!json || !json.ok) {
+                throw new Error((json && json.error) || 'Erro ao salvar dados da empresa.');
+            }
+            mostrarToast('Dados da empresa & PIX salvos na planilha!', 'sucesso');
+        } catch (erro) {
+            mostrarToast(erro.message || 'Falha ao salvar dados da empresa.', 'erro');
+        } finally {
+            if (el.btnSalvarEmpresa) el.btnSalvarEmpresa.disabled = false;
+        }
+    }
+
+    function renderPedidosAdmin() {
+        if (!el.adminListaPedidos) return;
+        const recentes = [...state.pedidos].reverse().slice(0, 20);
+        if (recentes.length === 0) {
+            el.adminListaPedidos.innerHTML = '<p class="text-xs text-slate-400">Nenhum pedido registrado.</p>';
+            return;
+        }
+
+        el.adminListaPedidos.innerHTML = recentes.map((p) => {
+            const ativo = p.status !== 'Concluído' && p.status !== 'Cancelado';
+            const resumoItens = (p.itens || []).map((it) => `Copo ${it.copoNome || ''}`).join(', ');
+            return `
+                <div class="rounded-2xl border border-slate-200 p-3.5 bg-slate-50 space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <strong class="text-sm text-acai-dark">#${escapeHtml(p.numero)} • ${escapeHtml(p.clienteNome || 'Cliente')}</strong>
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700">${escapeHtml(p.status)}</span>
+                    </div>
+                    <p class="text-xs text-slate-600">${escapeHtml(resumoItens || 'Sem itens')} • <strong>${Number(p.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong> (${escapeHtml(p.pagamento)})</p>
+                    ${ativo ? `
+                        <div class="flex gap-2 pt-1">
+                            <button type="button" data-admin-editar-pedido="${escapeHtml(p.numero)}" class="flex-1 bg-white hover:bg-slate-100 border border-slate-300 text-acai-dark font-bold text-xs px-3 py-1.5 rounded-xl cursor-pointer">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i> Editar
+                            </button>
+                            <button type="button" data-admin-cancelar-pedido="${escapeHtml(p.numero)}" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-3 py-1.5 rounded-xl cursor-pointer">
+                                Cancelar
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function carregarPedidosAdmin(silencioso = false) {
+        const scriptUrl = (el.inputScriptUrl.value || config.APPS_SCRIPT_URL || '').trim();
+        const pin = el.inputPin.value.trim();
+        if (!scriptUrl || !pin) {
+            if (!silencioso) mostrarToast('Informe o PIN acima para carregar os pedidos.', 'erro');
+            return;
+        }
+        sessionStorage.setItem(SESSION_PIN_KEY, pin);
+        try {
+            const sep = scriptUrl.includes('?') ? '&' : '?';
+            const resp = await fetch(`${scriptUrl}${sep}action=pedidos&pin=${encodeURIComponent(pin)}&_t=${Date.now()}`, { cache: 'no-store' });
+            const json = await resp.json();
+            if (!json || !json.ok) {
+                throw new Error((json && json.error) || 'Erro ao carregar pedidos.');
+            }
+            state.pedidos = Array.isArray(json.pedidos) ? json.pedidos : [];
+            renderPedidosAdmin();
+            if (!silencioso) mostrarToast('Pedidos carregados!', 'sucesso');
+        } catch (erro) {
+            if (!silencioso) mostrarToast(erro.message || 'Erro ao carregar pedidos.', 'erro');
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -589,5 +759,7 @@
 
         registrarEventos();
         carregarDaPlanilha(false);
+        carregarEmpresaDaPlanilha();
+        if (savedPin) carregarPedidosAdmin(true);
     });
 })();
