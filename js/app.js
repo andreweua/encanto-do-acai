@@ -714,6 +714,10 @@
     }
 
     function gerarMensagemWhatsApp(itensPedido, dataRef = new Date(), numeroOficial = '') {
+        const LARGURA = 32;
+        const SEP_DUPLO = '='.repeat(LARGURA);
+        const SEP_SIMPLES = '-'.repeat(LARGURA);
+
         const nome = el.inputNome.value.trim();
         const whatsapp = el.inputWhatsapp ? el.inputWhatsapp.value.trim() : '';
         const tipoEntrega = obterTipoEntrega();
@@ -724,15 +728,21 @@
         const dataStr = dataRef.toLocaleDateString('pt-BR');
         const horaStr = dataRef.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         const numeroPedido = String(numeroOficial || '').trim() || gerarNumeroFallback(dataRef);
-        const versao = String(config.APP_VERSION || 'v1.5.1').trim();
+        const versaoRaw = (window.ENCANTO_APP && window.ENCANTO_APP.versao)
+            ? `v${window.ENCANTO_APP.versao}`
+            : String(config.APP_VERSION || 'v1.8.6').trim();
         const linkAcompanhamento = construirLinkAcompanhamento(numeroPedido);
 
-        const linhas = [
-            '*NOVO PEDIDO - ENCANTO DO AÇAÍ*',
-            `*Pedido:* #${numeroPedido}`,
-            `*Data:* ${dataStr} às ${horaStr}`,
-            '',
-            '*ITENS DO PEDIDO*',
+        const cupom = [
+            SEP_DUPLO,
+            centralizarTexto('ENCANTO DO AÇAÍ', LARGURA),
+            centralizarTexto('CUPOM DE PEDIDO', LARGURA),
+            SEP_DUPLO,
+            formatarLinhaColunas(`Data: ${dataStr}`, `Hora: ${horaStr}`, LARGURA),
+            `Pedido: #${numeroPedido}`,
+            SEP_SIMPLES,
+            formatarLinhaColunas('QTD DESCRIÇÃO', 'VALOR', LARGURA),
+            SEP_SIMPLES,
         ];
 
         let totalGeral = 0;
@@ -741,52 +751,73 @@
             const { copo, gratisNomes, pagosItens, subtotal } = obterResumoCopo(item);
             totalGeral += subtotal;
 
-            const nomeCopo = copo ? copo.nome : String(item.copoId || '');
-            const precoCopo = formatarMoedaCupom(copo ? copo.preco : 0);
+            const itemNum = String(index + 1).padStart(2, '0');
+            const nomeCopo = `Copo ${copo ? copo.nome : String(item.copoId || '')}`.trim();
+            cupom.push(formatarLinhaColunas(`${itemNum}  ${nomeCopo}`, formatarMoedaCupom(copo ? copo.preco : 0), LARGURA));
 
-            linhas.push(`*${index + 1}. Copo ${nomeCopo}* — ${precoCopo}`);
-            linhas.push(`  • Grátis: ${gratisNomes.length ? gratisNomes.join(', ') : 'Nenhum'}`);
-
-            if (pagosItens.length > 0) {
-                const pagosFormatados = pagosItens.map((p) => `${p.nome} (${formatarMoedaCupom(p.preco)})`);
-                linhas.push(`  • Pagos: ${pagosFormatados.join(', ')}`);
+            if (gratisNomes.length > 0) {
+                gratisNomes.forEach((nomeGratis) => {
+                    const linhasGratis = quebrarTexto(nomeGratis, LARGURA - 7, '    + ');
+                    if (linhasGratis.length > 0) {
+                        cupom.push(formatarLinhaColunas(linhasGratis[0], 'GRÁTIS', LARGURA));
+                        linhasGratis.slice(1).forEach((extra) => cupom.push(extra));
+                    }
+                });
+            } else {
+                cupom.push('    (Sem adicionais grátis)');
             }
+
+            pagosItens.forEach((pago) => {
+                const valorStr = formatarMoedaCupom(pago.preco);
+                const linhasPago = quebrarTexto(pago.nome, LARGURA - valorStr.length - 1, '    + ');
+                if (linhasPago.length > 0) {
+                    cupom.push(formatarLinhaColunas(linhasPago[0], valorStr, LARGURA));
+                    linhasPago.slice(1).forEach((extra) => cupom.push(extra));
+                }
+            });
 
             if (item.observacao) {
-                linhas.push(`  • Obs.: ${item.observacao}`);
+                quebrarTexto(`Obs: ${item.observacao}`, LARGURA, '    ').forEach((l) => cupom.push(l));
             }
 
-            linhas.push(`  Subtotal do item: *${formatarMoedaCupom(subtotal)}*`);
+            cupom.push(formatarLinhaColunas('    Subtotal Item', formatarMoedaCupom(subtotal), LARGURA));
             if (index < itensPedido.length - 1) {
-                linhas.push('');
+                cupom.push('');
             }
         });
 
-        linhas.push('');
-        linhas.push('*RESUMO*');
-        linhas.push(`Quantidade de copos: ${itensPedido.length}`);
-        linhas.push(`*TOTAL A PAGAR: ${formatarMoedaCupom(totalGeral)}*`);
-        linhas.push('');
-        linhas.push('*DADOS DO CLIENTE*');
-        if (nome) linhas.push(`Cliente: ${nome}`);
-        if (whatsapp) linhas.push(`WhatsApp: ${whatsapp}`);
-        linhas.push(`Recebimento: ${tipoEntrega}`);
+        cupom.push(SEP_SIMPLES);
+        cupom.push(formatarLinhaColunas('QTD DE COPOS:', String(itensPedido.length).padStart(2, '0'), LARGURA));
+        cupom.push(formatarLinhaColunas('TOTAL A PAGAR:', formatarMoedaCupom(totalGeral), LARGURA));
+        cupom.push(SEP_DUPLO);
+
+        if (nome) {
+            quebrarTexto(`Cliente: ${nome}`, LARGURA).forEach((l) => cupom.push(l));
+        }
+        if (whatsapp) {
+            quebrarTexto(`WhatsApp: ${whatsapp}`, LARGURA).forEach((l) => cupom.push(l));
+        }
+        cupom.push(`Receb.:  ${tipoEntrega}`);
         if (tipoEntrega === 'Entrega' && endereco) {
-            linhas.push(`Endereço: ${endereco}`);
+            quebrarTexto(`End.:    ${endereco}`, LARGURA).forEach((l) => cupom.push(l));
         }
-        linhas.push(`Pagamento: ${pagamento}`);
+        cupom.push(`Pagto.:  ${pagamento}`);
         if (pagamento === 'Dinheiro' && troco) {
-            linhas.push(`Troco para: ${troco}`);
+            quebrarTexto(`Troco:   ${troco}`, LARGURA).forEach((l) => cupom.push(l));
         }
 
-        linhas.push('');
-        linhas.push('*Acompanhe seu pedido em tempo real:*');
-        linhas.push(linkAcompanhamento);
-        linhas.push('');
-        linhas.push('_Obrigado pela preferência! WhatsApp: (35) 99714-7481_');
-        linhas.push(`_PereiraLabs - Divisão de Tecnologia e IA | Louzada & Pereira - Soluções Digitais (${versao})_`);
+        cupom.push(SEP_DUPLO);
+        cupom.push(centralizarTexto('Obrigado pela preferência!', LARGURA));
+        cupom.push(centralizarTexto('WhatsApp: (35) 99714-7481', LARGURA));
+        cupom.push(SEP_SIMPLES);
+        cupom.push(centralizarTexto('Desenvolvido por:', LARGURA));
+        cupom.push(centralizarTexto('PereiraLabs - Divisão de', LARGURA));
+        cupom.push(centralizarTexto('Tecnologia e IA |', LARGURA));
+        cupom.push(centralizarTexto('Louzada & Pereira -', LARGURA));
+        cupom.push(centralizarTexto(`Soluções Digitais. ${versaoRaw}`, LARGURA));
+        cupom.push(SEP_DUPLO);
 
-        return linhas.join('\n');
+        return `*NOVO PEDIDO - ENCANTO DO AÇAÍ*\n\`\`\`\n${cupom.join('\n')}\n\`\`\`\n\n*Acompanhe seu pedido em tempo real:*\n${linkAcompanhamento}`;
     }
 
     async function registrarPedidoNaPlanilha(itensPedido, nome, whatsapp, tipoEntrega, endereco, pagamento, troco) {
