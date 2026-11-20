@@ -224,73 +224,34 @@
         return `https://wa.me/?text=${encodeURIComponent(texto)}`;
     }
 
-    /* ---------- Mensagens ao cliente em formato de cupom (monoespaçado, 32 colunas) ---------- */
-    const CUPOM_LARGURA = 32;
-    const CUPOM_SEP_DUPLO = '='.repeat(CUPOM_LARGURA);
-    const CUPOM_SEP_SIMPLES = '-'.repeat(CUPOM_LARGURA);
+    /* ---------- Mensagens ao cliente em formato de cupom organizado ---------- */
+    const CUPOM_SEP_DUPLO = '==========================';
+    const CUPOM_SEP_SIMPLES = '--------------------------';
+    const EMOJI_UVA = '\u{1F347}';
+    const EMOJI_CHECK = '\u{2705}';
 
     function cupomSemEspacoDuro(texto) {
         return String(texto ?? '').replace(/\u00A0/g, ' ');
     }
 
-    function cupomCentralizar(texto) {
-        const str = cupomSemEspacoDuro(texto).slice(0, CUPOM_LARGURA);
-        return ' '.repeat(Math.max(0, Math.floor((CUPOM_LARGURA - str.length) / 2))) + str;
-    }
-
-    function cupomQuebrar(texto, prefixo = '', prefixoContinuacao = null) {
-        const continuacao = prefixoContinuacao === null ? ' '.repeat(prefixo.length) : prefixoContinuacao;
-        const palavras = cupomSemEspacoDuro(texto).trim().split(/\s+/).filter(Boolean);
-        const linhas = [];
-        let atual = '';
-        palavras.forEach((palavra) => {
-            const pre = linhas.length === 0 ? prefixo : continuacao;
-            const limite = Math.max(8, CUPOM_LARGURA - pre.length);
-            if (!atual) {
-                atual = palavra;
-            } else if ((atual.length + 1 + palavra.length) <= limite) {
-                atual += ` ${palavra}`;
-            } else {
-                linhas.push(pre + atual);
-                atual = palavra;
-            }
-        });
-        if (atual) linhas.push((linhas.length === 0 ? prefixo : continuacao) + atual);
-        return linhas;
-    }
-
-    function cupomColunas(esquerda, direita) {
-        const esq = cupomSemEspacoDuro(esquerda);
-        const dir = cupomSemEspacoDuro(direita);
-        const espacos = CUPOM_LARGURA - esq.length - dir.length;
-        if (espacos >= 1) return `${esq}${' '.repeat(espacos)}${dir}`;
-        return `${esq.slice(0, Math.max(8, CUPOM_LARGURA - dir.length - 1))} ${dir}`;
-    }
-
-    function cupomCabecalho(titulo) {
+    function cupomCabecalho(subtitulo) {
         const nomeLoja = String(state.empresa?.nomeLoja || 'Encanto do Açaí').toUpperCase();
         return [
             CUPOM_SEP_DUPLO,
-            cupomCentralizar(nomeLoja),
-            cupomCentralizar(titulo),
+            `   ${EMOJI_UVA} *${nomeLoja}*`,
+            `   *${subtitulo}*`,
             CUPOM_SEP_DUPLO,
         ];
     }
 
-    function cupomRodape(extra = []) {
+    function cupomRodape() {
         const versaoRaw = (window.ENCANTO_APP && window.ENCANTO_APP.versao)
             ? `v${window.ENCANTO_APP.versao}`
-            : String(config.APP_VERSION || 'v1.8.10').trim();
+            : String(config.APP_VERSION || 'v1.8.11').trim();
         return [
-            CUPOM_SEP_DUPLO,
-            ...extra,
-            cupomCentralizar('Obrigado pela preferência!'),
             CUPOM_SEP_SIMPLES,
-            cupomCentralizar('Desenvolvido por:'),
-            cupomCentralizar('PereiraLabs - Divisão de'),
-            cupomCentralizar('Tecnologia e IA |'),
-            cupomCentralizar('Louzada & Pereira -'),
-            cupomCentralizar(`Soluções Digitais. ${versaoRaw}`),
+            '_Obrigado pela preferência!_',
+            `_PereiraLabs | Louzada & Pereira (${versaoRaw})_`,
             CUPOM_SEP_DUPLO,
         ];
     }
@@ -300,31 +261,27 @@
         if (itens.length === 0) return [];
         const linhas = [
             CUPOM_SEP_SIMPLES,
-            cupomColunas('ITEM DESCRIÇÃO', 'VALOR'),
+            '*ITENS DO PEDIDO*',
             CUPOM_SEP_SIMPLES,
         ];
         itens.forEach((it, idx) => {
             const num = String(idx + 1).padStart(2, '0');
             const nomeCopo = `Copo ${it.copoNome || ''}`.trim();
             const subStr = cupomSemEspacoDuro(formatarMoeda(it.subtotal || 0));
-            linhas.push(cupomColunas(`${num}  ${nomeCopo}`, subStr));
+            linhas.push(`*${num}. ${nomeCopo}* — ${subStr}`);
             const gratis = Array.isArray(it.gratisNomes) ? it.gratisNomes : [];
-            gratis.forEach((g) => {
-                cupomQuebrar(g, '    + ', '      ').forEach((l) => linhas.push(l));
-            });
+            if (gratis.length > 0) {
+                gratis.forEach((g) => linhas.push(`   + ${g} _(Grátis)_`));
+            }
             const pagos = Array.isArray(it.pagosNomes) ? it.pagosNomes : [];
-            pagos.forEach((pg) => {
-                cupomQuebrar(`${pg} (pago)`, '    + ', '      ').forEach((l) => linhas.push(l));
-            });
+            if (pagos.length > 0) {
+                pagos.forEach((pg) => linhas.push(`   + ${pg} _(Adicional pago)_`));
+            }
             if (it.observacao) {
-                cupomQuebrar(`Obs: ${it.observacao}`, '    ', '    ').forEach((l) => linhas.push(l));
+                linhas.push(`   _Obs: ${it.observacao}_`);
             }
         });
         return linhas;
-    }
-
-    function cupomEmBloco(linhas) {
-        return '```\n' + linhas.join('\n') + '\n```';
     }
 
     function linkAcompanhamentoPedido(pedido) {
@@ -332,65 +289,56 @@
     }
 
     function montarLinkWhatsappCliente(pedido) {
-        const pronto = pedido.tipoEntrega === 'Entrega'
-            ? ['SEU AÇAÍ ESTÁ PRONTO E', 'VAI SAIR PARA ENTREGA!']
-            : ['SEU AÇAÍ ESTÁ PRONTO!', 'VENHA RETIRAR NO BALCÃO.'];
+        const msgPronto = pedido.tipoEntrega === 'Entrega'
+            ? `${EMOJI_CHECK} *Status:* Pronto e saindo para entrega!`
+            : `${EMOJI_CHECK} *Status:* Pronto para retirada no balcão!`;
 
         const cupom = [
             ...cupomCabecalho('CUPOM • PEDIDO PRONTO'),
-            ...cupomQuebrar(`Cliente: ${pedido.clienteNome || 'Cliente'}`),
-            `Pedido:  #${pedido.numero}`,
-            `Receb.:  ${pedido.tipoEntrega}`,
+            `Olá, *${pedido.clienteNome || 'Cliente'}*!`,
+            msgPronto,
+            CUPOM_SEP_SIMPLES,
+            `*Pedido:* #${pedido.numero}`,
+            `*Recebimento:* ${pedido.tipoEntrega}`,
             ...(pedido.tipoEntrega === 'Entrega' && pedido.endereco
-                ? cupomQuebrar(`End.:    ${pedido.endereco}`)
+                ? [`*Endereço:* ${pedido.endereco}`]
                 : []),
             ...cupomItensDetalhados(pedido),
             CUPOM_SEP_SIMPLES,
-            cupomColunas('TOTAL A PAGAR:', cupomSemEspacoDuro(formatarMoeda(pedido.total))),
-            ...cupomQuebrar(`Pagto.:  ${pedido.pagamento || '-'}`),
-            ...(pedido.troco ? cupomQuebrar(`Troco:   ${pedido.troco}`) : []),
+            `*TOTAL: ${cupomSemEspacoDuro(formatarMoeda(pedido.total))}*`,
+            `*Pagamento:* ${pedido.pagamento || '-'}`,
+            ...(pedido.troco ? [`*Troco para:* ${pedido.troco}`] : []),
             CUPOM_SEP_DUPLO,
-            ...pronto.map((l) => cupomCentralizar(l)),
+            '*Acompanhe seu pedido:*',
+            linkAcompanhamentoPedido(pedido),
             ...cupomRodape(),
         ];
 
-        const texto = [
-            `*${String(state.empresa?.nomeLoja || 'Encanto do Açaí').toUpperCase()} — PEDIDO PRONTO* \u{1F347}`,
-            cupomEmBloco(cupom),
-            '',
-            '*Acompanhe seu pedido:*',
-            linkAcompanhamentoPedido(pedido),
-        ].join('\n');
-
-        return montarUrlWhatsapp(pedido.clienteWhatsapp, texto);
+        return montarUrlWhatsapp(pedido.clienteWhatsapp, cupom.join('\n'));
     }
 
     function montarLinkConversaPagamento(pedido) {
         const cupom = [
             ...cupomCabecalho('CUPOM • CONFIRMAÇÃO'),
-            ...cupomQuebrar(`Cliente: ${pedido.clienteNome || 'Cliente'}`),
-            `Pedido:  #${pedido.numero}`,
-            `Receb.:  ${pedido.tipoEntrega}`,
+            `Olá, *${pedido.clienteNome || 'Cliente'}*! Recebemos seu pedido:`,
+            CUPOM_SEP_SIMPLES,
+            `*Pedido:* #${pedido.numero}`,
+            `*Recebimento:* ${pedido.tipoEntrega}`,
             ...cupomItensDetalhados(pedido),
             CUPOM_SEP_SIMPLES,
-            cupomColunas('TOTAL A PAGAR:', cupomSemEspacoDuro(formatarMoeda(pedido.total))),
+            `*TOTAL A PAGAR: ${cupomSemEspacoDuro(formatarMoeda(pedido.total))}*`,
             CUPOM_SEP_DUPLO,
-            ...cupomQuebrar('Qual será a forma de pagamento?'),
-            '  [ ] Pix',
-            '  [ ] Cartão de Débito',
-            '  [ ] Cartão de Crédito',
-            '  [ ] Dinheiro',
-            CUPOM_SEP_SIMPLES,
-            ...cupomQuebrar('Responda com a opção escolhida para confirmarmos seu pedido.'),
+            '*Qual será a forma de pagamento?*',
+            '• Pix',
+            '• Cartão de Débito',
+            '• Cartão de Crédito',
+            '• Dinheiro _(informe se precisa de troco)_',
+            '',
+            '_Responda com a opção escolhida para confirmarmos seu pedido!_',
             ...cupomRodape(),
         ];
 
-        const texto = [
-            `*${String(state.empresa?.nomeLoja || 'Encanto do Açaí').toUpperCase()} — CONFIRMAÇÃO DE PAGAMENTO* \u{1F347}`,
-            cupomEmBloco(cupom),
-        ].join('\n');
-
-        return montarUrlWhatsapp(pedido.clienteWhatsapp, texto);
+        return montarUrlWhatsapp(pedido.clienteWhatsapp, cupom.join('\n'));
     }
 
     function renderItensPedidoHtml(itens) {
@@ -670,34 +618,27 @@
 
         const nomeLoja = empresa.nomeLoja || 'Encanto do Açaí';
         const favorecido = String(empresa.pixTitular || '').trim();
-        const uva = '\u{1F347}';
-        const cupomPix = [
+        const textoWa = [
             CUPOM_SEP_DUPLO,
-            cupomCentralizar(nomeLoja.toUpperCase()),
-            cupomCentralizar('CUPOM • PAGAMENTO PIX'),
+            `   ${EMOJI_UVA} *${nomeLoja.toUpperCase()}*`,
+            '   *CUPOM • PAGAMENTO PIX*',
             CUPOM_SEP_DUPLO,
-            ...cupomQuebrar(`Cliente: ${pedido.clienteNome || 'Cliente'}`),
-            `Pedido:  #${pedido.numero}`,
-            `Receb.:  ${pedido.tipoEntrega || '-'}`,
+            `*Cliente:* ${pedido.clienteNome || 'Cliente'}`,
+            `*Pedido:* #${pedido.numero}`,
+            `*Recebimento:* ${pedido.tipoEntrega || '-'}`,
             ...cupomItensDetalhados(pedido),
             CUPOM_SEP_SIMPLES,
-            cupomColunas('VALOR DO PIX:', cupomSemEspacoDuro(formatarMoeda(pedido.total))),
-            ...(favorecido ? cupomQuebrar(`Recebedor: ${favorecido}`) : []),
-            CUPOM_SEP_DUPLO,
-            cupomCentralizar('COMO PAGAR NO APP DO BANCO'),
+            `*VALOR DO PIX: ${cupomSemEspacoDuro(formatarMoeda(pedido.total))}*`,
+            ...(favorecido ? [`*Recebedor:* ${favorecido}`] : []),
             CUPOM_SEP_SIMPLES,
-            ...cupomQuebrar('1. Copie o código PIX abaixo.'),
-            ...cupomQuebrar('2. Abra o app do banco > Pix > Pix Copia e Cola.'),
-            ...cupomQuebrar('3. Cole o código e confirme.'),
+            '*COMO PAGAR*',
+            '1) Copie o código PIX no final desta mensagem',
+            '2) Abra o app do seu banco em *Pix Copia e Cola*',
+            '3) Cole o código e confirme o pagamento',
             ...cupomRodape(),
-        ];
-
-        const textoWa = [
-            `*${nomeLoja.toUpperCase()} — PAGAMENTO PIX* ${uva}`,
-            cupomEmBloco(cupomPix),
             '',
-            '*CÓDIGO PIX COPIA E COLA (toque e segure abaixo para copiar):*',
-            '```' + codigoPix + '```',
+            '*CÓDIGO PIX COPIA E COLA:*',
+            codigoPix,
         ].join('\n');
         const linkWa = montarUrlWhatsapp(pedido.clienteWhatsapp, textoWa);
 

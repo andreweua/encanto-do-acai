@@ -5,6 +5,11 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.8.11] - 2026-11-20
+
+### Corrigido
+- **Formatação organizada dos Cupons no WhatsApp (`js/app.js`, `js/pedidos-painel.js`):** Removido o bloco monoespaçado de 32 colunas que quebrava linhas em celulares com fonte maior e impedia negrito/links. Adotado layout de cupom organizado (divisórias de 26 caracteres, campos alinhados à esquerda com negrito nativo do WhatsApp, itens indentados e código PIX limpo no final da mensagem).
+
 ## [1.8.10] - 2026-11-20
 
 ### Alterado
