@@ -1,4 +1,4 @@
-const CACHE_NAME = 'encanto-acai-v1.8.1';
+const CACHE_NAME = 'encanto-acai-v1.8.2';
 const SHELL_ASSETS = [
     './',
     './index.html',
@@ -20,6 +20,7 @@ const SHELL_ASSETS = [
     './js/pedidos-painel.js',
     './js/admin.js',
     './js/pwa.js',
+    './js/versao.js',
 ];
 
 const CDN_HOSTS = [

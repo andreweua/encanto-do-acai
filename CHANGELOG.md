@@ -1,9 +1,14 @@
-﻿# Changelog
+# Changelog
 
 Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
+
+## [1.8.2] - 2026-11-20
+
+### Adicionado
+- **Versão e build no rodapé (`js/versao.js`):** Todas as páginas exibem "Versão X • Build Y" acima da assinatura "Desenvolvido por". Fonte única de versão/build para atualizar a cada release.
 
 ## [1.8.1] - 2026-11-20
 
