@@ -1,6 +1,6 @@
 (() => {
     // Fonte única de versão/build. Atualize a cada release.
-    const APP = { versao: '1.8.2', build: '20261120.1040' };
+    const APP = { versao: '1.8.3', build: '20261120.1045' };
     window.ENCANTO_APP = APP;
 
     function aplicarVersaoNoRodape() {

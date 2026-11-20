@@ -5,6 +5,12 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.8.3] - 2026-11-20
+
+### Corrigido
+- **Cards de Funcionamento, Pagamentos e Entrega/Retirada (`index.html`):** Textos saíam do card com as fontes maiores. Grid agora é 1 coluna no celular e 3 a partir de tablet, com `min-w-0` e quebra de linha dentro do card.
+- **Proteção global (`css/app.css`):** `overflow-wrap` no corpo e `min-width: 0` nos filhos de cards, para o conteúdo ficar sempre dentro do card e legível.
+
 ## [1.8.2] - 2026-11-20
 
 ### Adicionado

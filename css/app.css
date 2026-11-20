@@ -7,6 +7,13 @@ html {
 
 body {
     line-height: 1.6;
+    overflow-wrap: break-word;
+}
+
+/* Conteúdo sempre dentro do card: flex/grid filhos podem encolher e quebrar linha */
+.rounded-2xl > *,
+.rounded-3xl > * {
+    min-width: 0;
 }
 
 /* Piso de tamanho: nenhum texto abaixo de ~15px (valores em rem sobre base de 18px) */
