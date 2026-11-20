@@ -471,6 +471,14 @@ function doPost(e) {
         return responderJson({ ok: false, error: `Pedido ${numero} não encontrado.` });
       }
 
+      // Regra: a cozinha só pode marcar como Pronto depois que o Caixa confirmou (Em Preparo)
+      if (novoStatus === 'Pronto' && alvo.status !== 'Em Preparo') {
+        return responderJson({
+          ok: false,
+          error: 'O Caixa precisa confirmar o pedido (Em Preparo) antes de marcá-lo como Pronto.',
+        });
+      }
+
       let estoqueFoiBaixadoAgora = false;
       let estoqueEstornadoAgora = false;
       const deveBaixar = (novoStatus === 'Em Preparo' || novoStatus === 'Pronto') && !alvo.estoqueBaixado;

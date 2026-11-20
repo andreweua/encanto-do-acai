@@ -146,6 +146,15 @@
             return;
         }
 
+        // Regra de negócio: o pedido só pode ser marcado como Pronto depois que o Caixa o confirmou (Em Preparo)
+        if (novoStatus === 'Pronto') {
+            const atual = state.pedidos.find((p) => p.numero === numero);
+            if (!atual || atual.status !== 'Em Preparo') {
+                mostrarToast('O Caixa precisa confirmar o pedido antes de marcá-lo como pronto.', 'erro');
+                return;
+            }
+        }
+
         try {
             const resp = await fetch(urlBase, {
                 method: 'POST',
@@ -390,6 +399,21 @@
                 <div class="space-y-2.5">${renderItensPedidoHtml(p.itens)}</div>
 
                 <div class="pt-2">
+                    ${aguardandoCaixa ? `
+                    <div class="w-full rounded-xl bg-amber-50 border-2 border-amber-300 text-amber-900 font-bold py-4 px-5 text-base text-center flex items-center justify-center gap-2" role="status">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                        Aguardando o Caixa confirmar o pedido
+                    </div>
+                    <button
+                        type="button"
+                        disabled
+                        aria-disabled="true"
+                        class="mt-2 w-full bg-slate-300 text-slate-500 font-bold py-4 px-5 rounded-xl text-base cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        <i class="fa-solid fa-lock"></i>
+                        Pedido Pronto (bloqueado até o Caixa confirmar)
+                    </button>
+                    ` : `
                     <button
                         type="button"
                         data-acao-status="Pronto"
@@ -399,6 +423,7 @@
                         <i class="fa-solid fa-check-double"></i>
                         Confirmar Pedido Pronto (Enviar para Caixa)
                     </button>
+                    `}
                 </div>
             </article>
         `;

@@ -5,6 +5,11 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.8.9] - 2026-11-20
+
+### Corrigido
+- **Cozinha não pode finalizar pedido sem confirmação do Caixa (`js/pedidos-painel.js`, `apps-script/Code.gs`):** Pedidos em `Aguardando Caixa` agora mostram aviso e botão bloqueado na Cozinha. Regra reforçada no front-end e no servidor: só é possível marcar `Pronto` se o status atual for `Em Preparo`. **Requer nova implantação do `Code.gs` no Apps Script.**
+
 ## [1.8.8] - 2026-11-20
 
 ### Alterado
