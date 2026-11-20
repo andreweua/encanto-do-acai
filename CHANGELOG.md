@@ -5,6 +5,11 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.8.10] - 2026-11-20
+
+### Alterado
+- **Todas as mensagens enviadas ao cliente em formato de Cupom Fiscal (`js/pedidos-painel.js`):** Padronizadas as mensagens do Caixa para o cliente (**Pedido Pronto**, **Confirmação de Forma de Pagamento** e **Cobrança PIX Copia e Cola**) no layout de cupom monoespaçado de 32 colunas, incluindo itens detalhados do pedido, total, instruções claras e código PIX isolado para cópia fácil.
+
 ## [1.8.9] - 2026-11-20
 
 ### Corrigido

@@ -224,26 +224,172 @@
         return `https://wa.me/?text=${encodeURIComponent(texto)}`;
     }
 
+    /* ---------- Mensagens ao cliente em formato de cupom (monoespaçado, 32 colunas) ---------- */
+    const CUPOM_LARGURA = 32;
+    const CUPOM_SEP_DUPLO = '='.repeat(CUPOM_LARGURA);
+    const CUPOM_SEP_SIMPLES = '-'.repeat(CUPOM_LARGURA);
+
+    function cupomSemEspacoDuro(texto) {
+        return String(texto ?? '').replace(/\u00A0/g, ' ');
+    }
+
+    function cupomCentralizar(texto) {
+        const str = cupomSemEspacoDuro(texto).slice(0, CUPOM_LARGURA);
+        return ' '.repeat(Math.max(0, Math.floor((CUPOM_LARGURA - str.length) / 2))) + str;
+    }
+
+    function cupomQuebrar(texto, prefixo = '', prefixoContinuacao = null) {
+        const continuacao = prefixoContinuacao === null ? ' '.repeat(prefixo.length) : prefixoContinuacao;
+        const palavras = cupomSemEspacoDuro(texto).trim().split(/\s+/).filter(Boolean);
+        const linhas = [];
+        let atual = '';
+        palavras.forEach((palavra) => {
+            const pre = linhas.length === 0 ? prefixo : continuacao;
+            const limite = Math.max(8, CUPOM_LARGURA - pre.length);
+            if (!atual) {
+                atual = palavra;
+            } else if ((atual.length + 1 + palavra.length) <= limite) {
+                atual += ` ${palavra}`;
+            } else {
+                linhas.push(pre + atual);
+                atual = palavra;
+            }
+        });
+        if (atual) linhas.push((linhas.length === 0 ? prefixo : continuacao) + atual);
+        return linhas;
+    }
+
+    function cupomColunas(esquerda, direita) {
+        const esq = cupomSemEspacoDuro(esquerda);
+        const dir = cupomSemEspacoDuro(direita);
+        const espacos = CUPOM_LARGURA - esq.length - dir.length;
+        if (espacos >= 1) return `${esq}${' '.repeat(espacos)}${dir}`;
+        return `${esq.slice(0, Math.max(8, CUPOM_LARGURA - dir.length - 1))} ${dir}`;
+    }
+
+    function cupomCabecalho(titulo) {
+        const nomeLoja = String(state.empresa?.nomeLoja || 'Encanto do Açaí').toUpperCase();
+        return [
+            CUPOM_SEP_DUPLO,
+            cupomCentralizar(nomeLoja),
+            cupomCentralizar(titulo),
+            CUPOM_SEP_DUPLO,
+        ];
+    }
+
+    function cupomRodape(extra = []) {
+        const versaoRaw = (window.ENCANTO_APP && window.ENCANTO_APP.versao)
+            ? `v${window.ENCANTO_APP.versao}`
+            : String(config.APP_VERSION || 'v1.8.10').trim();
+        return [
+            CUPOM_SEP_DUPLO,
+            ...extra,
+            cupomCentralizar('Obrigado pela preferência!'),
+            CUPOM_SEP_SIMPLES,
+            cupomCentralizar('Desenvolvido por:'),
+            cupomCentralizar('PereiraLabs - Divisão de'),
+            cupomCentralizar('Tecnologia e IA |'),
+            cupomCentralizar('Louzada & Pereira -'),
+            cupomCentralizar(`Soluções Digitais. ${versaoRaw}`),
+            CUPOM_SEP_DUPLO,
+        ];
+    }
+
+    function cupomItensDetalhados(pedido) {
+        const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+        if (itens.length === 0) return [];
+        const linhas = [
+            CUPOM_SEP_SIMPLES,
+            cupomColunas('ITEM DESCRIÇÃO', 'VALOR'),
+            CUPOM_SEP_SIMPLES,
+        ];
+        itens.forEach((it, idx) => {
+            const num = String(idx + 1).padStart(2, '0');
+            const nomeCopo = `Copo ${it.copoNome || ''}`.trim();
+            const subStr = cupomSemEspacoDuro(formatarMoeda(it.subtotal || 0));
+            linhas.push(cupomColunas(`${num}  ${nomeCopo}`, subStr));
+            const gratis = Array.isArray(it.gratisNomes) ? it.gratisNomes : [];
+            gratis.forEach((g) => {
+                cupomQuebrar(g, '    + ', '      ').forEach((l) => linhas.push(l));
+            });
+            const pagos = Array.isArray(it.pagosNomes) ? it.pagosNomes : [];
+            pagos.forEach((pg) => {
+                cupomQuebrar(`${pg} (pago)`, '    + ', '      ').forEach((l) => linhas.push(l));
+            });
+            if (it.observacao) {
+                cupomQuebrar(`Obs: ${it.observacao}`, '    ', '    ').forEach((l) => linhas.push(l));
+            }
+        });
+        return linhas;
+    }
+
+    function cupomEmBloco(linhas) {
+        return '```\n' + linhas.join('\n') + '\n```';
+    }
+
+    function linkAcompanhamentoPedido(pedido) {
+        return new URL(`./f/?${encodeURIComponent(pedido.numero)}`, window.location.href).toString();
+    }
+
     function montarLinkWhatsappCliente(pedido) {
-        const baseAcompanhar = new URL(`./f/?${encodeURIComponent(pedido.numero)}`, window.location.href);
+        const pronto = pedido.tipoEntrega === 'Entrega'
+            ? ['SEU AÇAÍ ESTÁ PRONTO E', 'VAI SAIR PARA ENTREGA!']
+            : ['SEU AÇAÍ ESTÁ PRONTO!', 'VENHA RETIRAR NO BALCÃO.'];
+
+        const cupom = [
+            ...cupomCabecalho('CUPOM • PEDIDO PRONTO'),
+            ...cupomQuebrar(`Cliente: ${pedido.clienteNome || 'Cliente'}`),
+            `Pedido:  #${pedido.numero}`,
+            `Receb.:  ${pedido.tipoEntrega}`,
+            ...(pedido.tipoEntrega === 'Entrega' && pedido.endereco
+                ? cupomQuebrar(`End.:    ${pedido.endereco}`)
+                : []),
+            ...cupomItensDetalhados(pedido),
+            CUPOM_SEP_SIMPLES,
+            cupomColunas('TOTAL A PAGAR:', cupomSemEspacoDuro(formatarMoeda(pedido.total))),
+            ...cupomQuebrar(`Pagto.:  ${pedido.pagamento || '-'}`),
+            ...(pedido.troco ? cupomQuebrar(`Troco:   ${pedido.troco}`) : []),
+            CUPOM_SEP_DUPLO,
+            ...pronto.map((l) => cupomCentralizar(l)),
+            ...cupomRodape(),
+        ];
 
         const texto = [
-            `Olá, ${pedido.clienteNome || 'cliente'}! 🍇`,
-            `Seu pedido *#${pedido.numero}* no *Encanto do Açaí* está *PRONTO* (${pedido.tipoEntrega})!`,
-            `Total: *${formatarMoeda(pedido.total)}* (${pedido.pagamento})`,
+            `*${String(state.empresa?.nomeLoja || 'Encanto do Açaí').toUpperCase()} — PEDIDO PRONTO* \u{1F347}`,
+            cupomEmBloco(cupom),
             '',
-            `Acompanhe aqui: ${baseAcompanhar.toString()}`,
+            '*Acompanhe seu pedido:*',
+            linkAcompanhamentoPedido(pedido),
         ].join('\n');
 
         return montarUrlWhatsapp(pedido.clienteWhatsapp, texto);
     }
 
     function montarLinkConversaPagamento(pedido) {
+        const cupom = [
+            ...cupomCabecalho('CUPOM • CONFIRMAÇÃO'),
+            ...cupomQuebrar(`Cliente: ${pedido.clienteNome || 'Cliente'}`),
+            `Pedido:  #${pedido.numero}`,
+            `Receb.:  ${pedido.tipoEntrega}`,
+            ...cupomItensDetalhados(pedido),
+            CUPOM_SEP_SIMPLES,
+            cupomColunas('TOTAL A PAGAR:', cupomSemEspacoDuro(formatarMoeda(pedido.total))),
+            CUPOM_SEP_DUPLO,
+            ...cupomQuebrar('Qual será a forma de pagamento?'),
+            '  [ ] Pix',
+            '  [ ] Cartão de Débito',
+            '  [ ] Cartão de Crédito',
+            '  [ ] Dinheiro',
+            CUPOM_SEP_SIMPLES,
+            ...cupomQuebrar('Responda com a opção escolhida para confirmarmos seu pedido.'),
+            ...cupomRodape(),
+        ];
+
         const texto = [
-            `Olá, ${pedido.clienteNome || 'cliente'}! Tudo bem? 😊`,
-            `Recebemos seu pedido *#${pedido.numero}* no *${state.empresa?.nomeLoja || 'Encanto do Açaí'}* no valor de *${formatarMoeda(pedido.total)}*.`,
-            `Qual será a forma de pagamento? (*PIX*, *Cartão de Débito/Crédito* ou *Dinheiro*)`,
+            `*${String(state.empresa?.nomeLoja || 'Encanto do Açaí').toUpperCase()} — CONFIRMAÇÃO DE PAGAMENTO* \u{1F347}`,
+            cupomEmBloco(cupom),
         ].join('\n');
+
         return montarUrlWhatsapp(pedido.clienteWhatsapp, texto);
     }
 
@@ -525,26 +671,33 @@
         const nomeLoja = empresa.nomeLoja || 'Encanto do Açaí';
         const favorecido = String(empresa.pixTitular || '').trim();
         const uva = '\u{1F347}';
-        const separador = '━━━━━━━━━━━━━━━━━━';
+        const cupomPix = [
+            CUPOM_SEP_DUPLO,
+            cupomCentralizar(nomeLoja.toUpperCase()),
+            cupomCentralizar('CUPOM • PAGAMENTO PIX'),
+            CUPOM_SEP_DUPLO,
+            ...cupomQuebrar(`Cliente: ${pedido.clienteNome || 'Cliente'}`),
+            `Pedido:  #${pedido.numero}`,
+            `Receb.:  ${pedido.tipoEntrega || '-'}`,
+            ...cupomItensDetalhados(pedido),
+            CUPOM_SEP_SIMPLES,
+            cupomColunas('VALOR DO PIX:', cupomSemEspacoDuro(formatarMoeda(pedido.total))),
+            ...(favorecido ? cupomQuebrar(`Recebedor: ${favorecido}`) : []),
+            CUPOM_SEP_DUPLO,
+            cupomCentralizar('COMO PAGAR NO APP DO BANCO'),
+            CUPOM_SEP_SIMPLES,
+            ...cupomQuebrar('1. Copie o código PIX abaixo.'),
+            ...cupomQuebrar('2. Abra o app do banco > Pix > Pix Copia e Cola.'),
+            ...cupomQuebrar('3. Cole o código e confirme.'),
+            ...cupomRodape(),
+        ];
+
         const textoWa = [
-            `*${nomeLoja.toUpperCase()}* ${uva}`,
-            '*PAGAMENTO VIA PIX*',
-            separador,
-            `Olá, ${pedido.clienteNome || 'cliente'}! Segue o Pix do seu pedido:`,
+            `*${nomeLoja.toUpperCase()} — PAGAMENTO PIX* ${uva}`,
+            cupomEmBloco(cupomPix),
             '',
-            `*Pedido:* #${pedido.numero}`,
-            `*Valor:* ${formatarMoeda(pedido.total)}`,
-            ...(favorecido ? [`*Favorecido:* ${favorecido}`] : []),
-            separador,
-            '*COMO PAGAR*',
-            '1) Copie o código do quadro abaixo (toque e segure sobre ele e escolha *Copiar*).',
-            '2) No app do seu banco, abra *Pix* e escolha *Pix Copia e Cola*.',
-            '3) Cole o código, confira o valor e confirme o pagamento.',
-            separador,
-            '*CÓDIGO PIX COPIA E COLA*',
+            '*CÓDIGO PIX COPIA E COLA (toque e segure abaixo para copiar):*',
             '```' + codigoPix + '```',
-            separador,
-            `Após pagar, é só nos avisar por aqui. Obrigado pela preferência! ${uva}`,
         ].join('\n');
         const linkWa = montarUrlWhatsapp(pedido.clienteWhatsapp, textoWa);
 

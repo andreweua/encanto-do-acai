@@ -1,4 +1,4 @@
-const CACHE_NAME = 'encanto-acai-v1.8.9';
+const CACHE_NAME = 'encanto-acai-v1.8.10';
 const SHELL_ASSETS = [
     './',
     './index.html',
