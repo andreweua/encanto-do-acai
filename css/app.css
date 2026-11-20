@@ -1,32 +1,56 @@
-/* Ajustes globais de legibilidade e conforto visual (PWA / Cardápio / Painéis) */
+/* Legibilidade global (PWA / Cardápio / Painéis) - v1.8.1 */
 html {
-    font-size: 16px;
+    font-size: 18px;
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 body {
-    line-height: 1.55;
+    line-height: 1.6;
+}
+
+/* Piso de tamanho: nenhum texto abaixo de ~15px (valores em rem sobre base de 18px) */
+.text-xs,
+.text-\[10px\],
+.text-\[11px\] {
+    font-size: 0.875rem !important;
+    line-height: 1.35 !important;
+}
+
+.text-sm {
+    font-size: 0.97rem !important;
+    line-height: 1.5 !important;
+}
+
+.text-base {
+    font-size: 1.08rem !important;
+}
+
+.text-lg {
+    font-size: 1.2rem !important;
 }
 
 input,
 select,
 textarea {
-    font-size: 1rem;
+    font-size: 1rem !important;
+    min-height: 46px;
+}
+
+button,
+a.rounded-full,
+a.rounded-xl {
+    min-height: 44px;
 }
 
 @media (max-width: 640px) {
     html {
-        font-size: 17px;
+        font-size: 19px;
     }
+}
 
-    input,
-    select,
-    textarea {
-        font-size: 1rem;
-        min-height: 44px;
-    }
-
-    button {
-        min-height: 42px;
+@media (min-width: 1024px) {
+    html {
+        font-size: 18px;
     }
 }

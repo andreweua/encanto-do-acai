@@ -1,9 +1,14 @@
-# Changelog
+﻿# Changelog
 
 Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
+
+## [1.8.1] - 2026-11-20
+
+### Alterado
+- **Fontes maiores no PWA (`css/app.css`):** Base de 18px (19px no celular) e piso global de tamanho para `text-xs`, `text-[10px]` e `text-[11px]`, com campos e botões de toque maiores.
 
 ## [1.8.0] - 2026-11-20
 
