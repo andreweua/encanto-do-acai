@@ -37,7 +37,7 @@
     function renderMeuPedido(pedido) {
         if (!numeroAtual) {
             el.resultadoPedido.innerHTML = `
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 text-center text-sm text-slate-500">
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 text-center text-base text-slate-600">
                     Digite o número do seu pedido acima (ex.: <strong>20261112-001</strong>) para ver o andamento e sua posição na fila.
                 </div>
             `;
@@ -46,7 +46,7 @@
 
         if (!pedido) {
             el.resultadoPedido.innerHTML = `
-                <div class="bg-white rounded-3xl p-6 border border-red-200 text-center text-sm text-red-700 font-semibold">
+                <div class="bg-white rounded-3xl p-6 border border-red-200 text-center text-base text-red-700 font-semibold">
                     Pedido <strong>#${escapeHtml(numeroAtual)}</strong> não encontrado. Confira o número no seu cupom do WhatsApp.
                 </div>
             `;
@@ -73,7 +73,7 @@
         }
 
         const passosHtml = cancelado
-            ? '<div class="rounded-xl bg-red-50 border border-red-200 text-red-700 p-3 text-sm font-bold text-center">Pedido Cancelado</div>'
+            ? '<div class="rounded-xl bg-red-50 border border-red-200 text-red-700 p-3 text-base font-bold text-center">Pedido Cancelado</div>'
             : `
                 <div class="grid grid-cols-4 gap-2 pt-2">
                     ${etapas.map((etapa, idx) => {
@@ -82,7 +82,7 @@
                         return `
                             <div class="text-center">
                                 <div class="h-2 rounded-full mb-2 ${concluido ? 'bg-acai-magenta' : 'bg-slate-200'}"></div>
-                                <span class="text-[11px] font-bold block ${atual ? 'text-acai-magenta' : concluido ? 'text-acai-dark' : 'text-slate-400'}">
+                                <span class="text-xs sm:text-sm font-bold block ${atual ? 'text-acai-magenta' : concluido ? 'text-acai-dark' : 'text-slate-400'}">
                                     ${escapeHtml(etapa)}
                                 </span>
                             </div>
@@ -92,7 +92,7 @@
             `;
 
         const itensHtml = (pedido.itensResumo || []).map((it, idx) => `
-            <li class="text-xs text-slate-600 bg-slate-50 rounded-xl p-2.5 border border-slate-100 space-y-0.5">
+            <li class="text-sm sm:text-base text-slate-700 bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-1">
                 <strong class="text-acai-dark block">${idx + 1}. Copo ${escapeHtml(it.copoNome || 'Personalizado')} — ${escapeHtml(formatarMoeda(it.subtotal))}</strong>
                 <span><strong>Grátis:</strong> ${it.gratisNomes && it.gratisNomes.length ? escapeHtml(it.gratisNomes.join(', ')) : 'Nenhum'}</span>
                 ${it.pagosNomes && it.pagosNomes.length ? `<br><span><strong>Pagos:</strong> ${escapeHtml(it.pagosNomes.join(', '))}</span>` : ''}
@@ -104,25 +104,25 @@
             <div class="bg-white rounded-3xl p-6 shadow-md border-2 border-acai-magenta space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                        <span class="text-xs font-bold uppercase text-slate-400 block">Seu Pedido</span>
-                        <h2 class="font-display text-2xl text-acai-dark">#${escapeHtml(pedido.numero)}</h2>
+                        <span class="text-sm font-bold uppercase text-slate-400 block">Seu Pedido</span>
+                        <h2 class="font-display text-2xl sm:text-3xl text-acai-dark">#${escapeHtml(pedido.numero)}</h2>
                     </div>
-                    <span class="bg-acai-yellow text-acai-dark font-bold px-4 py-1.5 rounded-full text-xs uppercase">
+                    <span class="bg-acai-yellow text-acai-dark font-bold px-4 py-1.5 rounded-full text-sm uppercase">
                         ${escapeHtml(pedido.status)}
                     </span>
                 </div>
 
-                <p class="text-sm font-semibold text-acai-dark bg-purple-50 rounded-xl px-4 py-3 border border-acai-dark/10">
+                <p class="text-base font-semibold text-acai-dark bg-purple-50 rounded-xl px-4 py-3 border border-acai-dark/10">
                     <i class="fa-solid fa-clock-rotate-left text-acai-magenta mr-2"></i>${escapeHtml(textoFila)}
                 </p>
 
                 ${passosHtml}
 
-                ${itensHtml ? `<ul class="space-y-1.5 pt-2">${itensHtml}</ul>` : ''}
+                ${itensHtml ? `<ul class="space-y-2 pt-2">${itensHtml}</ul>` : ''}
 
-                <div class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+                <div class="flex items-center justify-between text-sm text-slate-600 pt-2 border-t border-slate-100">
                     <span>${escapeHtml(pedido.tipoEntrega)} • ${escapeHtml(pedido.dataHora)}</span>
-                    <strong class="text-sm text-acai-dark">Total: ${escapeHtml(formatarMoeda(pedido.total))}</strong>
+                    <strong class="text-base text-acai-dark">Total: ${escapeHtml(formatarMoeda(pedido.total))}</strong>
                 </div>
             </div>
         `;
@@ -130,7 +130,7 @@
 
     function renderFila(fila) {
         if (!Array.isArray(fila) || fila.length === 0) {
-            el.listaFila.innerHTML = '<p class="text-sm text-slate-400 text-center py-6">Nenhum pedido ativo na fila neste momento.</p>';
+            el.listaFila.innerHTML = '<p class="text-base text-slate-500 text-center py-6">Nenhum pedido ativo na fila neste momento.</p>';
             return;
         }
 
@@ -143,13 +143,13 @@
         el.listaFila.innerHTML = fila.map((item) => {
             const meu = numeroAtual && item.numero === numeroAtual;
             return `
-                <div class="flex items-center justify-between gap-3 p-3.5 rounded-2xl border ${meu ? 'border-acai-magenta bg-pink-50/60' : 'border-slate-200 bg-white'}">
+                <div class="flex items-center justify-between gap-3 p-4 rounded-2xl border ${meu ? 'border-acai-magenta bg-pink-50/60' : 'border-slate-200 bg-white'}">
                     <div>
-                        <span class="font-display text-base text-acai-dark">#${escapeHtml(item.numero)}</span>
-                        ${meu ? '<span class="ml-2 text-[10px] font-bold bg-acai-magenta text-white px-2 py-0.5 rounded-full">SEU</span>' : ''}
-                        <span class="text-xs text-slate-400 block">${escapeHtml(item.tipoEntrega)} • ${escapeHtml(item.dataHora)}</span>
+                        <span class="font-display text-lg text-acai-dark">#${escapeHtml(item.numero)}</span>
+                        ${meu ? '<span class="ml-2 text-xs font-bold bg-acai-magenta text-white px-2.5 py-0.5 rounded-full">SEU</span>' : ''}
+                        <span class="text-sm text-slate-500 block">${escapeHtml(item.tipoEntrega)} • ${escapeHtml(item.dataHora)}</span>
                     </div>
-                    <span class="text-xs font-bold px-3 py-1 rounded-full ${badgeMap[item.status] || 'bg-slate-100 text-slate-600'}">
+                    <span class="text-sm font-bold px-3.5 py-1.5 rounded-full ${badgeMap[item.status] || 'bg-slate-100 text-slate-600'}">
                         ${escapeHtml(item.status)}
                     </span>
                 </div>

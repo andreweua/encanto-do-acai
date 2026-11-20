@@ -5,6 +5,18 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.8.0] - 2026-11-20
+
+### Corrigido
+- **PWA (`manifest.webmanifest`, `sw.js`, `js/pwa.js`):** Adicionado `id`, removida a trava de orientação `portrait`, ícones `any` e `maskable` separados e `type` nos atalhos. O Service Worker agora usa `Promise.allSettled` na instalação, `ignoreSearch` no fallback offline (URLs com `?v=` e `?pedido=`), fallback para `index.html` em navegações e cache das CDNs de estilo/fontes (sem cachear o Google Apps Script/Sheets).
+
+### Adicionado
+- **Banner de instalação do app (`js/pwa.js`):** Botão de instalar (Android/Desktop), instruções para iOS Safari e aviso para abrir fora de navegadores internos (WhatsApp/Instagram), dispensável por 7 dias.
+- **Meta tags PWA/iOS** em todas as páginas.
+
+### Alterado
+- **Tipografia mais confortável (`css/app.css`, páginas HTML e `js/*.js`):** Fonte base de 16px (17px no mobile), `line-height` 1.55, campos e botões com altura mínima de toque e textos de 10-12px elevados para `text-sm`/`text-base`/`text-lg` no cardápio, na fila, no Caixa, na Cozinha e no Admin.
+
 ## [1.7.0] - 2026-11-13
 
 ### Adicionado

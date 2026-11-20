@@ -256,24 +256,24 @@
                     const estoqueBaixo = disponivel && qtdEfetiva <= (config.LOW_STOCK_THRESHOLD || 3);
 
                     const badgeStatus = !disponivel
-                        ? `<span class="bg-red-100 text-red-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase">${isCopo ? 'Indisponível (açaí ou copo)' : 'Indisponível'}</span>`
+                        ? `<span class="bg-red-100 text-red-700 text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full uppercase">${isCopo ? 'Indisponível (açaí ou copo)' : 'Indisponível'}</span>`
                         : estoqueBaixo
-                            ? `<span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">${isCopo ? `Restam ${qtdEfetiva} copos` : 'Estoque baixo'}</span>`
-                            : `<span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">${isCopo ? `Até ${qtdEfetiva} copos` : 'Disponível'}</span>`;
+                            ? `<span class="bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full">${isCopo ? `Restam ${qtdEfetiva} copos` : 'Estoque baixo'}</span>`
+                            : `<span class="bg-emerald-100 text-emerald-700 text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full">${isCopo ? `Até ${qtdEfetiva} copos` : 'Disponível'}</span>`;
 
                     return `
                         <div data-item-id="${escapeHtml(item.id)}" class="p-4 rounded-2xl border ${disponivel ? 'border-slate-200 bg-white' : 'border-red-200 bg-red-50/40'} flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                             <div class="min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="font-bold text-acai-dark text-base ${disponivel ? '' : 'line-through text-slate-500'}">${escapeHtml(item.nome)}</span>
+                                    <span class="font-bold text-acai-dark text-base sm:text-lg ${disponivel ? '' : 'line-through text-slate-500'}">${escapeHtml(item.nome)}</span>
                                     ${badgeStatus}
                                 </div>
-                                <span class="text-[11px] font-mono text-slate-400">${escapeHtml(item.id)}${isCopo ? ' • Calculado pelos litros de açaí' : ''}</span>
+                                <span class="text-xs font-mono text-slate-500">${escapeHtml(item.id)}${isCopo ? ' • Calculado pelos litros de açaí' : ''}</span>
                             </div>
 
                             <div class="flex flex-wrap items-center gap-3 sm:gap-4">
                                 <!-- Preço -->
-                                <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+                                <label class="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
                                     <span>R$</span>
                                     <input
                                         type="number"
@@ -281,29 +281,29 @@
                                         min="0"
                                         data-acao="preco"
                                         value="${Number(item.preco || 0).toFixed(2)}"
-                                        class="w-20 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-acai-magenta"
+                                        class="w-24 rounded-lg border border-slate-300 px-2.5 py-1.5 text-base font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-acai-magenta"
                                     >
                                 </label>
 
                                 ${isCopo ? `
                                 <!-- Quantidade calculada (somente leitura) -->
                                 <div class="flex items-center gap-1.5 rounded-xl border border-acai-magenta/30 bg-pink-50 px-3 py-1.5" title="Calculado automaticamente a partir dos litros de açaí">
-                                    <i class="fa-solid fa-calculator text-acai-magenta text-xs"></i>
-                                    <span class="text-sm font-bold text-acai-dark">${qtdEfetiva}</span>
-                                    <span class="text-[11px] font-semibold text-slate-500">copos</span>
+                                    <i class="fa-solid fa-calculator text-acai-magenta text-sm"></i>
+                                    <span class="text-base font-bold text-acai-dark">${qtdEfetiva}</span>
+                                    <span class="text-xs font-semibold text-slate-600">copos</span>
                                 </div>
                                 ` : `
                                 <!-- Quantidade -->
                                 <div class="flex items-center rounded-xl border border-slate-300 bg-slate-50 overflow-hidden">
-                                    <button type="button" data-acao="menos" aria-label="Diminuir estoque" class="px-3 py-1.5 text-slate-700 hover:bg-slate-200 font-bold cursor-pointer">−</button>
+                                    <button type="button" data-acao="menos" aria-label="Diminuir estoque" class="px-3.5 py-2 text-slate-700 hover:bg-slate-200 font-bold text-base cursor-pointer">−</button>
                                     <input
                                         type="number"
                                         min="0"
                                         data-acao="estoque"
                                         value="${item.estoque}"
-                                        class="w-14 text-center bg-white py-1.5 text-sm font-bold text-acai-dark border-x border-slate-300 focus:outline-none"
+                                        class="w-16 text-center bg-white py-2 text-base font-bold text-acai-dark border-x border-slate-300 focus:outline-none"
                                     >
-                                    <button type="button" data-acao="mais" aria-label="Aumentar estoque" class="px-3 py-1.5 text-slate-700 hover:bg-slate-200 font-bold cursor-pointer">+</button>
+                                    <button type="button" data-acao="mais" aria-label="Aumentar estoque" class="px-3.5 py-2 text-slate-700 hover:bg-slate-200 font-bold text-base cursor-pointer">+</button>
                                 </div>
                                 `}
 
@@ -311,7 +311,7 @@
                                 <button
                                     type="button"
                                     data-acao="toggle-ativo"
-                                    class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
+                                    class="px-4 py-2 rounded-full text-sm font-bold transition-colors cursor-pointer ${
                                         item.ativo
                                             ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                                             : 'bg-slate-300 hover:bg-slate-400 text-slate-700'
@@ -697,7 +697,7 @@
         if (!el.adminListaPedidos) return;
         const recentes = [...state.pedidos].reverse().slice(0, 20);
         if (recentes.length === 0) {
-            el.adminListaPedidos.innerHTML = '<p class="text-xs text-slate-400">Nenhum pedido registrado.</p>';
+            el.adminListaPedidos.innerHTML = '<p class="text-sm text-slate-500">Nenhum pedido registrado.</p>';
             return;
         }
 
@@ -705,18 +705,18 @@
             const ativo = p.status !== 'Concluído' && p.status !== 'Cancelado';
             const resumoItens = (p.itens || []).map((it) => `Copo ${it.copoNome || ''}`).join(', ');
             return `
-                <div class="rounded-2xl border border-slate-200 p-3.5 bg-slate-50 space-y-2">
+                <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50 space-y-2.5">
                     <div class="flex items-center justify-between gap-2">
-                        <strong class="text-sm text-acai-dark">#${escapeHtml(p.numero)} • ${escapeHtml(p.clienteNome || 'Cliente')}</strong>
-                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700">${escapeHtml(p.status)}</span>
+                        <strong class="text-base text-acai-dark">#${escapeHtml(p.numero)} • ${escapeHtml(p.clienteNome || 'Cliente')}</strong>
+                        <span class="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700">${escapeHtml(p.status)}</span>
                     </div>
-                    <p class="text-xs text-slate-600">${escapeHtml(resumoItens || 'Sem itens')} • <strong>${Number(p.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong> (${escapeHtml(p.pagamento)})</p>
+                    <p class="text-sm text-slate-700">${escapeHtml(resumoItens || 'Sem itens')} • <strong>${Number(p.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong> (${escapeHtml(p.pagamento)})</p>
                     ${ativo ? `
                         <div class="flex gap-2 pt-1">
-                            <button type="button" data-admin-editar-pedido="${escapeHtml(p.numero)}" class="flex-1 bg-white hover:bg-slate-100 border border-slate-300 text-acai-dark font-bold text-xs px-3 py-1.5 rounded-xl cursor-pointer">
+                            <button type="button" data-admin-editar-pedido="${escapeHtml(p.numero)}" class="flex-1 bg-white hover:bg-slate-100 border border-slate-300 text-acai-dark font-bold text-sm px-3 py-2 rounded-xl cursor-pointer">
                                 <i class="fa-solid fa-pen-to-square mr-1"></i> Editar
                             </button>
-                            <button type="button" data-admin-cancelar-pedido="${escapeHtml(p.numero)}" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-3 py-1.5 rounded-xl cursor-pointer">
+                            <button type="button" data-admin-cancelar-pedido="${escapeHtml(p.numero)}" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-sm px-3.5 py-2 rounded-xl cursor-pointer">
                                 Cancelar
                             </button>
                         </div>

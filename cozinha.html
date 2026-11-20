@@ -6,10 +6,14 @@
     <title>Cozinha | Encanto do Açaí</title>
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#380B4E">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Encanto Açaí">
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="apple-touch-icon" href="./assets/icon-192.png">
     <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
-    <link rel="stylesheet" href="./css/app.css?v=1.6.0">
+    <link rel="stylesheet" href="./css/app.css?v=1.8.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,9 +45,9 @@
                 <span class="font-display text-xl sm:text-2xl tracking-wide">
                     ENCANTO <span class="font-script text-acai-yellow font-normal lowercase">do Açaí</span>
                 </span>
-                <span class="bg-acai-cyan text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase">Cozinha</span>
+                <span class="bg-acai-cyan text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Cozinha</span>
             </div>
-            <nav class="flex flex-wrap items-center gap-2 text-xs font-bold">
+            <nav class="flex flex-wrap items-center gap-2 text-sm font-bold">
                 <a href="./admin.html" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">Estoque</a>
                 <a href="./caixa.html" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">Caixa</a>
                 <a href="./cozinha.html" class="px-3.5 py-2 rounded-full bg-acai-cyan text-white">Cozinha</a>
@@ -56,16 +60,16 @@
     <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1">
         <section class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 flex flex-wrap items-end justify-between gap-4">
             <div>
-                <h1 class="font-display text-2xl text-acai-dark">TELA DA COZINHA</h1>
-                <p class="text-xs text-slate-500">Monte os copos conforme os adicionais e toque em Confirmar Pedido Pronto para liberar no Caixa.</p>
+                <h1 class="font-display text-2xl sm:text-3xl text-acai-dark">TELA DA COZINHA</h1>
+                <p class="text-sm sm:text-base text-slate-600">Monte os copos conforme os adicionais e toque em Confirmar Pedido Pronto para liberar no Caixa.</p>
             </div>
             <div class="flex flex-wrap items-center gap-2.5">
-                <input id="painel-pin" type="password" placeholder="PIN de Admin" class="rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-acai-cyan">
-                <button id="btn-painel-conectar" type="button" class="bg-acai-cyan hover:bg-teal-600 text-white font-bold px-4 py-2 rounded-xl text-sm cursor-pointer">Entrar</button>
-                <button id="btn-painel-atualizar" type="button" class="bg-acai-dark hover:bg-purple-950 text-white font-bold px-4 py-2 rounded-xl text-sm cursor-pointer">
+                <input id="painel-pin" type="password" placeholder="PIN de Admin" class="rounded-xl border border-slate-300 px-3.5 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-acai-cyan">
+                <button id="btn-painel-conectar" type="button" class="bg-acai-cyan hover:bg-teal-600 text-white font-bold px-4 py-2.5 rounded-xl text-base cursor-pointer">Entrar</button>
+                <button id="btn-painel-atualizar" type="button" class="bg-acai-dark hover:bg-purple-950 text-white font-bold px-4 py-2.5 rounded-xl text-base cursor-pointer">
                     <i class="fa-solid fa-rotate-right mr-1"></i> Atualizar
                 </button>
-                <span id="painel-status-texto" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600">Conectando...</span>
+                <span id="painel-status-texto" class="text-sm font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600">Conectando...</span>
             </div>
         </section>
 
@@ -73,20 +77,20 @@
     </main>
 
     <footer class="bg-slate-900 text-slate-400 py-5 px-4 mt-8">
-        <p class="text-[10px] text-slate-500 text-center">
+        <p class="text-xs text-slate-400 text-center">
             Desenvolvido por:
-            <a href="https://github.com/andreweua" target="_blank" rel="noopener noreferrer" class="hover:text-gold-400 text-slate-400 transition font-medium">PereiraLabs - Divisão de Tecnologia e IA</a> |
-            <span class="text-slate-400 font-medium">Louzada &amp; Pereira - Soluções Digitais</span>.
-            <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.6.0</a>
+            <a href="https://github.com/andreweua" target="_blank" rel="noopener noreferrer" class="hover:text-gold-400 text-slate-300 transition font-medium">PereiraLabs - Divisão de Tecnologia e IA</a> |
+            <span class="text-slate-300 font-medium">Louzada &amp; Pereira - Soluções Digitais</span>.
+            <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-xs text-slate-400 hover:underline ml-1">v1.8.0</a>
         </p>
     </footer>
 
-    <div id="painel-toast" aria-live="polite" class="fixed bottom-6 right-6 z-50 max-w-xs bg-acai-dark text-white text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300"></div>
+    <div id="painel-toast" aria-live="polite" class="fixed bottom-6 right-6 z-50 max-w-xs bg-acai-dark text-white text-base font-semibold px-4 py-3 rounded-2xl shadow-xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300"></div>
 
-    <script src="./js/config.js?v=1.7.0"></script>
-    <script src="./js/estoque.js?v=1.7.0"></script>
-    <script src="./js/pix.js?v=1.7.0"></script>
-    <script src="./js/pedidos-painel.js?v=1.7.0"></script>
-    <script src="./js/pwa.js?v=1.7.0"></script>
+    <script src="./js/config.js?v=1.8.0"></script>
+    <script src="./js/estoque.js?v=1.8.0"></script>
+    <script src="./js/pix.js?v=1.8.0"></script>
+    <script src="./js/pedidos-painel.js?v=1.8.0"></script>
+    <script src="./js/pwa.js?v=1.8.0"></script>
 </body>
 </html>

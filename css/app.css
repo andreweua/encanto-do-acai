@@ -1,12 +1,32 @@
-/* Ajustes globais de legibilidade mobile (PWA / Cardápio / Painéis) */
+/* Ajustes globais de legibilidade e conforto visual (PWA / Cardápio / Painéis) */
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    line-height: 1.55;
+}
+
+input,
+select,
+textarea {
+    font-size: 1rem;
+}
+
 @media (max-width: 640px) {
     html {
-        font-size: 18px;
+        font-size: 17px;
     }
 
     input,
     select,
     textarea {
-        font-size: 16px;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+
+    button {
+        min-height: 42px;
     }
 }

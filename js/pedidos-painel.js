@@ -240,23 +240,23 @@
 
     function renderItensPedidoHtml(itens) {
         if (!Array.isArray(itens) || itens.length === 0) {
-            return '<p class="text-xs text-slate-400">Sem itens detalhados.</p>';
+            return '<p class="text-sm text-slate-400">Sem itens detalhados.</p>';
         }
 
         return itens.map((it, idx) => `
-            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3.5 space-y-1.5">
                 <div class="flex items-center justify-between gap-2">
-                    <span class="font-bold text-sm text-acai-dark">${idx + 1}. Copo ${escapeHtml(it.copoNome)}</span>
-                    <span class="font-bold text-xs text-acai-magenta">${escapeHtml(formatarMoeda(it.subtotal))}</span>
+                    <span class="font-bold text-base sm:text-lg text-acai-dark">${idx + 1}. Copo ${escapeHtml(it.copoNome)}</span>
+                    <span class="font-bold text-sm sm:text-base text-acai-magenta">${escapeHtml(formatarMoeda(it.subtotal))}</span>
                 </div>
-                <p class="text-xs text-slate-600">
+                <p class="text-sm sm:text-base text-slate-700">
                     <strong>Grátis:</strong> ${(it.gratisNomes && it.gratisNomes.length) ? escapeHtml(it.gratisNomes.join(', ')) : 'Nenhum'}
                 </p>
                 ${(it.pagosNomes && it.pagosNomes.length) ? `
-                    <p class="text-xs text-slate-600"><strong>Pagos:</strong> ${escapeHtml(it.pagosNomes.join(', '))}</p>
+                    <p class="text-sm sm:text-base text-slate-700"><strong>Pagos:</strong> ${escapeHtml(it.pagosNomes.join(', '))}</p>
                 ` : ''}
                 ${it.observacao ? `
-                    <p class="text-xs font-semibold text-amber-900 bg-amber-100 rounded-lg px-2.5 py-1 mt-1">
+                    <p class="text-sm sm:text-base font-semibold text-amber-900 bg-amber-100 rounded-lg px-3 py-1.5 mt-1">
                         Obs: ${escapeHtml(it.observacao)}
                     </p>
                 ` : ''}
@@ -280,48 +280,48 @@
         let acoes = '';
         if (p.status === 'Aguardando Caixa') {
             acoes = `
-                <button type="button" data-acao-status="Em Preparo" data-numero="${escapeHtml(p.numero)}" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors cursor-pointer">
+                <button type="button" data-acao-status="Em Preparo" data-numero="${escapeHtml(p.numero)}" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base px-4 py-3 rounded-xl transition-colors cursor-pointer">
                     <i class="fa-solid fa-check mr-1"></i> Confirmar &amp; Baixar Estoque
                 </button>
             `;
         } else if (p.status === 'Em Preparo') {
             acoes = `
-                <button type="button" data-acao-status="Pronto" data-numero="${escapeHtml(p.numero)}" class="flex-1 bg-acai-cyan hover:bg-teal-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors cursor-pointer">
+                <button type="button" data-acao-status="Pronto" data-numero="${escapeHtml(p.numero)}" class="flex-1 bg-acai-cyan hover:bg-teal-600 text-white font-bold text-sm sm:text-base px-4 py-3 rounded-xl transition-colors cursor-pointer">
                     <i class="fa-solid fa-bell mr-1"></i> Marcar Pronto
                 </button>
             `;
         } else if (p.status === 'Pronto') {
             const linkWa = montarLinkWhatsappCliente(p);
             acoes = `
-                <a href="${escapeHtml(linkWa)}" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors">
-                    <i class="fa-brands fa-whatsapp text-base"></i> Avisar Pronto
+                <a href="${escapeHtml(linkWa)}" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-sm sm:text-base px-4 py-3 rounded-xl transition-colors">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Avisar Pronto
                 </a>
-                <button type="button" data-acao-status="Concluído" data-numero="${escapeHtml(p.numero)}" class="bg-acai-dark hover:bg-purple-950 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors cursor-pointer">
+                <button type="button" data-acao-status="Concluído" data-numero="${escapeHtml(p.numero)}" class="bg-acai-dark hover:bg-purple-950 text-white font-bold text-sm sm:text-base px-4 py-3 rounded-xl transition-colors cursor-pointer">
                     Finalizar
                 </button>
             `;
         }
 
         const gerenciaPgto = ativo ? `
-            <div class="rounded-xl bg-purple-50/70 border border-acai-dark/10 p-3 space-y-2">
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-[11px] font-bold uppercase text-acai-dark">Gerenciar Pagamento</span>
-                    <a href="${escapeHtml(linkConversa)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-green-700 hover:underline">
+            <div class="rounded-xl bg-purple-50/70 border border-acai-dark/10 p-3.5 space-y-2.5">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <span class="text-xs sm:text-sm font-bold uppercase text-acai-dark">Gerenciar Pagamento</span>
+                    <a href="${escapeHtml(linkConversa)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-green-700 hover:underline">
                         <i class="fa-brands fa-whatsapp"></i> Perguntar no WhatsApp
                     </a>
                 </div>
                 <div class="flex flex-wrap gap-2 items-center">
-                    <select data-select-pgto="${escapeHtml(p.numero)}" class="flex-1 min-w-[130px] rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-acai-dark">
+                    <select data-select-pgto="${escapeHtml(p.numero)}" class="flex-1 min-w-[140px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-acai-dark">
                         ${opcoesPgto.map((op) => `<option value="${escapeHtml(op)}" ${p.pagamento === op ? 'selected' : ''}>${escapeHtml(op)}</option>`).join('')}
                         ${!opcoesPgto.includes(p.pagamento) && p.pagamento ? `<option value="${escapeHtml(p.pagamento)}" selected>${escapeHtml(p.pagamento)}</option>` : ''}
                     </select>
-                    <input type="text" data-input-troco="${escapeHtml(p.numero)}" value="${escapeHtml(p.troco || '')}" placeholder="Troco (se dinheiro)" class="w-32 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
-                    <button type="button" data-acao-salvar-pgto="${escapeHtml(p.numero)}" class="bg-acai-dark hover:bg-purple-950 text-white font-bold text-xs px-3 py-1.5 rounded-lg cursor-pointer">
+                    <input type="text" data-input-troco="${escapeHtml(p.numero)}" value="${escapeHtml(p.troco || '')}" placeholder="Troco (se dinheiro)" class="w-36 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                    <button type="button" data-acao-salvar-pgto="${escapeHtml(p.numero)}" class="bg-acai-dark hover:bg-purple-950 text-white font-bold text-sm px-3.5 py-2 rounded-lg cursor-pointer">
                         Salvar
                     </button>
                 </div>
                 ${String(p.pagamento || '').toLowerCase().includes('pix') ? `
-                    <button type="button" data-acao-pix="${escapeHtml(p.numero)}" class="w-full inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-3 py-2 rounded-lg transition-colors cursor-pointer">
+                    <button type="button" data-acao-pix="${escapeHtml(p.numero)}" class="w-full inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm px-3 py-2.5 rounded-lg transition-colors cursor-pointer">
                         <i class="fa-solid fa-qrcode"></i> Gerar PIX &amp; Enviar no WhatsApp
                     </button>
                 ` : ''}
@@ -329,35 +329,35 @@
         ` : '';
 
         const botoesEdicaoCancelamento = ativo ? `
-            <div class="flex gap-2 pt-1 border-t border-slate-100">
-                <button type="button" data-acao-editar="${escapeHtml(p.numero)}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-acai-dark font-bold text-xs px-3 py-2 rounded-xl transition-colors cursor-pointer">
+            <div class="flex gap-2 pt-2 border-t border-slate-100">
+                <button type="button" data-acao-editar="${escapeHtml(p.numero)}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-acai-dark font-bold text-sm px-3 py-2.5 rounded-xl transition-colors cursor-pointer">
                     <i class="fa-solid fa-pen-to-square mr-1"></i> Editar Pedido
                 </button>
-                <button type="button" data-acao-cancelar="${escapeHtml(p.numero)}" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-3 py-2 rounded-xl transition-colors cursor-pointer">
+                <button type="button" data-acao-cancelar="${escapeHtml(p.numero)}" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-sm px-3.5 py-2.5 rounded-xl transition-colors cursor-pointer">
                     <i class="fa-solid fa-ban mr-1"></i> Cancelar
                 </button>
             </div>
         ` : '';
 
         return `
-            <article class="bg-white rounded-2xl border ${p.status === 'Pronto' ? 'border-emerald-400 ring-2 ring-emerald-200' : 'border-slate-200'} p-4 shadow-sm space-y-3">
+            <article class="bg-white rounded-2xl border ${p.status === 'Pronto' ? 'border-emerald-400 ring-2 ring-emerald-200' : 'border-slate-200'} p-4 sm:p-5 shadow-sm space-y-3">
                 <div class="flex items-start justify-between gap-2">
                     <div>
-                        <span class="font-display text-lg text-acai-dark">#${escapeHtml(p.numero)}</span>
-                        <span class="text-xs text-slate-400 block">${escapeHtml(p.dataHora)}</span>
+                        <span class="font-display text-xl text-acai-dark">#${escapeHtml(p.numero)}</span>
+                        <span class="text-sm text-slate-500 block">${escapeHtml(p.dataHora)}</span>
                     </div>
                     <div class="flex flex-col items-end gap-1">
-                        <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${badgeCls}">${escapeHtml(p.status)}</span>
-                        <span class="text-[10px] font-semibold ${p.estoqueBaixado ? 'text-emerald-700' : 'text-slate-400'}">
+                        <span class="text-xs sm:text-sm font-bold px-3 py-1 rounded-full ${badgeCls}">${escapeHtml(p.status)}</span>
+                        <span class="text-xs font-semibold ${p.estoqueBaixado ? 'text-emerald-700' : 'text-slate-500'}">
                             ${p.estoqueBaixado ? 'Estoque baixado' : 'Estoque não baixado'}
                         </span>
                     </div>
                 </div>
 
-                <div class="text-xs text-slate-700 space-y-1 border-y border-slate-100 py-2">
+                <div class="text-sm sm:text-base text-slate-700 space-y-1.5 border-y border-slate-100 py-2.5">
                     <p><strong>Cliente:</strong> ${escapeHtml(p.clienteNome || 'Não informado')} ${p.clienteWhatsapp ? `• ${escapeHtml(p.clienteWhatsapp)}` : ''}</p>
                     <p><strong>${escapeHtml(p.tipoEntrega)}:</strong> ${p.tipoEntrega === 'Entrega' ? escapeHtml(p.endereco || '-') : 'Retirar no local'}</p>
-                    <p><strong>Pagamento:</strong> ${escapeHtml(p.pagamento)}${p.troco ? ` (Troco: ${escapeHtml(p.troco)})` : ''} • <strong class="text-acai-magenta">${escapeHtml(formatarMoeda(p.total))}</strong></p>
+                    <p><strong>Pagamento:</strong> ${escapeHtml(p.pagamento)}${p.troco ? ` (Troco: ${escapeHtml(p.troco)})` : ''} • <strong class="text-acai-magenta text-base sm:text-lg">${escapeHtml(formatarMoeda(p.total))}</strong></p>
                 </div>
 
                 <div class="space-y-2">${renderItensPedidoHtml(p.itens)}</div>
@@ -372,29 +372,29 @@
     function renderCardPedidoCozinha(p) {
         const aguardandoCaixa = p.status === 'Aguardando Caixa';
         return `
-            <article class="bg-white rounded-2xl border-2 ${aguardandoCaixa ? 'border-amber-300' : 'border-acai-cyan'} p-5 shadow-md space-y-3">
-                <div class="flex items-center justify-between gap-2">
+            <article class="bg-white rounded-2xl border-2 ${aguardandoCaixa ? 'border-amber-300' : 'border-acai-cyan'} p-5 shadow-md space-y-3.5">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
                     <div>
-                        <span class="font-display text-2xl text-acai-dark">#${escapeHtml(p.numero)}</span>
-                        <span class="text-xs text-slate-500 ml-2">${escapeHtml(p.dataHora)}</span>
+                        <span class="font-display text-2xl sm:text-3xl text-acai-dark">#${escapeHtml(p.numero)}</span>
+                        <span class="text-sm text-slate-500 ml-2">${escapeHtml(p.dataHora)}</span>
                     </div>
-                    <span class="text-xs font-bold px-3 py-1 rounded-full ${aguardandoCaixa ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
+                    <span class="text-sm font-bold px-3.5 py-1 rounded-full ${aguardandoCaixa ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
                         ${aguardandoCaixa ? 'Aguardando Caixa' : 'Em Preparo'}
                     </span>
                 </div>
 
-                <p class="text-xs font-semibold text-slate-600">
-                    Cliente: <strong class="text-slate-800">${escapeHtml(p.clienteNome || 'Cliente')}</strong> • ${escapeHtml(p.tipoEntrega)}
+                <p class="text-base font-semibold text-slate-700">
+                    Cliente: <strong class="text-acai-dark">${escapeHtml(p.clienteNome || 'Cliente')}</strong> • ${escapeHtml(p.tipoEntrega)}
                 </p>
 
-                <div class="space-y-2">${renderItensPedidoHtml(p.itens)}</div>
+                <div class="space-y-2.5">${renderItensPedidoHtml(p.itens)}</div>
 
                 <div class="pt-2">
                     <button
                         type="button"
                         data-acao-status="Pronto"
                         data-numero="${escapeHtml(p.numero)}"
-                        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-5 rounded-xl text-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-5 rounded-xl text-base transition-colors cursor-pointer flex items-center justify-center gap-2"
                     >
                         <i class="fa-solid fa-check-double"></i>
                         Confirmar Pedido Pronto (Enviar para Caixa)
@@ -518,18 +518,18 @@
             <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="font-display text-xl text-acai-dark">PIX • #${escapeHtml(pedido.numero)}</h3>
-                    <button type="button" data-fechar-modal class="text-slate-400 hover:text-slate-700 text-lg font-bold cursor-pointer">✕</button>
+                    <button type="button" data-fechar-modal class="text-slate-400 hover:text-slate-700 text-xl font-bold cursor-pointer">✕</button>
                 </div>
-                <p class="text-sm text-slate-600">Valor a cobrar: <strong class="text-acai-magenta text-base">${escapeHtml(formatarMoeda(pedido.total))}</strong></p>
+                <p class="text-base text-slate-700">Valor a cobrar: <strong class="text-acai-magenta text-lg">${escapeHtml(formatarMoeda(pedido.total))}</strong></p>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">PIX Copia e Cola</label>
-                    <textarea readonly rows="4" class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-xs font-mono text-slate-800">${escapeHtml(codigoPix)}</textarea>
+                    <label class="block text-sm font-bold text-slate-600 uppercase mb-1">PIX Copia e Cola</label>
+                    <textarea readonly rows="4" class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm font-mono text-slate-800">${escapeHtml(codigoPix)}</textarea>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <button type="button" data-copiar-pix class="flex-1 bg-acai-dark hover:bg-purple-950 text-white font-bold text-xs px-4 py-3 rounded-xl cursor-pointer">
+                    <button type="button" data-copiar-pix class="flex-1 bg-acai-dark hover:bg-purple-950 text-white font-bold text-sm px-4 py-3 rounded-xl cursor-pointer">
                         <i class="fa-regular fa-copy mr-1"></i> Copiar Código PIX
                     </button>
-                    <a href="${escapeHtml(linkWa)}" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-xs px-4 py-3 rounded-xl">
+                    <a href="${escapeHtml(linkWa)}" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-sm px-4 py-3 rounded-xl">
                         <i class="fa-brands fa-whatsapp text-base"></i> Enviar no WhatsApp
                     </a>
                 </div>
@@ -599,37 +599,37 @@
                 recalcularItem(it);
                 totalGeral += it.subtotal;
                 return `
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-2" data-item-idx="${idx}">
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 space-y-2.5" data-item-idx="${idx}">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="font-bold text-xs text-acai-dark">Copo ${idx + 1} (${escapeHtml(formatarMoeda(it.subtotal))})</span>
-                            ${itensEdit.length > 1 ? `<button type="button" data-rem-item="${idx}" class="text-xs font-bold text-red-600 hover:underline cursor-pointer">Remover</button>` : ''}
+                            <span class="font-bold text-sm sm:text-base text-acai-dark">Copo ${idx + 1} (${escapeHtml(formatarMoeda(it.subtotal))})</span>
+                            ${itensEdit.length > 1 ? `<button type="button" data-rem-item="${idx}" class="text-sm font-bold text-red-600 hover:underline cursor-pointer">Remover</button>` : ''}
                         </div>
-                        <select data-item-copo="${idx}" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold">
+                        <select data-item-copo="${idx}" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm sm:text-base font-semibold">
                             ${copos.map((c) => `<option value="${escapeHtml(c.id)}" ${c.id === it.copoId ? 'selected' : ''}>${escapeHtml(c.nome)} — ${escapeHtml(formatarMoeda(c.preco))}</option>`).join('')}
                         </select>
                         <div>
-                            <span class="block text-[11px] font-bold text-slate-500 mb-1">Adicionais Grátis</span>
+                            <span class="block text-xs sm:text-sm font-bold text-slate-600 mb-1">Adicionais Grátis</span>
                             <div class="flex flex-wrap gap-1.5">
                                 ${gratis.map((g) => {
                                     const chk = it.gratisIds.includes(g.id);
-                                    return `<label class="inline-flex items-center gap-1 text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer">
+                                    return `<label class="inline-flex items-center gap-1.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 cursor-pointer">
                                         <input type="checkbox" data-item-gratis="${idx}" value="${escapeHtml(g.id)}" ${chk ? 'checked' : ''}> ${escapeHtml(g.nome)}
                                     </label>`;
                                 }).join('')}
                             </div>
                         </div>
                         <div>
-                            <span class="block text-[11px] font-bold text-slate-500 mb-1">Adicionais Pagos</span>
+                            <span class="block text-xs sm:text-sm font-bold text-slate-600 mb-1">Adicionais Pagos</span>
                             <div class="flex flex-wrap gap-1.5">
                                 ${pagos.map((pg) => {
                                     const chk = it.pagosIds.includes(pg.id);
-                                    return `<label class="inline-flex items-center gap-1 text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer">
+                                    return `<label class="inline-flex items-center gap-1.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 cursor-pointer">
                                         <input type="checkbox" data-item-pago="${idx}" value="${escapeHtml(pg.id)}" ${chk ? 'checked' : ''}> ${escapeHtml(pg.nome)} (+${escapeHtml(formatarMoeda(pg.preco))})
                                     </label>`;
                                 }).join('')}
                             </div>
                         </div>
-                        <input type="text" data-item-obs="${idx}" value="${escapeHtml(it.observacao)}" placeholder="Observação deste copo" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs">
+                        <input type="text" data-item-obs="${idx}" value="${escapeHtml(it.observacao)}" placeholder="Observação deste copo" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm sm:text-base">
                     </div>
                 `;
             }).join('');
@@ -645,52 +645,52 @@
                     <button type="button" data-fechar-modal class="text-slate-400 hover:text-slate-700 text-lg font-bold cursor-pointer">✕</button>
                 </div>
 
-                <div class="grid sm:grid-cols-2 gap-3 text-xs">
+                <div class="grid sm:grid-cols-2 gap-3 text-sm">
                     <div>
-                        <label class="block font-bold text-slate-600 mb-1">Nome do Cliente</label>
-                        <input id="ed-nome" type="text" value="${escapeHtml(pedido.clienteNome || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <label class="block font-bold text-slate-700 mb-1">Nome do Cliente</label>
+                        <input id="ed-nome" type="text" value="${escapeHtml(pedido.clienteNome || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-base">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-600 mb-1">WhatsApp</label>
-                        <input id="ed-whatsapp" type="tel" value="${escapeHtml(pedido.clienteWhatsapp || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <label class="block font-bold text-slate-700 mb-1">WhatsApp</label>
+                        <input id="ed-whatsapp" type="tel" value="${escapeHtml(pedido.clienteWhatsapp || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-base">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-600 mb-1">Recebimento</label>
-                        <select id="ed-entrega" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
+                        <label class="block font-bold text-slate-700 mb-1">Recebimento</label>
+                        <select id="ed-entrega" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-base">
                             <option value="Entrega" ${pedido.tipoEntrega === 'Entrega' ? 'selected' : ''}>Entrega</option>
                             <option value="Retirada" ${pedido.tipoEntrega === 'Retirada' ? 'selected' : ''}>Retirada</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-600 mb-1">Pagamento</label>
-                        <select id="ed-pagamento" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
+                        <label class="block font-bold text-slate-700 mb-1">Pagamento</label>
+                        <select id="ed-pagamento" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-base">
                             ${opcoesPgto.map((op) => `<option value="${escapeHtml(op)}" ${pedido.pagamento === op ? 'selected' : ''}>${escapeHtml(op)}</option>`).join('')}
                             ${!opcoesPgto.includes(pedido.pagamento) && pedido.pagamento ? `<option value="${escapeHtml(pedido.pagamento)}" selected>${escapeHtml(pedido.pagamento)}</option>` : ''}
                         </select>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block font-bold text-slate-600 mb-1">Endereço</label>
-                        <input id="ed-endereco" type="text" value="${escapeHtml(pedido.endereco || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <label class="block font-bold text-slate-700 mb-1">Endereço</label>
+                        <input id="ed-endereco" type="text" value="${escapeHtml(pedido.endereco || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-base">
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block font-bold text-slate-600 mb-1">Troco</label>
-                        <input id="ed-troco" type="text" value="${escapeHtml(pedido.troco || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <label class="block font-bold text-slate-700 mb-1">Troco</label>
+                        <input id="ed-troco" type="text" value="${escapeHtml(pedido.troco || '')}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-base">
                     </div>
                 </div>
 
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="font-bold text-xs uppercase text-acai-dark">Itens do Pedido</span>
-                        <button type="button" data-add-item class="text-xs font-bold bg-acai-cyan text-white px-3 py-1.5 rounded-lg cursor-pointer">+ Adicionar Copo</button>
+                        <span class="font-bold text-sm uppercase text-acai-dark">Itens do Pedido</span>
+                        <button type="button" data-add-item class="text-sm font-bold bg-acai-cyan text-white px-3.5 py-1.5 rounded-lg cursor-pointer">+ Adicionar Copo</button>
                     </div>
                     <div data-editor-itens class="space-y-2.5"></div>
                 </div>
 
                 <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-                    <div class="text-sm font-bold text-acai-dark">Total: <span data-editor-total class="text-acai-magenta text-lg">R$ 0,00</span></div>
+                    <div class="text-base font-bold text-acai-dark">Total: <span data-editor-total class="text-acai-magenta text-xl">R$ 0,00</span></div>
                     <div class="flex gap-2">
-                        <button type="button" data-fechar-modal class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer">Fechar</button>
-                        <button type="button" data-salvar-edicao class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer">Salvar Alterações</button>
+                        <button type="button" data-fechar-modal class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm cursor-pointer">Fechar</button>
+                        <button type="button" data-salvar-edicao class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm cursor-pointer">Salvar Alterações</button>
                     </div>
                 </div>
             </div>

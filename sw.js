@@ -1,4 +1,4 @@
-const CACHE_NAME = 'encanto-acai-v1.7.0';
+const CACHE_NAME = 'encanto-acai-v1.8.0';
 const SHELL_ASSETS = [
     './',
     './index.html',
@@ -6,6 +6,7 @@ const SHELL_ASSETS = [
     './caixa.html',
     './cozinha.html',
     './admin.html',
+    './f/index.html',
     './manifest.webmanifest',
     './css/app.css',
     './assets/favicon.svg',
@@ -21,10 +22,19 @@ const SHELL_ASSETS = [
     './js/pwa.js',
 ];
 
+const CDN_HOSTS = [
+    'cdn.tailwindcss.com',
+    'cdnjs.cloudflare.com',
+    'fonts.googleapis.com',
+    'fonts.gstatic.com',
+];
+
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then((cache) => cache.addAll(SHELL_ASSETS))
+            .then((cache) => Promise.allSettled(
+                SHELL_ASSETS.map((asset) => cache.add(new Request(asset, { cache: 'reload' }))),
+            ))
             .then(() => self.skipWaiting()),
     );
 });
@@ -39,19 +49,50 @@ self.addEventListener('activate', (event) => {
     );
 });
 
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
+
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     if (request.method !== 'GET') return;
 
     const url = new URL(request.url);
-    if (url.hostname.includes('script.google.com') || url.hostname.includes('script.googleusercontent.com')) {
+
+    // Nunca cachear chamadas dinâmicas de API/Planilha
+    if (
+        url.hostname.includes('script.google.com')
+        || url.hostname.includes('script.googleusercontent.com')
+        || url.hostname.includes('docs.google.com')
+    ) {
         return;
     }
 
+    // Cacheia CDNs de estilo/fontes para manter o visual funcionando offline
     if (url.origin !== self.location.origin) {
+        if (!CDN_HOSTS.some((host) => url.hostname.includes(host))) {
+            return;
+        }
+        event.respondWith(
+            caches.match(request).then((cached) => {
+                const networkFetch = fetch(request)
+                    .then((response) => {
+                        if (response && (response.ok || response.type === 'opaque')) {
+                            const copy = response.clone();
+                            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+                        }
+                        return response;
+                    })
+                    .catch(() => cached);
+                return cached || networkFetch;
+            }),
+        );
         return;
     }
 
+    // Mesma origem: network-first com fallback para cache ignorando query string (?v=..., ?pedido=...)
     event.respondWith(
         fetch(request)
             .then((response) => {
@@ -61,6 +102,14 @@ self.addEventListener('fetch', (event) => {
                 }
                 return response;
             })
-            .catch(() => caches.match(request)),
+            .catch(async () => {
+                const cached = await caches.match(request, { ignoreSearch: true });
+                if (cached) return cached;
+                if (request.mode === 'navigate') {
+                    const fallback = await caches.match('./index.html');
+                    if (fallback) return fallback;
+                }
+                return new Response('Offline', { status: 503, statusText: 'Offline' });
+            }),
     );
 });

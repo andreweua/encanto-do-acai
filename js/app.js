@@ -331,12 +331,12 @@
                             }">
                                 ${selecionado ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
                             </span>
-                            <span class="font-semibold text-sm sm:text-base ${
-                                disponivel ? 'text-slate-700' : 'text-slate-400 line-through'
+                            <span class="font-semibold text-base sm:text-lg ${
+                                disponivel ? 'text-slate-800' : 'text-slate-400 line-through'
                             }">${escapeHtml(item.nome)}</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            ${badge || '<span class="text-xs font-bold text-acai-cyan uppercase">Grátis</span>'}
+                            ${badge || '<span class="text-xs sm:text-sm font-bold text-acai-cyan uppercase">Grátis</span>'}
                         </div>
                     </button>
                 </li>
@@ -383,13 +383,13 @@
                                 ${selecionado ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
                             </span>
                             <div class="flex flex-wrap items-center gap-2">
-                                <span class="font-bold text-sm sm:text-base ${
-                                    disponivel ? 'text-slate-700' : 'text-slate-400 line-through'
+                                <span class="font-bold text-base sm:text-lg ${
+                                    disponivel ? 'text-slate-800' : 'text-slate-400 line-through'
                                 }">${escapeHtml(item.nome)}</span>
                                 ${badge}
                             </div>
                         </div>
-                        <span class="shrink-0 font-bold px-3 py-1 rounded-full text-xs sm:text-sm ${
+                        <span class="shrink-0 font-bold px-3.5 py-1 rounded-full text-sm sm:text-base ${
                             disponivel
                                 ? 'bg-acai-dark text-white'
                                 : 'bg-slate-300 text-slate-600'
@@ -443,7 +443,7 @@
 
         if (itensPedido.length === 0) {
             el.resumoSacola.innerHTML = `
-                <div class="text-center py-6 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-slate-500 text-sm">
+                <div class="text-center py-6 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-slate-600 text-base">
                     <i class="fa-solid fa-ice-cream text-2xl text-acai-magenta/50 mb-2 block"></i>
                     Escolha um tamanho de copo acima para começar a montar o seu pedido.
                 </div>
@@ -461,34 +461,34 @@
 
             const titulo = copo ? `Copo ${copo.nome}` : 'Copo';
             const etiqueta = item.emMontagem
-                ? '<span class="bg-pink-100 text-acai-magenta text-[11px] font-bold px-2 py-0.5 rounded-full">Em montagem</span>'
-                : `<span class="bg-slate-200 text-slate-700 text-[11px] font-bold px-2 py-0.5 rounded-full">Item ${idx + 1}</span>`;
+                ? '<span class="bg-pink-100 text-acai-magenta text-xs font-bold px-2.5 py-0.5 rounded-full">Em montagem</span>'
+                : `<span class="bg-slate-200 text-slate-700 text-xs font-bold px-2.5 py-0.5 rounded-full">Item ${idx + 1}</span>`;
 
             const botaoRemover = item.emMontagem
-                ? `<button type="button" id="btn-limpar-montagem" class="text-xs font-semibold text-slate-500 hover:text-acai-magenta transition-colors">Limpar</button>`
-                : `<button type="button" data-remover-uid="${escapeHtml(item.uid)}" class="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors"><i class="fa-regular fa-trash-can mr-1"></i>Remover</button>`;
+                ? `<button type="button" id="btn-limpar-montagem" class="text-sm font-semibold text-slate-600 hover:text-acai-magenta transition-colors">Limpar</button>`
+                : `<button type="button" data-remover-uid="${escapeHtml(item.uid)}" class="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors"><i class="fa-regular fa-trash-can mr-1"></i>Remover</button>`;
 
             return `
                 <div class="p-4 rounded-2xl border ${item.emMontagem ? 'border-acai-magenta/40 bg-pink-50/40' : 'border-slate-200 bg-white'} space-y-1.5">
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-acai-dark">${escapeHtml(titulo)}</span>
+                            <span class="font-bold text-base sm:text-lg text-acai-dark">${escapeHtml(titulo)}</span>
                             ${etiqueta}
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="font-bold text-acai-magenta">${escapeHtml(formatarMoeda(subtotal))}</span>
+                            <span class="font-bold text-base sm:text-lg text-acai-magenta">${escapeHtml(formatarMoeda(subtotal))}</span>
                             ${botaoRemover}
                         </div>
                     </div>
-                    <p class="text-xs text-slate-600">
+                    <p class="text-sm text-slate-700">
                         <span class="font-semibold">Grátis:</span>
                         ${gratisNomes.length > 0 ? escapeHtml(gratisNomes.join(', ')) : 'Nenhum'}
                     </p>
-                    <p class="text-xs text-slate-600">
+                    <p class="text-sm text-slate-700">
                         <span class="font-semibold">Pagos:</span>
                         ${pagosItens.length > 0 ? escapeHtml(pagosItens.map((p) => `${p.nome} (${formatarMoeda(p.preco)})`).join(', ')) : 'Nenhum'}
                     </p>
-                    ${item.observacao ? `<p class="text-xs text-slate-600"><span class="font-semibold">Obs:</span> ${escapeHtml(item.observacao)}</p>` : ''}
+                    ${item.observacao ? `<p class="text-sm text-slate-700"><span class="font-semibold">Obs:</span> ${escapeHtml(item.observacao)}</p>` : ''}
                 </div>
             `;
         }).join('');

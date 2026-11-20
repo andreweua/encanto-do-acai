@@ -6,10 +6,14 @@
     <title>Admin Estoque | Encanto do Açaí</title>
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#380B4E">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Encanto Açaí">
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="apple-touch-icon" href="./assets/icon-192.png">
     <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
-    <link rel="stylesheet" href="./css/app.css?v=1.6.0">
+    <link rel="stylesheet" href="./css/app.css?v=1.8.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,9 +53,9 @@
                 <span class="font-display text-xl sm:text-2xl tracking-wide">
                     ENCANTO <span class="font-script text-acai-yellow font-normal lowercase">do Açaí</span>
                 </span>
-                <span class="bg-acai-magenta text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
+                <span class="bg-acai-magenta text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Admin</span>
             </div>
-            <nav class="flex flex-wrap items-center gap-2 text-xs font-bold">
+            <nav class="flex flex-wrap items-center gap-2 text-sm font-bold">
                 <a href="./admin.html" class="px-3.5 py-2 rounded-full bg-acai-magenta text-white">Estoque</a>
                 <a href="./caixa.html" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">Caixa</a>
                 <a href="./cozinha.html" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">Cozinha</a>
@@ -67,35 +71,35 @@
         <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-slate-200 space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 class="font-display text-2xl text-acai-dark tracking-wide">CONTROLE DE ESTOQUE</h1>
-                    <p class="text-xs sm:text-sm text-slate-500">Ajuste quantidades, pause sabores esgotados e envie direto para o Google Sheets.</p>
+                    <h1 class="font-display text-2xl sm:text-3xl text-acai-dark tracking-wide">CONTROLE DE ESTOQUE</h1>
+                    <p class="text-sm sm:text-base text-slate-600">Ajuste quantidades, pause sabores esgotados e envie direto para o Google Sheets.</p>
                 </div>
-                <span id="admin-status-conexao" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600">
+                <span id="admin-status-conexao" class="text-sm font-semibold px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600">
                     Carregando...
                 </span>
             </div>
 
             <div class="grid md:grid-cols-12 gap-3 items-end">
                 <div class="md:col-span-7">
-                    <label for="admin-script-url" class="block text-xs font-bold text-slate-600 mb-1">
+                    <label for="admin-script-url" class="block text-sm font-bold text-slate-700 mb-1">
                         URL do Web App (Google Apps Script)
                     </label>
                     <input
                         id="admin-script-url"
                         type="url"
                         placeholder="https://script.google.com/macros/s/.../exec"
-                        class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-acai-magenta"
+                        class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-acai-magenta"
                     >
                 </div>
                 <div class="md:col-span-5">
-                    <label for="admin-pin" class="block text-xs font-bold text-slate-600 mb-1">
+                    <label for="admin-pin" class="block text-sm font-bold text-slate-700 mb-1">
                         PIN de Administrador
                     </label>
                     <input
                         id="admin-pin"
                         type="password"
                         placeholder="PIN configurado no Code.gs"
-                        class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-acai-magenta"
+                        class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-acai-magenta"
                     >
                 </div>
             </div>
@@ -104,7 +108,7 @@
                 <button
                     id="btn-salvar-planilha"
                     type="button"
-                    class="inline-flex items-center gap-2 bg-acai-magenta hover:bg-pink-600 text-white font-bold px-6 py-3 rounded-full text-sm shadow-md transition-transform hover:scale-[1.02] cursor-pointer"
+                    class="inline-flex items-center gap-2 bg-acai-magenta hover:bg-pink-600 text-white font-bold px-6 py-3 rounded-full text-base shadow-md transition-transform hover:scale-[1.02] cursor-pointer"
                 >
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                     Enviar para Planilha
@@ -112,7 +116,7 @@
                 <button
                     id="btn-carregar-planilha"
                     type="button"
-                    class="inline-flex items-center gap-2 bg-acai-dark hover:bg-purple-950 text-white font-bold px-5 py-3 rounded-full text-sm transition-colors cursor-pointer"
+                    class="inline-flex items-center gap-2 bg-acai-dark hover:bg-purple-950 text-white font-bold px-5 py-3 rounded-full text-base transition-colors cursor-pointer"
                 >
                     <i class="fa-solid fa-rotate-right"></i>
                     Carregar da Planilha
@@ -120,14 +124,14 @@
                 <button
                     id="btn-baixar-csv"
                     type="button"
-                    class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-3 rounded-full text-sm transition-colors cursor-pointer"
+                    class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-3 rounded-full text-base transition-colors cursor-pointer"
                 >
                     <i class="fa-solid fa-file-csv text-acai-cyan"></i>
                     Baixar CSV
                 </button>
             </div>
 
-            <details class="rounded-2xl bg-purple-50/70 border border-acai-dark/15 p-4 text-xs sm:text-sm text-slate-700">
+            <details class="rounded-2xl bg-purple-50/70 border border-acai-dark/15 p-4 text-sm sm:text-base text-slate-700">
                 <summary class="font-bold text-acai-dark cursor-pointer">
                     Primeira configuração (sem precisar importar CSV manualmente)
                 </summary>
@@ -147,16 +151,16 @@
                 <div>
                     <div class="flex items-center gap-2.5 flex-wrap">
                         <h2 class="font-display text-2xl tracking-wide text-acai-yellow">ESTOQUE DE AÇAÍ (LITROS)</h2>
-                        <span id="acai-badge-status" class="text-xs font-bold px-3 py-0.5 rounded-full bg-emerald-500 text-white">Disponível</span>
+                        <span id="acai-badge-status" class="text-sm font-bold px-3 py-0.5 rounded-full bg-emerald-500 text-white">Disponível</span>
                     </div>
-                    <p class="text-xs sm:text-sm text-purple-200 mt-1">
+                    <p class="text-sm sm:text-base text-purple-200 mt-1">
                         Os tamanhos de copo (200 ml a 700 ml) ficam disponíveis ou indisponíveis conforme os litros restantes.
                     </p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2.5">
-                    <button id="btn-acai-menos-1" type="button" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold cursor-pointer">-1 L</button>
-                    <button id="btn-acai-menos-meio" type="button" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold cursor-pointer">-0,5 L</button>
+                    <button id="btn-acai-menos-1" type="button" class="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-base font-bold cursor-pointer">-1 L</button>
+                    <button id="btn-acai-menos-meio" type="button" class="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-base font-bold cursor-pointer">-0,5 L</button>
                     <div class="flex items-center bg-white rounded-xl px-3 py-1.5 text-acai-dark">
                         <input
                             id="input-acai-litros"
@@ -166,53 +170,53 @@
                             value="10"
                             class="w-16 text-center font-display text-xl focus:outline-none"
                         >
-                        <span class="text-xs font-bold uppercase text-slate-500 ml-1">L</span>
+                        <span class="text-sm font-bold uppercase text-slate-500 ml-1">L</span>
                     </div>
-                    <button id="btn-acai-mais-meio" type="button" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold cursor-pointer">+0,5 L</button>
-                    <button id="btn-acai-mais-1" type="button" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold cursor-pointer">+1 L</button>
-                    <button id="btn-acai-ativo" type="button" class="px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold cursor-pointer">Ativo</button>
+                    <button id="btn-acai-mais-meio" type="button" class="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-base font-bold cursor-pointer">+0,5 L</button>
+                    <button id="btn-acai-mais-1" type="button" class="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-base font-bold cursor-pointer">+1 L</button>
+                    <button id="btn-acai-ativo" type="button" class="px-4 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold cursor-pointer">Ativo</button>
                 </div>
             </div>
 
             <div class="rounded-2xl bg-black/25 border border-white/10 px-4 py-3">
-                <span class="text-[11px] uppercase tracking-wider font-bold text-acai-yellow block mb-1">Rendimento equivalente por tamanho:</span>
-                <p id="acai-equivalencia-copos" class="text-xs sm:text-sm text-purple-100 font-medium"></p>
+                <span class="text-xs uppercase tracking-wider font-bold text-acai-yellow block mb-1">Rendimento equivalente por tamanho:</span>
+                <p id="acai-equivalencia-copos" class="text-sm sm:text-base text-purple-100 font-medium"></p>
             </div>
         </section>
 
         <!-- Resumo rápido -->
         <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-                <span class="text-xs font-semibold text-slate-500 block">Total de itens</span>
-                <span id="kpi-total" class="font-display text-2xl text-acai-dark">0</span>
+                <span class="text-sm font-semibold text-slate-600 block">Total de itens</span>
+                <span id="kpi-total" class="font-display text-2xl sm:text-3xl text-acai-dark">0</span>
             </div>
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-                <span class="text-xs font-semibold text-emerald-700 block">Disponíveis</span>
-                <span id="kpi-disponiveis" class="font-display text-2xl text-emerald-600">0</span>
+                <span class="text-sm font-semibold text-emerald-700 block">Disponíveis</span>
+                <span id="kpi-disponiveis" class="font-display text-2xl sm:text-3xl text-emerald-600">0</span>
             </div>
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-                <span class="text-xs font-semibold text-red-700 block">Indisponíveis</span>
-                <span id="kpi-indisponiveis" class="font-display text-2xl text-red-600">0</span>
+                <span class="text-sm font-semibold text-red-700 block">Indisponíveis</span>
+                <span id="kpi-indisponiveis" class="font-display text-2xl sm:text-3xl text-red-600">0</span>
             </div>
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-                <span class="text-xs font-semibold text-amber-700 block">Estoque baixo</span>
-                <span id="kpi-baixo" class="font-display text-2xl text-amber-600">0</span>
+                <span class="text-sm font-semibold text-amber-700 block">Estoque baixo</span>
+                <span id="kpi-baixo" class="font-display text-2xl sm:text-3xl text-amber-600">0</span>
             </div>
         </section>
 
         <!-- Filtros e Busca -->
         <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2">
-                <button type="button" data-filtro-status="todos" class="px-4 py-2 rounded-full text-xs font-bold bg-acai-dark text-white cursor-pointer">Todos</button>
-                <button type="button" data-filtro-status="disponiveis" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Disponíveis</button>
-                <button type="button" data-filtro-status="indisponiveis" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Indisponíveis</button>
-                <button type="button" data-filtro-status="baixo" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Estoque baixo</button>
+                <button type="button" data-filtro-status="todos" class="px-4 py-2 rounded-full text-sm font-bold bg-acai-dark text-white cursor-pointer">Todos</button>
+                <button type="button" data-filtro-status="disponiveis" class="px-4 py-2 rounded-full text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Disponíveis</button>
+                <button type="button" data-filtro-status="indisponiveis" class="px-4 py-2 rounded-full text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Indisponíveis</button>
+                <button type="button" data-filtro-status="baixo" class="px-4 py-2 rounded-full text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Estoque baixo</button>
             </div>
             <input
                 id="admin-busca"
                 type="search"
                 placeholder="Buscar produto..."
-                class="sm:w-64 rounded-full border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-acai-magenta"
+                class="sm:w-64 rounded-full border border-slate-300 px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-acai-magenta"
             >
         </section>
 
@@ -221,30 +225,30 @@
 
         <!-- Adicionar Novo Produto -->
         <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-slate-200">
-            <h2 class="font-display text-xl text-acai-dark mb-4">ADICIONAR NOVO ITEM</h2>
+            <h2 class="font-display text-xl sm:text-2xl text-acai-dark mb-4">ADICIONAR NOVO ITEM</h2>
             <form id="form-novo-item" class="grid sm:grid-cols-12 gap-3 items-end">
                 <div class="sm:col-span-3">
-                    <label for="novo-categoria" class="block text-xs font-bold text-slate-600 mb-1">Categoria</label>
-                    <select id="novo-categoria" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm bg-white">
+                    <label for="novo-categoria" class="block text-sm font-bold text-slate-700 mb-1">Categoria</label>
+                    <select id="novo-categoria" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base bg-white">
                         <option value="copo">Copo</option>
                         <option value="adicional_gratis">Adicional Grátis</option>
                         <option value="adicional_pago" selected>Adicional Pago</option>
                     </select>
                 </div>
                 <div class="sm:col-span-4">
-                    <label for="novo-nome" class="block text-xs font-bold text-slate-600 mb-1">Nome</label>
-                    <input id="novo-nome" type="text" placeholder="Ex.: KitKat" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="novo-nome" class="block text-sm font-bold text-slate-700 mb-1">Nome</label>
+                    <input id="novo-nome" type="text" placeholder="Ex.: KitKat" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div class="sm:col-span-2">
-                    <label for="novo-preco" class="block text-xs font-bold text-slate-600 mb-1">Preço (R$)</label>
-                    <input id="novo-preco" type="number" step="0.50" min="0" placeholder="4.00" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="novo-preco" class="block text-sm font-bold text-slate-700 mb-1">Preço (R$)</label>
+                    <input id="novo-preco" type="number" step="0.50" min="0" placeholder="4.00" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div class="sm:col-span-1">
-                    <label for="novo-estoque" class="block text-xs font-bold text-slate-600 mb-1">Qtd</label>
-                    <input id="novo-estoque" type="number" min="0" value="15" class="w-full rounded-xl border border-slate-300 px-2.5 py-2.5 text-sm">
+                    <label for="novo-estoque" class="block text-sm font-bold text-slate-700 mb-1">Qtd</label>
+                    <input id="novo-estoque" type="number" min="0" value="15" class="w-full rounded-xl border border-slate-300 px-2.5 py-2.5 text-base">
                 </div>
                 <div class="sm:col-span-2">
-                    <button type="submit" class="w-full bg-acai-cyan hover:bg-teal-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-colors cursor-pointer">
+                    <button type="submit" class="w-full bg-acai-cyan hover:bg-teal-600 text-white font-bold px-4 py-2.5 rounded-xl text-base transition-colors cursor-pointer">
                         <i class="fa-solid fa-plus mr-1"></i> Adicionar
                     </button>
                 </div>
@@ -255,45 +259,45 @@
         <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-slate-200 space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                    <h2 class="font-display text-xl text-acai-dark">DADOS DA EMPRESA &amp; PIX</h2>
-                    <p class="text-xs text-slate-500">Salvos na aba <code class="bg-slate-100 px-1.5 py-0.5 rounded">Empresa</code> da planilha para o cardápio e cobrança PIX no Caixa.</p>
+                    <h2 class="font-display text-xl sm:text-2xl text-acai-dark">DADOS DA EMPRESA &amp; PIX</h2>
+                    <p class="text-sm text-slate-600">Salvos na aba <code class="bg-slate-100 px-1.5 py-0.5 rounded">Empresa</code> da planilha para o cardápio e cobrança PIX no Caixa.</p>
                 </div>
             </div>
-            <form id="form-dados-empresa" class="grid sm:grid-cols-2 gap-3 text-sm">
+            <form id="form-dados-empresa" class="grid sm:grid-cols-2 gap-3 text-base">
                 <div>
-                    <label for="empresa-nome" class="block text-xs font-bold text-slate-600 mb-1">Nome da Loja</label>
-                    <input id="empresa-nome" type="text" placeholder="Encanto do Açaí" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="empresa-nome" class="block text-sm font-bold text-slate-700 mb-1">Nome da Loja</label>
+                    <input id="empresa-nome" type="text" placeholder="Encanto do Açaí" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div>
-                    <label for="empresa-whatsapp" class="block text-xs font-bold text-slate-600 mb-1">WhatsApp da Loja (com DDI 55)</label>
-                    <input id="empresa-whatsapp" type="tel" placeholder="5535997147481" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="empresa-whatsapp" class="block text-sm font-bold text-slate-700 mb-1">WhatsApp da Loja (com DDI 55)</label>
+                    <input id="empresa-whatsapp" type="tel" placeholder="5535997147481" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div>
-                    <label for="empresa-horario" class="block text-xs font-bold text-slate-600 mb-1">Horário de Funcionamento</label>
-                    <input id="empresa-horario" type="text" placeholder="Aberto a partir das 16:40" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="empresa-horario" class="block text-sm font-bold text-slate-700 mb-1">Horário de Funcionamento</label>
+                    <input id="empresa-horario" type="text" placeholder="Aberto a partir das 16:40" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div>
-                    <label for="empresa-endereco" class="block text-xs font-bold text-slate-600 mb-1">Endereço da Loja</label>
-                    <input id="empresa-endereco" type="text" placeholder="Rua, número, bairro, cidade" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="empresa-endereco" class="block text-sm font-bold text-slate-700 mb-1">Endereço da Loja</label>
+                    <input id="empresa-endereco" type="text" placeholder="Rua, número, bairro, cidade" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div class="sm:col-span-2">
-                    <label for="empresa-maps" class="block text-xs font-bold text-slate-600 mb-1">Link Google Maps</label>
-                    <input id="empresa-maps" type="url" placeholder="https://maps.google.com/..." class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="empresa-maps" class="block text-sm font-bold text-slate-700 mb-1">Link Google Maps</label>
+                    <input id="empresa-maps" type="url" placeholder="https://maps.google.com/..." class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div>
-                    <label for="empresa-pix-chave" class="block text-xs font-bold text-slate-600 mb-1">Chave PIX (CPF, CNPJ, E-mail, +55... ou Aleatória)</label>
-                    <input id="empresa-pix-chave" type="text" placeholder="Sua chave PIX para cobrança" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="empresa-pix-chave" class="block text-sm font-bold text-slate-700 mb-1">Chave PIX (CPF, CNPJ, E-mail, +55... ou Aleatória)</label>
+                    <input id="empresa-pix-chave" type="text" placeholder="Sua chave PIX para cobrança" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div>
-                    <label for="empresa-pix-titular" class="block text-xs font-bold text-slate-600 mb-1">Titular / Recebedor PIX (até 25 caracteres)</label>
-                    <input id="empresa-pix-titular" type="text" maxlength="25" placeholder="ENCANTO DO ACAI" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="empresa-pix-titular" class="block text-sm font-bold text-slate-700 mb-1">Titular / Recebedor PIX (até 25 caracteres)</label>
+                    <input id="empresa-pix-titular" type="text" maxlength="25" placeholder="ENCANTO DO ACAI" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div>
-                    <label for="empresa-pix-cidade" class="block text-xs font-bold text-slate-600 mb-1">Cidade do Recebedor PIX (até 15 caracteres)</label>
-                    <input id="empresa-pix-cidade" type="text" maxlength="15" placeholder="SAO PAULO" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                    <label for="empresa-pix-cidade" class="block text-sm font-bold text-slate-700 mb-1">Cidade do Recebedor PIX (até 15 caracteres)</label>
+                    <input id="empresa-pix-cidade" type="text" maxlength="15" placeholder="SAO PAULO" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-base">
                 </div>
                 <div class="flex items-end">
-                    <button id="btn-salvar-empresa" type="submit" class="w-full bg-acai-dark hover:bg-purple-950 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-colors cursor-pointer">
+                    <button id="btn-salvar-empresa" type="submit" class="w-full bg-acai-dark hover:bg-purple-950 text-white font-bold px-5 py-2.5 rounded-xl text-base transition-colors cursor-pointer">
                         <i class="fa-solid fa-building-circle-check mr-1"></i> Salvar Dados da Empresa
                     </button>
                 </div>
@@ -304,14 +308,14 @@
         <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-slate-200 space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h2 class="font-display text-xl text-acai-dark">PEDIDOS RECENTES (EDITAR / CANCELAR)</h2>
-                    <p class="text-xs text-slate-500">Informe o PIN acima e clique em Carregar Pedidos para editar itens ou cancelar com estorno automático.</p>
+                    <h2 class="font-display text-xl sm:text-2xl text-acai-dark">PEDIDOS RECENTES (EDITAR / CANCELAR)</h2>
+                    <p class="text-sm text-slate-600">Informe o PIN acima e clique em Carregar Pedidos para editar itens ou cancelar com estorno automático.</p>
                 </div>
-                <button id="btn-admin-carregar-pedidos" type="button" class="bg-acai-magenta hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-full text-xs cursor-pointer">
+                <button id="btn-admin-carregar-pedidos" type="button" class="bg-acai-magenta hover:bg-pink-600 text-white font-bold px-5 py-2.5 rounded-full text-sm cursor-pointer">
                     <i class="fa-solid fa-rotate-right mr-1"></i> Carregar Pedidos
                 </button>
             </div>
-            <div id="admin-lista-pedidos" class="grid md:grid-cols-2 gap-3 text-xs text-slate-500">
+            <div id="admin-lista-pedidos" class="grid md:grid-cols-2 gap-3 text-sm text-slate-600">
                 Clique em <strong>Carregar Pedidos</strong> (com o PIN preenchido) para visualizar e editar/cancelar pedidos.
             </div>
         </section>
@@ -320,11 +324,11 @@
 
     <!-- Footer PereiraLabs -->
     <footer class="bg-slate-900 text-slate-400 py-5 px-4 mt-8">
-        <p class="text-[10px] text-slate-500 text-center">
+        <p class="text-xs text-slate-400 text-center">
             Desenvolvido por:
-            <a href="https://github.com/andreweua" target="_blank" rel="noopener noreferrer" class="hover:text-gold-400 text-slate-400 transition font-medium">PereiraLabs - Divisão de Tecnologia e IA</a> |
-            <span class="text-slate-400 font-medium">Louzada &amp; Pereira - Soluções Digitais</span>.
-            <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-[10px] text-slate-500 hover:underline ml-1">v1.6.0</a>
+            <a href="https://github.com/andreweua" target="_blank" rel="noopener noreferrer" class="hover:text-gold-400 text-slate-300 transition font-medium">PereiraLabs - Divisão de Tecnologia e IA</a> |
+            <span class="text-slate-300 font-medium">Louzada &amp; Pereira - Soluções Digitais</span>.
+            <a href="./CHANGELOG.md" target="_blank" class="hover:text-gold-400 font-mono text-xs text-slate-400 hover:underline ml-1">v1.8.0</a>
         </p>
     </footer>
 
@@ -332,14 +336,14 @@
     <div
         id="admin-toast"
         aria-live="polite"
-        class="fixed bottom-6 right-6 z-50 max-w-xs bg-acai-dark text-white text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300"
+        class="fixed bottom-6 right-6 z-50 max-w-xs bg-acai-dark text-white text-base font-semibold px-4 py-3 rounded-2xl shadow-xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300"
     ></div>
 
-    <script src="./js/config.js?v=1.7.0"></script>
-    <script src="./js/estoque.js?v=1.7.0"></script>
-    <script src="./js/pix.js?v=1.7.0"></script>
-    <script src="./js/pedidos-painel.js?v=1.7.0"></script>
-    <script src="./js/admin.js?v=1.7.0"></script>
-    <script src="./js/pwa.js?v=1.7.0"></script>
+    <script src="./js/config.js?v=1.8.0"></script>
+    <script src="./js/estoque.js?v=1.8.0"></script>
+    <script src="./js/pix.js?v=1.8.0"></script>
+    <script src="./js/pedidos-painel.js?v=1.8.0"></script>
+    <script src="./js/admin.js?v=1.8.0"></script>
+    <script src="./js/pwa.js?v=1.8.0"></script>
 </body>
 </html>
