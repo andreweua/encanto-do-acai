@@ -5,6 +5,11 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.8.5] - 2026-11-20
+
+### Alterado
+- **Ampliação do pop-up e fontes de instalação do PWA (`js/pwa.js`):** Aumentada a largura e o espaçamento do modal (`max-width: 520px`), ícone (`84px`), título (`2.1rem`), descrição (`1.2rem`), lista de benefícios (`1.12rem`), botões (`1.15rem`–`1.25rem`) e pílula discreta (`1.05rem`).
+
 ## [1.8.4] - 2026-11-20
 
 ### Alterado
