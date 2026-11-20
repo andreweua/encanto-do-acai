@@ -5,6 +5,11 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.8.7] - 2026-11-20
+
+### Alterado
+- **Acompanhamento de Pedido e Fila (`acompanhar.html`, `js/acompanhar.js`, `apps-script/Code.gs`):** Para o cliente, mantidos os cards **"Acompanhar Pedido e Fila"** e **"Seu Pedido"**, calculando a posição exclusivamente pelos pedidos anteriores ao do cliente que estão em preparo (`Em Preparo`) ou aguardando aprovação (`Aguardando Caixa`). A listagem geral da fila de pedidos fica restrita à visão administrativa.
+
 ## [1.8.6] - 2026-11-20
 
 ### Alterado

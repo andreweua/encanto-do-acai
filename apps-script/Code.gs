@@ -281,7 +281,7 @@ function ajustarEstoquePorItens(ss, itens, direcao) {
 
 function calcularFilaPublica(pedidos, numeroAlvo) {
   const statusNaFila = ['Aguardando Caixa', 'Em Preparo'];
-  const ativos = pedidos.filter((p) => ['Aguardando Caixa', 'Em Preparo', 'Pronto'].indexOf(p.status) >= 0);
+  const ativos = pedidos.filter((p) => statusNaFila.indexOf(p.status) >= 0);
 
   const fila = ativos.map((p) => ({
     numero: p.numero,

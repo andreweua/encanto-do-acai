@@ -4,10 +4,19 @@
 (() => {
     const config = window.ENCANTO_CONFIG;
     const STORAGE_ULTIMO_PEDIDO = 'encanto_ultimo_pedido';
+    const SESSION_PIN_KEY = 'encanto_admin_pin_sessao';
 
     const el = {};
     let numeroAtual = '';
     let timerAuto = null;
+
+    function isModoAdmin() {
+        try {
+            return Boolean((sessionStorage.getItem(SESSION_PIN_KEY) || '').trim());
+        } catch {
+            return false;
+        }
+    }
 
     function mapearElementos() {
         el.formBusca = document.getElementById('form-buscar-pedido');
@@ -15,6 +24,7 @@
         el.btnAtualizar = document.getElementById('btn-atualizar-fila');
         el.statusSync = document.getElementById('fila-status-sync');
         el.resultadoPedido = document.getElementById('resultado-meu-pedido');
+        el.secaoFila = document.getElementById('secao-fila-ao-vivo');
         el.listaFila = document.getElementById('lista-fila-ao-vivo');
     }
 
@@ -34,7 +44,21 @@
         });
     }
 
-    function renderMeuPedido(pedido) {
+    function obterAnterioresNaFila(fila, numeroPedido) {
+        const statusEmFila = ['Aguardando Caixa', 'Em Preparo'];
+        const filaPreparo = (Array.isArray(fila) ? fila : []).filter(
+            (item) => statusEmFila.includes(item.status),
+        );
+        if (!numeroPedido) return filaPreparo;
+
+        const idxCliente = filaPreparo.findIndex((item) => item.numero === numeroPedido);
+        if (idxCliente >= 0) {
+            return filaPreparo.slice(0, idxCliente);
+        }
+        return [];
+    }
+
+    function renderMeuPedido(pedido, fila = []) {
         if (!numeroAtual) {
             el.resultadoPedido.innerHTML = `
                 <div class="bg-white rounded-3xl p-6 border border-slate-200 text-center text-base text-slate-600">
@@ -57,6 +81,12 @@
         const indiceAtual = etapas.indexOf(pedido.status);
         const cancelado = pedido.status === 'Cancelado';
 
+        const anteriores = obterAnterioresNaFila(fila, pedido.numero);
+        const qtdNaFrente = Array.isArray(fila) && fila.length > 0
+            ? anteriores.length
+            : Number(pedido.pedidosNaFrente || 0);
+        const posicao = qtdNaFrente + 1;
+
         let textoFila = '';
         if (cancelado) {
             textoFila = 'Pedido cancelado.';
@@ -66,10 +96,10 @@
                 : 'Seu açaí está PRONTO para retirada!';
         } else if (pedido.status === 'Concluído') {
             textoFila = 'Pedido entregue/finalizado. Obrigado!';
-        } else if (pedido.pedidosNaFrente === 0) {
-            textoFila = 'Você é o próximo da fila!';
+        } else if (qtdNaFrente === 0) {
+            textoFila = 'Você é o próximo da fila! Nenhum pedido anterior aguardando aprovação ou em preparo.';
         } else {
-            textoFila = `${pedido.pedidosNaFrente} ${pedido.pedidosNaFrente === 1 ? 'pedido' : 'pedidos'} na sua frente (posição ${pedido.posicaoFila} da fila).`;
+            textoFila = `${qtdNaFrente} ${qtdNaFrente === 1 ? 'pedido anterior' : 'pedidos anteriores'} na sua frente (em preparo ou aguardando aprovação) • Posição ${posicao}º da fila.`;
         }
 
         const passosHtml = cancelado
@@ -129,24 +159,38 @@
     }
 
     function renderFila(fila) {
-        if (!Array.isArray(fila) || fila.length === 0) {
-            el.listaFila.innerHTML = '<p class="text-base text-slate-500 text-center py-6">Nenhum pedido ativo na fila neste momento.</p>';
+        if (!el.secaoFila || !el.listaFila) return;
+
+        // A listagem da fila de pedidos fica visível somente para a parte administrativa
+        if (!isModoAdmin()) {
+            el.secaoFila.classList.add('hidden');
+            el.listaFila.innerHTML = '';
+            return;
+        }
+
+        el.secaoFila.classList.remove('hidden');
+
+        const filaAtiva = (Array.isArray(fila) ? fila : []).filter(
+            (item) => item.status === 'Aguardando Caixa' || item.status === 'Em Preparo',
+        );
+
+        if (filaAtiva.length === 0) {
+            el.listaFila.innerHTML = '<p class="text-base text-slate-500 text-center py-6">Nenhum pedido aguardando aprovação ou em preparo neste momento.</p>';
             return;
         }
 
         const badgeMap = {
             'Aguardando Caixa': 'bg-amber-100 text-amber-800',
             'Em Preparo': 'bg-blue-100 text-blue-800',
-            'Pronto': 'bg-emerald-100 text-emerald-800',
         };
 
-        el.listaFila.innerHTML = fila.map((item) => {
+        el.listaFila.innerHTML = filaAtiva.map((item, idx) => {
             const meu = numeroAtual && item.numero === numeroAtual;
             return `
                 <div class="flex items-center justify-between gap-3 p-4 rounded-2xl border ${meu ? 'border-acai-magenta bg-pink-50/60' : 'border-slate-200 bg-white'}">
                     <div>
-                        <span class="font-display text-lg text-acai-dark">#${escapeHtml(item.numero)}</span>
-                        ${meu ? '<span class="ml-2 text-xs font-bold bg-acai-magenta text-white px-2.5 py-0.5 rounded-full">SEU</span>' : ''}
+                        <span class="font-display text-lg text-acai-dark">${idx + 1}º • #${escapeHtml(item.numero)}</span>
+                        ${meu ? '<span class="ml-2 text-xs font-bold bg-acai-magenta text-white px-2.5 py-0.5 rounded-full">CONSULTADO</span>' : ''}
                         <span class="text-sm text-slate-500 block">${escapeHtml(item.tipoEntrega)} • ${escapeHtml(item.dataHora)}</span>
                     </div>
                     <span class="text-sm font-bold px-3.5 py-1.5 rounded-full ${badgeMap[item.status] || 'bg-slate-100 text-slate-600'}">
@@ -178,7 +222,7 @@
                 throw new Error((json && json.error) || 'Erro ao consultar fila');
             }
 
-            renderMeuPedido(json.pedido);
+            renderMeuPedido(json.pedido, json.fila);
             renderFila(json.fila);
 
             const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
