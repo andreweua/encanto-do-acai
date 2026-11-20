@@ -497,14 +497,29 @@
             return;
         }
 
+        const nomeLoja = empresa.nomeLoja || 'Encanto do Açaí';
+        const favorecido = String(empresa.pixTitular || '').trim();
+        const uva = '\u{1F347}';
+        const separador = '━━━━━━━━━━━━━━━━━━';
         const textoWa = [
-            `Olá, ${pedido.clienteNome || 'cliente'}! 🍇`,
-            `Segue o *PIX Copia e Cola* do seu pedido *#${pedido.numero}* no *${empresa.nomeLoja || 'Encanto do Açaí'}*:`,
-            `Valor: *${formatarMoeda(pedido.total)}*`,
+            `*${nomeLoja.toUpperCase()}* ${uva}`,
+            '*PAGAMENTO VIA PIX*',
+            separador,
+            `Olá, ${pedido.clienteNome || 'cliente'}! Segue o Pix do seu pedido:`,
             '',
-            codigoPix,
-            '',
-            'Basta copiar o código acima e colar na opção *Pix Copia e Cola* do aplicativo do seu banco.',
+            `*Pedido:* #${pedido.numero}`,
+            `*Valor:* ${formatarMoeda(pedido.total)}`,
+            ...(favorecido ? [`*Favorecido:* ${favorecido}`] : []),
+            separador,
+            '*COMO PAGAR*',
+            '1) Copie o código do quadro abaixo (toque e segure sobre ele e escolha *Copiar*).',
+            '2) No app do seu banco, abra *Pix* e escolha *Pix Copia e Cola*.',
+            '3) Cole o código, confira o valor e confirme o pagamento.',
+            separador,
+            '*CÓDIGO PIX COPIA E COLA*',
+            '```' + codigoPix + '```',
+            separador,
+            `Após pagar, é só nos avisar por aqui. Obrigado pela preferência! ${uva}`,
         ].join('\n');
         const linkWa = montarUrlWhatsapp(pedido.clienteWhatsapp, textoWa);
 

@@ -5,6 +5,11 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.8.8] - 2026-11-20
+
+### Alterado
+- **Mensagem do PIX Copia e Cola enviada ao cliente (`js/pedidos-painel.js`):** Layout organizado com cabeçalho da loja, separadores, pedido/valor/favorecido, passo a passo de pagamento e o código em bloco monoespaçado (fácil de selecionar e copiar). Emojis passaram a usar escape Unicode para não quebrar (`�`) em nenhum aparelho.
+
 ## [1.8.7] - 2026-11-20
 
 ### Alterado
