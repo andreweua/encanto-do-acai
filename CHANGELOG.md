@@ -5,6 +5,11 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.8.4] - 2026-11-20
+
+### Alterado
+- **Fluxo de instalação do PWA (`js/pwa.js`):** Exibição inicial em pop-up centralizado maior com ícone e benefícios do app; ao tocar em "OK, deixar para depois" (ou fechar), recolhe para uma pílula discreta ("📲 Baixar App") no canto inferior. Relembra periodicamente (a cada 36h ou 4 acessos) caso o PWA ainda não tenha sido instalado, com opção permanente de **"Não lembrar novamente"**.
+
 ## [1.8.3] - 2026-11-20
 
 ### Corrigido
